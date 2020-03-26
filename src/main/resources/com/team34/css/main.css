@@ -1,11 +1,13 @@
 .root {
-    -fx-background-color: #3e3e3e;
+    -fx-background-color: #EEEEEE;
 }
 
 .label {
-    -fx-text-fill: #e3e3e3;
+    -fx-text-fill: #151515;
 }
 
+/*
 .button:hover {
     -fx-background-color: red;
 }
+*/
