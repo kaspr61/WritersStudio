@@ -1,13 +1,53 @@
+/*** Color palette ***/
+* {
+
+    /*** Main colors ***/
+    -color-main-background: #eeeeee;
+    -color-text-primary: #151515;
+
+    /*** Timeline colors ***/
+    -color-timeline-event-rect: #aeccfc; // the color of event rectangles in the timeline
+    -color-timeline-line: #252525; // the color of all lines (and borders) in the timeline
+
+    /*** Miscellaneous ***/
+    -color-tooltip-background: #dcdcdc;
+    -effect-dropshadow: dropshadow(gaussian, #00000077, 7, 0.2, 4, 5 );
+
+}
+/********************/
+
 .root {
-    -fx-background-color: #EEEEEE;
+    -fx-background-color: -color-main-background;
 }
 
 .label {
-    -fx-text-fill: #151515;
+    -fx-text-fill: -color-text-primary;
 }
 
-/*
-.button:hover {
-    -fx-background-color: red;
+/*** Timeline ***/
+.timeline-line {
+    -fx-stroke: -color-timeline-line;
+    -fx-stroke-width: 1;
 }
-*/
+
+.timeline-event-rect {
+    -fx-fill: -color-timeline-event-rect;
+    -fx-stroke: -color-timeline-line;
+    -fx-stroke-width: 1;
+    -fx-stroke-line-cap: round;
+    -fx-effect: -effect-dropshadow;
+}
+
+.timeline-event-rect:hover {
+    -fx-fill: derive(-color-timeline-event-rect, 25%); // Adds <value>% brightness
+    -fx-stroke: derive(-color-timeline-event-rect, -25%);
+}
+
+.timeline-tooltip {
+    -fx-background-color: -color-tooltip-background;
+    -fx-background-radius: 0 0 0 0;
+    -fx-text-fill: -color-text-primary;
+    -fx-effect: -effect-dropshadow;
+}
+
+/***************
