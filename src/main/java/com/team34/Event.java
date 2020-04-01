@@ -1,5 +1,9 @@
 package com.team34;
 
+/**
+ * @author Jim Andersson
+ */
+
 public class Event {
 
     private String eventName = "";
