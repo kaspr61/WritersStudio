@@ -10,7 +10,7 @@ import javafx.util.Duration;
 
 public class EventRectangle {
 
-    private static final double TOOLTIP_SHOW_DELAY_MS = 500;
+    private static final double TOOLTIP_SHOW_DELAY_MS = 500.0;
     protected static final double DEFAULT_WIDTH = 80.0;
     protected static final double DEFAULT_HEIGHT = 50.0;
 

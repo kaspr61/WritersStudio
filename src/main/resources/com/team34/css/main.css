@@ -2,7 +2,8 @@
 * {
 
     /*** Main colors ***/
-    -color-main-background: #eeeeee;
+    -color-main-foreground: #efefef;
+    -color-main-background: #dfdfdf;
     -color-text-primary: #151515;
 
     /*** Timeline colors ***/
@@ -17,7 +18,11 @@
 /********************/
 
 .root {
-    -fx-background-color: -color-main-background;
+    -fx-background-color: -color-main-foreground;
+}
+
+.scroll-pane > .viewport {
+    -fx-background-color: -color-main-foreground;
 }
 
 .label {
