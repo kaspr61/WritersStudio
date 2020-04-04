@@ -6,7 +6,12 @@ import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
 
-public class TimelineLine {
+/**
+ * TimelineLine contains all {@link javafx.scene.shape.Shape}s of the timeline line.
+ * This class is only to be used internally by {@link Timeline}.
+ * @author Kasper S. Skott
+ */
+class TimelineLine {
 
     private static final double VERTICAL_STOP_LENGTH = 20.0;
 
@@ -14,7 +19,10 @@ public class TimelineLine {
     private final Line verticalStart;
     private final Path arrow;
 
-    protected TimelineLine() {
+    /**
+     * Creates a new instance of TimelineLine
+     */
+    TimelineLine() {
         timeline = new Line();
         timeline.getStyleClass().add("timeline-line");
         verticalStart = new Line();
@@ -28,11 +36,21 @@ public class TimelineLine {
         );
     }
 
-    protected void addToPane(Pane pane) {
+    /**
+     * Adds all {@link javafx.scene.shape.Shape}s to the given {@link javafx.scene.layout.Pane}.
+     * @param pane the Pane to which the Shapes are to be added
+     */
+    void addToPane(Pane pane) {
         pane.getChildren().addAll(timeline, verticalStart, arrow);
     }
 
-    protected void recalculate(double posX, double posY, double length) {
+    /**
+     * Recalculates and sets all positions and layout of the {@link javafx.scene.shape.Shape}s.
+     * @param posX the leftmost x-position of the timeline
+     * @param posY the center y-position of the timeline
+     * @param length the length of the timeline
+     */
+    void recalculate(double posX, double posY, double length) {
         timeline.setStartX(posX);
         timeline.setStartY(posY);
         timeline.setEndX(posX+length-20.0);

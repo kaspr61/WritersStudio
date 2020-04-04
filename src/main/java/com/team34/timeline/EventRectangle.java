@@ -8,11 +8,17 @@ import javafx.scene.text.TextAlignment;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 
-public class EventRectangle {
+/**
+ * EventRectangle represents an event on the timeline. It contains all graphical
+ * information needed to display the event using {@link javafx.scene.shape.Shape}s.
+ * This class is only to be used internally by {@link Timeline}.
+ * @author Kasper S. Skott
+ */
+class EventRectangle {
 
     private static final double TOOLTIP_SHOW_DELAY_MS = 500.0;
-    protected static final double DEFAULT_WIDTH = 80.0;
-    protected static final double DEFAULT_HEIGHT = 50.0;
+    static final double DEFAULT_WIDTH = 80.0;
+    static final double DEFAULT_HEIGHT = 50.0;
 
     private final Text text;
     private final Rectangle rect;
@@ -21,7 +27,14 @@ public class EventRectangle {
     private double textOffsetX;
     private double textOffsetY;
 
-    protected EventRectangle(String label, double width) {
+    /**
+     * Creates a new instance of EventRectangle with the given text label and width.
+     * Also creates a tooltip, but doesn't install it. Tooltip installation is managed
+     * by the {@link Timeline} when adding and clearing events.
+     * @param label the text to be displayed within the rectangle
+     * @param width the width of the rectangle. Set to 0.0 to use default width.
+     */
+    EventRectangle(String label, double width) {
 
         double w = width < 1.0 ? DEFAULT_WIDTH : width;
 
@@ -56,33 +69,61 @@ public class EventRectangle {
 
     }
 
-    protected Text getText() {
+    /**
+     * Returns a reference to the internal {@link javafx.scene.text.Text} object.
+     * @return the Text object
+     */
+    Text getText() {
         return text;
     }
 
-    protected Rectangle getRect() {
+    /**
+     * Returns a reference to the internal {@link javafx.scene.shape.Rectangle} object.
+     * @return the Rectangle object
+     */
+    Rectangle getRect() {
         return rect;
     }
 
-    protected void setX(double x) {
+    /**
+     * Sets the x-position.
+     * @param x the new x-position
+     */
+    void setX(double x) {
         rect.setX(x);
         text.setX(x + textOffsetX);
     }
 
-    protected void setY(double y) {
+    /**
+     * Sets the y-position
+     * @param y the new y-position
+     */
+    void setY(double y) {
         rect.setY(y);
         text.setY(y + textOffsetY);
     }
 
-    protected Bounds getBoundsInParent() {
+    /**
+     * Returns the bounds, relative to the parent.
+     * @return bounds relative to parent
+     */
+    Bounds getBoundsInParent() {
         return rect.getBoundsInParent();
     }
 
-    protected Bounds getBoundsInLocal() {
+    /**
+     * Returns the local bounds.
+     * @return local bounds
+     */
+    Bounds getBoundsInLocal() {
         return rect.getBoundsInLocal();
     }
 
-    protected Tooltip getTooltip() {
+    /**
+     * Returns a reference to the internal {@link javafx.scene.control.Tooltip} object.
+     * @return the Tooltip object
+     */
+    Tooltip getTooltip() {
         return tooltip;
     }
 
