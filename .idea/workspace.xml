@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="7d3e91ee-7c52-4fb3-b025-ee04ac06915b" name="Default Changelist" comment="" />
+    <list default="true" id="7d3e91ee-7c52-4fb3-b025-ee04ac06915b" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/team34/timeline/Timeline.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/team34/timeline/Timeline.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/com/team34/css/main.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/com/team34/css/main.css" afterDir="false" />
+    </list>
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -28,9 +34,15 @@
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="PropertiesComponent">
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="project.structure.last.edited" value="Project" />
+    <property name="project.structure.proportion" value="0.0" />
+    <property name="project.structure.side.proportion" value="0.0" />
     <property name="settings.editor.selected.configurable" value="terminal" />
   </component>
   <component name="RecentsManager">
+    <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="com.team34" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Dev\DA336A\WritersStudio\src\main\resources\com\team34\fxml" />
       <recent name="C:\Dev\DA336A\WritersStudio\src\main\resources\com\team34\css" />
@@ -48,10 +60,23 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Application.App">
+  <component name="RunManager" selected="Application.TimelineTestApp">
     <configuration name="App" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="com.team34.App" />
       <module name="writers-studio" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.team34.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="TimelineTestApp" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="com.team34.TimelineTestApp" />
+      <module name="WritersStudio" />
       <extension name="coverage">
         <pattern>
           <option name="PATTERN" value="com.team34.*" />
@@ -95,6 +120,7 @@
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Application.TimelineTestApp" />
         <item itemvalue="Application.App" />
       </list>
     </recent_temporary>
