@@ -56,8 +56,8 @@ class EventRectangle {
         text.setClip(clipRect);
         text.wrappingWidthProperty().bind(clipRect.widthProperty());
 
-        textOffsetX = rect.getBoundsInParent().getCenterX() - text.getBoundsInParent().getCenterX();
-        textOffsetY = rect.getBoundsInParent().getCenterY();
+        textOffsetX = rect.getBoundsInParent().getMaxX(); // - text.equals(getBoundsInParent());
+        textOffsetY = rect.getBoundsInParent().getMaxY();
 
         rect.getStyleClass().add("timeline-event-rect");
         text.getStyleClass().add("timeline-event-text");

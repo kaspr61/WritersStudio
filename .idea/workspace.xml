@@ -60,9 +60,35 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Application.TimelineTestApp">
+  <component name="RunManager" selected="Application.EditCharacterPanel">
     <configuration name="App" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="com.team34.App" />
+      <module name="writers-studio" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.team34.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="EditCharacterPanel" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="com.team34.EditCharacterPanel" />
+      <module name="writers-studio" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.team34.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="EventMainHomeView" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="com.team34.EventMainHomeView" />
       <module name="writers-studio" />
       <extension name="coverage">
         <pattern>
@@ -115,13 +141,18 @@
       </method>
     </configuration>
     <list>
+      <item itemvalue="Application.TimelineTestApp" />
       <item itemvalue="Application.App" />
       <item itemvalue="Maven.run" />
+      <item itemvalue="Application.EditCharacterPanel" />
+      <item itemvalue="Application.EventMainHomeView" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Application.TimelineTestApp" />
+        <item itemvalue="Application.EditCharacterPanel" />
+        <item itemvalue="Application.EventMainHomeView" />
         <item itemvalue="Application.App" />
+        <item itemvalue="Application.TimelineTestApp" />
       </list>
     </recent_temporary>
   </component>
