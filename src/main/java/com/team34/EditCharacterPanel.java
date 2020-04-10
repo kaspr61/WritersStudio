@@ -6,21 +6,17 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 /**
  * @author Morgan Karlsson
  */
 
-public class EditCharacterPanel extends Application {
-    Stage window;
-    Scene scene;
+public class EditCharacterPanel extends Stage {
 
-    @Override
-    public void start(Stage stage) throws Exception {
-        window = stage;
-        window.setTitle("Edit Character");
-
+    public EditCharacterPanel(Stage ownerStage) {
+        setTitle("Edit Character");
 
         // --- GUI elements --- //
 
@@ -40,7 +36,7 @@ public class EditCharacterPanel extends Application {
         //Button
         Button btnAdd = new Button("add");
         Button btnCancel = new Button("cancel");
-        btnCancel.setOnAction(e -> window.close());
+        btnCancel.setOnAction(e -> this.close());
 
         // --- Layouts --- //
 
@@ -69,17 +65,13 @@ public class EditCharacterPanel extends Application {
         layout.add(buttonLayout, 0, 3);
 
         // --- Set Scene --- //
-        scene = new Scene(layout);
-        window.setScene(scene);
-        window.show();
+        Scene scene = new Scene(layout);
+        setScene(scene);
+
+        // --- Set ownership and modality --- //
+        initModality(Modality.WINDOW_MODAL);
+        initOwner(ownerStage);
 
     }
 
-    /**
-     * For test purposes
-     * @param args
-     */
-    public static void main(String[] args) {
-        launch(args);
-    }
 }

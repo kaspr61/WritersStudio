@@ -7,20 +7,17 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 /**
  * @author Jim Andersson
  */
 
-public class EditEventPanel extends Application {
-    Stage window;
-    Scene scene;
+public class EditEventPanel extends Stage {
 
-    @Override
-    public void start(Stage stage) throws Exception {
-        window = stage;
-        window.setTitle("Edit Event");
+    public EditEventPanel(Stage ownerStage) {
+        setTitle("Edit Event");
 
         // --- GUI elements --- //
 
@@ -45,7 +42,7 @@ public class EditEventPanel extends Application {
         //Button
         Button btnAdd = new Button("Add");
         Button btnCancel = new Button("Cancel");
-        btnCancel.setOnAction(e -> window.close());
+        btnCancel.setOnAction(e -> close());
 
         // --- Layouts --- //
 
@@ -80,19 +77,14 @@ public class EditEventPanel extends Application {
         layout.add(taEventDescription, 0,3);
         layout.add(buttonLayout, 0, 4);
 
-
         // --- Set Scene --- //
-        scene = new Scene(layout);
-        window.setScene(scene);
-        window.show();
+        Scene scene = new Scene(layout);
+        setScene(scene);
+
+        // --- Set ownership and modality --- //
+        initModality(Modality.WINDOW_MODAL);
+        initOwner(ownerStage);
 
     }
 
-    /**
-     * For test purposes
-     * @param args
-     */
-    public static void main(String[] args) {
-        launch(args);
-    }
 }
