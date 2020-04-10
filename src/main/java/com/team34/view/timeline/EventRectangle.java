@@ -1,4 +1,4 @@
-package com.team34.timeline;
+package com.team34.view.timeline;
 
 import javafx.geometry.Bounds;
 import javafx.geometry.VPos;
@@ -56,8 +56,8 @@ class EventRectangle {
         text.setClip(clipRect);
         text.wrappingWidthProperty().bind(clipRect.widthProperty());
 
-        textOffsetX = rect.getBoundsInParent().getMaxX(); // - text.equals(getBoundsInParent());
-        textOffsetY = rect.getBoundsInParent().getMaxY();
+        textOffsetX = rect.getBoundsInParent().getCenterX() - text.getBoundsInParent().getCenterX();
+        textOffsetY = rect.getBoundsInParent().getCenterY();
 
         rect.getStyleClass().add("timeline-event-rect");
         text.getStyleClass().add("timeline-event-text");

@@ -1,4 +1,4 @@
-package com.team34.timeline;
+package com.team34.view.timeline;
 
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Line;

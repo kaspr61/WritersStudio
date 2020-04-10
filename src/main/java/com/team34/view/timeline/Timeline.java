@@ -1,4 +1,4 @@
-package com.team34.timeline;
+package com.team34.view.timeline;
 
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tooltip;
@@ -6,7 +6,7 @@ import javafx.scene.layout.Pane;
 import java.util.HashMap;
 
 /**
- * Timeline is the main view class of the timeline feature.
+ * Timeline is the main com.team34.view class of the timeline feature.
  * It acts as a wrapper of various objects defined in the javafx.scene package.
  * Events are represented as rectangles, containing text. To add an event,
  * the eventUID of the event must be provided along with the name. Events are not, however,
@@ -156,13 +156,10 @@ public class Timeline {
      * it will be resized to fit the current events. However, if events have been removed,
      * the timeline will never shrink to less than the minimum width, specified in the constructor.
      * @param eventUIDs the array of eventUIDs, in the order that they are to be displayed
-     * @throws NullPointerException if the parameter eventUIDs is null
      */
     public void recalculateLayout(Long[] eventUIDs) {
-        if(eventUIDs == null)
-            throw new NullPointerException("event order has not been specified");
-
-        setEventOrder(eventUIDs);
+        if(eventUIDs != null)
+            setEventOrder(eventUIDs);
 
         // Recalculate position
         posX = LAYOUT_SPACING;
@@ -172,15 +169,17 @@ public class Timeline {
         double y = posY - EventRectangle.DEFAULT_HEIGHT / 2.0;
         double nextX = posX + LAYOUT_SPACING;
 
-        for (int i = 0; i < eventUIDOrder.length; i++) {
-            EventRectangle rect = eventRectMap.get(eventUIDOrder[i]);
-            if(rect == null)
-                continue;
+        if(eventUIDOrder != null) {
+            for (int i = 0; i < eventUIDOrder.length; i++) {
+                EventRectangle rect = eventRectMap.get(eventUIDOrder[i]);
+                if (rect == null)
+                    continue;
 
-            rect.setX(nextX);
-            rect.setY(y);
+                rect.setX(nextX);
+                rect.setY(y);
 
-            nextX += rect.getBoundsInLocal().getWidth() + LAYOUT_SPACING; // take individual width into account
+                nextX += rect.getBoundsInLocal().getWidth() + LAYOUT_SPACING; // take individual width into account
+            }
         }
 
         // Adjust timeline length (width) if necessary

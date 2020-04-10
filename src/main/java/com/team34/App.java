@@ -2,25 +2,19 @@ package com.team34;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 public class App extends Application {
 
     @Override
     public void start(Stage stage) {
-        com.team34.MenuBar menuBar = new com.team34.MenuBar();
 
-        VBox vBox = new VBox(menuBar);
-        vBox.getStylesheets().add(getClass().getResource("css/main.css").toExternalForm());
+        com.team34.view.MainView view =
+                new com.team34.view.MainView(stage, 1280, 720, false);
 
-        Scene scene = new Scene(vBox, 1280, 720);
+        com.team34.controller.MainController controller =
+                new com.team34.controller.MainController(view);
 
-        stage.setTitle("Writer's Studio");
-        stage.setScene(scene);
-        stage.show();
-        
     }
 
     public static void main(String[] args) {
