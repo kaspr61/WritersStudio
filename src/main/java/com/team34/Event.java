@@ -1,35 +1,39 @@
 package com.team34;
 
 /**
+ * Class for event objects that contains the event information.
  * @author Jim Andersson
  */
 
 public class Event {
 
-    private String eventName = "";
-    private String eventDescription = "";
-    private Character character;
+    private String name = "";
+    private String description = "";
 
-    public Event(String eventName, String eventDescription, Character character) {
-        this.eventName = eventName;
-        this.eventDescription = eventDescription;
-        this.character = character;
+    /**
+     * Instantiates event object with name and description.
+     * @param name Event name
+     * @param description Event description
+     */
+    public Event(String name, String description) {
+        this.name = name;
+        this.description = description;
     }
 
-    public String getEventName() {
-        return eventName;
+    public String getName() {
+        return name;
     }
 
-    public void setEventName(String eventName) {
-        this.eventName = eventName;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getEventDescription() {
-        return eventDescription;
+    public String getDescription() {
+        return description;
     }
 
-    public void setEventDescription(String eventDescription) {
-        this.eventDescription = eventDescription;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
 }

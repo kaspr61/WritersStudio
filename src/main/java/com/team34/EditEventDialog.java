@@ -1,22 +1,21 @@
 package com.team34;
 
-import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 /**
+ *
  * @author Jim Andersson
  */
 
-public class EditEventPanel extends Stage {
+public class EditEventDialog extends Stage {
 
-    public EditEventPanel(Stage ownerStage) {
+    public EditEventDialog(Stage ownerStage) {
         setTitle("Edit Event");
 
         // --- GUI elements --- //
