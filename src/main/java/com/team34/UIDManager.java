@@ -26,8 +26,8 @@ public class UIDManager {
             long input2 = rand.nextLong();
             idGenerator = new UUID(input1, input2);
             uid = idGenerator.getMostSignificantBits();
-            uidList.add(uid);
-        } while (isUnique(uid));
+        } while (!isUnique(uid));
+        uidList.add(uid);
         return uid;
     }
 
