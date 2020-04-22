@@ -17,7 +17,7 @@ public class UIDManager {
      * Creates a UID and checks it against the UID list to ensure uniqueness. If unique, returns the UID.
      * @return Long UID.
      */
-    private long nextUID() {
+    public long nextUID() {
         UUID idGenerator;
         long uid;
         do {
