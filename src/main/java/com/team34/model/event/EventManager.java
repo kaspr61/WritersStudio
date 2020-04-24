@@ -1,11 +1,14 @@
 package com.team34.model.event;
 
-import com.team34.model.UIDManager;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 
+import com.team34.model.UIDManager;
+
+/**
+ * @author Kasper S. Skott
+ */
 public class EventManager {
 
     private HashMap<Long, Event> events;
@@ -19,11 +22,11 @@ public class EventManager {
 
         if(orderListCapacity > 0) {
             eventOrderLists = new ArrayList<>(orderListCapacity);
+        }
+        else {
+            eventOrderLists = new ArrayList<>();
             eventOrderLists.add(new LinkedList<Long>());
         }
-        else
-            eventOrderLists = new ArrayList<>();
-
     }
 
     public long newEvent(String name, String description) {
@@ -53,25 +56,27 @@ public class EventManager {
             e.remove(uid);
     }
 
-    public Object[][] getEvents(int orderList) {
+    public Object[][] getEvents() {
         if(events.size() < 1)
             throw new IndexOutOfBoundsException("There are no events");
 
-        if(orderList >= eventOrderLists.size() || orderList < 0)
-            throw new IndexOutOfBoundsException("Order list " + orderList + " does not exist");
+        Long[] uidOrder = events.keySet().toArray(new Long[events.size()]);
+        Object[][] eventArray = new Object[uidOrder.length][3];
 
-        LinkedList<Long> uidOrder = eventOrderLists.get(orderList);
-        Object[][] eventArray = new Object[uidOrder.size()][3];
-
-        for (int i = 0; i < uidOrder.size(); i++) {
-            long uid = uidOrder.get(i);
+        for (int i = 0; i < uidOrder.length; i++) {
+            long uid = uidOrder[i];
             Event eventRef = events.get(uid);
             eventArray[i][0] = uid;
             eventArray[i][1] = eventRef.getName();
             eventArray[i][2] = eventRef.getDescription();
         }
-
         return eventArray;
+    }
+
+    public Long[] getEventOrder(int eventOrderList) {
+        return eventOrderLists.get(eventOrderList).toArray(
+                new Long[eventOrderLists.get(eventOrderList).size()]
+        );
     }
 
     public void swapEvent(int orderList, int index1, int index2) {
@@ -91,7 +96,7 @@ public class EventManager {
         em.newEvent("Event D", "d");
         em.newEvent("Event E", "e");
 
-        Object[][] events = em.getEvents(0);
+        Object[][] events = em.getEvents();
 
         em.editEvent(1L, "aasddsasda", "eeeeeeee");
 
@@ -99,7 +104,7 @@ public class EventManager {
 
         em.newEvent("NEW", "new desc");
 
-        events = em.getEvents(0);
+        events = em.getEvents();
 
     }
 

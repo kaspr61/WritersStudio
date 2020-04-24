@@ -22,7 +22,7 @@ public class MainView {
 
     //// CONTROL IDs ///////////////////////////
 
-    private static final String ID_BTN_EVENT_ADD = "BTN_EVENT_ADD";
+    public static final String ID_BTN_EVENT_ADD = "BTN_EVENT_ADD";
 
     //// PANES /////////////////////////////////////////
 
@@ -38,13 +38,13 @@ public class MainView {
     //// CONTROLS //////////////////////////////////////
 
     private MenuBar menuBar;
-    private Button btnEventAdd;
 
-    //// OTHER /////////////////////////////////////////
+    ////////////////////////////////////////////////////
 
     private Scene mainScene;
     private String cssMain;
     private Timeline timeline;
+    private int eventOrderList; // index to specify which order list to use
 
     ////////////////////////////////////////////////////
 
@@ -57,6 +57,7 @@ public class MainView {
      * @author Kasper S. Skott
      */
     public MainView(Stage mainStage, double screenW, double screenH, boolean maximized) {
+        eventOrderList = 0;
 
         // Create the root parent pane and the main scene
         rootPane = new BorderPane();
@@ -131,18 +132,30 @@ public class MainView {
     }
 
     private void setupRightPane() {
-        btnEventAdd = new Button("Add Event");
-        btnEventAdd.setId(ID_BTN_EVENT_ADD);
 
-        rightPane.getChildren().add(btnEventAdd);
+    }
+
+    public int getEventOrderList() {
+        return eventOrderList;
+    }
+
+    public void setEventOrderList(int eventOrderList) {
+        this.eventOrderList = eventOrderList;
     }
 
     public void registerButtonEvents(EventHandler<ActionEvent> buttonEventHandler) {
-        btnEventAdd.setOnAction(buttonEventHandler);
+
     }
 
-    public void updateEvents(Object[][] events) {
-        // TODO how to get order???
+    public void updateEvents(Object[][] events, Long[] eventOrder) {
+        timeline.clear();
+        for (int i = 0; i < events.length; i++) {
+            timeline.addEvent((Long)events[i][0], (String)events[i][1]);
+        }
+        timeline.setEventOrder(eventOrder);
+        timeline.recalculateLayout();
+
+        //TODO insert code to update event list
     }
 
 }

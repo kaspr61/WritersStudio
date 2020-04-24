@@ -97,6 +97,7 @@ public class Timeline {
 
         if(existingRect != null) { // If the event is getting overwritten, remove the old shapes first.
             pane.getChildren().removeAll(existingRect.getRect(), existingRect.getText());
+            Tooltip.uninstall(existingRect.getRect(), existingRect.getTooltip());
         }
 
         EventRectangle rect = new EventRectangle(label, width);

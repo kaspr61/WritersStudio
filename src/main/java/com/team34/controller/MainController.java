@@ -1,12 +1,17 @@
 package com.team34.controller;
 
-import com.team34.Debug;
-import com.team34.model.Project;
-import com.team34.view.MainView;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
+import java.util.Random;
 
+import com.team34.Debug;
+import com.team34.model.Project;
+import com.team34.view.MainView;
+
+/**
+ * @author Kasper S. Skott
+ */
 public class MainController {
 
     private final MainView view;
@@ -36,10 +41,12 @@ public class MainController {
             String sourceID = source.getId();
 
             switch(sourceID) {
-                case "BTN_EVENT_ADD":
-                    model.eventManager.newEvent("TEST", "test");
-                    view.updateEvents(model.eventManager.getEvents(0));
-                    // TODO what class stores and manages the event order?
+                case MainView.ID_BTN_EVENT_ADD:
+                    model.eventManager.newEvent("Event " + new Random().nextInt(100), "test description");
+                    view.updateEvents(
+                            model.eventManager.getEvents(),
+                            model.eventManager.getEventOrder(view.getEventOrderList())
+                    );
                     break;
 
                 default: Debug.println("Unrecognized ID: "+sourceID);
