@@ -1,4 +1,4 @@
-package com.team34;
+package com.team34.view;
 
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;

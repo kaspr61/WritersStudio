@@ -1,7 +1,10 @@
 package com.team34.view;
 
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.SplitPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
@@ -17,9 +20,33 @@ public class MainView {
     private static final double MAX_WINDOW_WIDTH = 3840.0; // 4K Ultra HD
     private static final double MAX_WINDOW_HEIGHT = 2160.0; // 4K Ultra HD
 
+    //// CONTROL IDs ///////////////////////////
 
+    private static final String ID_BTN_EVENT_ADD = "BTN_EVENT_ADD";
+
+    //// PANES /////////////////////////////////////////
+
+    private final BorderPane rootPane;
+    private final BorderPane contentBorderPane;
+    private final StackPane centerPane;
+    private final StackPane bottomPane;
+    private final SplitPane firstLayerSplit;
+    private final StackPane leftPane;
+    private final StackPane rightPane;
+    private final SplitPane secondLayerSplit;
+
+    //// CONTROLS //////////////////////////////////////
+
+    private MenuBar menuBar;
+    private Button btnEventAdd;
+
+    //// OTHER /////////////////////////////////////////
+
+    private Scene mainScene;
     private String cssMain;
     private Timeline timeline;
+
+    ////////////////////////////////////////////////////
 
     /**
      *
@@ -32,24 +59,24 @@ public class MainView {
     public MainView(Stage mainStage, double screenW, double screenH, boolean maximized) {
 
         // Create the root parent pane and the main scene
-        BorderPane rootPane = new BorderPane();
-        Scene mainScene = new Scene(rootPane, screenW, screenH);
+        rootPane = new BorderPane();
+        mainScene = new Scene(rootPane, screenW, screenH);
 
         // Construct the path to the main .css file, and add it to the root pane
         cssMain = com.team34.App.class.getResource("css/main.css").toExternalForm();
         rootPane.getStylesheets().add(cssMain);
 
         // Create and add the menu bar
-        com.team34.MenuBar menuBar = new com.team34.MenuBar();
+        menuBar = new MenuBar();
         rootPane.setTop(menuBar);
 
         // Create the contentBorderPane
-        BorderPane contentBorderPane = new BorderPane();
+        contentBorderPane = new BorderPane();
 
         // Create the first-layer panes. These are separated horizontally
-        StackPane centerPane = new StackPane();
-        StackPane bottomPane = new StackPane();
-        SplitPane firstLayerSplit = new SplitPane();
+        centerPane = new StackPane();
+        bottomPane = new StackPane();
+        firstLayerSplit = new SplitPane();
 
         centerPane.setMinSize(screenW, 200.0);
         bottomPane.setMinSize(screenW, 120.0);
@@ -59,14 +86,14 @@ public class MainView {
         firstLayerSplit.setDividerPosition(0, 0.99);
 
         // Create the second-layer panes, contained by centerPane. These are separated vertically
-        StackPane leftPane = new StackPane();
-        StackPane rightPane = new StackPane();
-        SplitPane secondLayerSplit = new SplitPane();
+        leftPane = new StackPane();
+        rightPane = new StackPane();
+        secondLayerSplit = new SplitPane();
 
         leftPane.setMinSize(100.0, 200.0);
         rightPane.setMinSize(250.0, 200.0);
 
-        secondLayerSplit.setOrientation(Orientation.HORIZONTAL);
+        secondLayerSplit.setOrientation(Orientation.HORIZONTAL); // layed-out horizontally, but splitted vertically
         secondLayerSplit.getItems().addAll(leftPane, rightPane);
         secondLayerSplit.setDividerPosition(0, 0.2);
         centerPane.getChildren().add(secondLayerSplit);
@@ -77,8 +104,11 @@ public class MainView {
         // Add the contentBorderPane to the root pane
         rootPane.setCenter(contentBorderPane);
 
-        // Setup timeline
+        // Set up timeline
         setupTimeline(bottomPane, screenW);
+
+        // Set up right pane
+        setupRightPane();
 
         // Finalize the stage
         mainStage.setResizable(true);
@@ -93,19 +123,26 @@ public class MainView {
         mainStage.show();
     }
 
-    public void setupTimeline(Pane parentPane, double screenW) {
-        if(timeline != null)
-            return;
-
+    private void setupTimeline(Pane parentPane, double screenW) {
         timeline = new Timeline(screenW);
         timeline.addToPane(parentPane);
 
-        timeline.addEvent(0L, "Event A");
-        timeline.addEvent(1L, "Event B");
-        timeline.addEvent(2L, "Event C");
+        timeline.recalculateLayout();
+    }
 
-        Long[] order = { 0L, 1L, 2L };
-        timeline.recalculateLayout(order);
+    private void setupRightPane() {
+        btnEventAdd = new Button("Add Event");
+        btnEventAdd.setId(ID_BTN_EVENT_ADD);
+
+        rightPane.getChildren().add(btnEventAdd);
+    }
+
+    public void registerButtonEvents(EventHandler<ActionEvent> buttonEventHandler) {
+        btnEventAdd.setOnAction(buttonEventHandler);
+    }
+
+    public void updateEvents(Object[][] events) {
+        // TODO how to get order???
     }
 
 }

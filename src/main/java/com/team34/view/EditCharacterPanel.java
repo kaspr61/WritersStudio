@@ -1,4 +1,4 @@
-package com.team34;
+package com.team34.view;
 
 import javafx.application.Application;
 import javafx.geometry.Insets;

@@ -1,4 +1,6 @@
-package com.team34;
+package com.team34.model.character;
+
+import com.team34.model.event.Event;
 
 /**
  * @author Morgan Karlsson
