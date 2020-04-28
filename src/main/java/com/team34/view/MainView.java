@@ -23,6 +23,7 @@ public class MainView {
     //// CONTROL IDs ///////////////////////////
 
     public static final String ID_BTN_EVENT_ADD = "BTN_EVENT_ADD";
+    public static final String ID_TIMELINE_NEW_EVENT = "TIMELINE_NEW_EVENT";
 
     //// PANES /////////////////////////////////////////
 
@@ -145,6 +146,10 @@ public class MainView {
 
     public void registerButtonEvents(EventHandler<ActionEvent> buttonEventHandler) {
 
+    }
+
+    public void registerContextMenuEvents(EventHandler<ActionEvent> contextEventHandler) {
+        timeline.installContextMenu(contextEventHandler);
     }
 
     public void updateEvents(Object[][] events, Long[] eventOrder) {

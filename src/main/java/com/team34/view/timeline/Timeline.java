@@ -1,7 +1,10 @@
 package com.team34.view.timeline;
 
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Tooltip;
+import com.team34.view.MainView;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.scene.control.*;
+import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.layout.Pane;
 import java.util.HashMap;
 
@@ -51,6 +54,7 @@ public class Timeline {
     private final Pane pane;
     private ScrollPane scrollPane;
     private TimelineLine line;
+    private ContextMenu contextMenu;
 
     private HashMap<Long, EventRectangle> eventRectMap; // Stores references to EventRectangles by their eventUID.
     private Long[] eventUIDOrder; // This is a reference to the order of the events.
@@ -210,6 +214,24 @@ public class Timeline {
     public void recalculateLayout() {
         recalculateLayout(eventUIDOrder);
     }
+
+    public void installContextMenu(EventHandler<ActionEvent> contextEventHandler) {
+        if(contextMenu != null)
+            return;
+
+        contextMenu = new ContextMenu();
+
+        //// New Event
+        MenuItem contextMenuItem = new MenuItem("New Event");
+        contextMenuItem.setId(MainView.ID_TIMELINE_NEW_EVENT);
+        contextMenuItem.setOnAction(contextEventHandler);
+        contextMenu.getItems().add(contextMenuItem);
+
+        ///////////////////////////////////////
+
+        scrollPane.setContextMenu(contextMenu);
+    }
+
 
 }
 
