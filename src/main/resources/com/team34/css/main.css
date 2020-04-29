@@ -55,4 +55,18 @@
     -fx-effect: -effect-dropshadow;
 }
 
+
+/*** Character list ***/
+.outerPane {
+    -fx-background-color: #f4c2c2;
+}
+
+.innerPane {
+    -fx-foreground-color: #ffe4c4;
+}
+
+.character-list-headline {
+    -fx-font-size: 14pt;
+}
+
 /***************
