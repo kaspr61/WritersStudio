@@ -96,36 +96,44 @@ public class EditEventDialog extends Stage {
     }
 
     /**
-     *
-     * @return
+     * Clears the text fields, before calling {@link Stage#showAndWait()}.
+     * @return how the user closed the window
      * @author Kasper S. Skott
      */
     public WindowResult showCreateEvent() {
         setTitle("New Event");
+
         tfEventName.setText("");
         taEventDescription.setText("");
+
+        tfEventName.requestFocus();
         showAndWait();
+
         return windowResult;
     }
 
     /**
-     *
-     * @param name
-     * @param description
-     * @return
+     * Sets the text fields, before calling {@link Stage#showAndWait()}.
+     * @param name the name of the event
+     * @param description the description of the event
+     * @return how the user closed the window
      * @author Kasper S. Skott
      */
     public WindowResult showEditEvent(String name, String description) {
         setTitle("Edit Event");
+
         tfEventName.setText(name);
         taEventDescription.setText(description);
+
+        tfEventName.requestFocus();
         showAndWait();
+
         return windowResult;
     }
 
     /**
-     *
-     * @return
+     * Returns the text currently inputted in {@link EditEventDialog#tfEventName}
+     * @return the name
      * @author Kasper S. Skott
      */
     public String getEventName() {
@@ -133,8 +141,8 @@ public class EditEventDialog extends Stage {
     }
 
     /**
-     *
-     * @return
+     * Returns the text currently inputted in {@link EditEventDialog#taEventDescription}
+     * @return the description
      * @author Kasper S. Skott
      */
     public String getEventDescription() {
@@ -142,6 +150,8 @@ public class EditEventDialog extends Stage {
     }
 
     /**
+     * Used to specify how the window was closed. If the user confirmed the action,
+     * use OK, otherwise use CANCEL.
      * @author Kasper S. Skott
      */
     public enum WindowResult {

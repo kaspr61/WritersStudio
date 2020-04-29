@@ -1,11 +1,10 @@
 package com.team34.view;
 
-import com.team34.view.dialogs.EditEventDialog;
+import com.team34.model.event.EventManager;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.SplitPane;
 import javafx.scene.layout.BorderPane;
@@ -13,8 +12,15 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
+import com.team34.view.dialogs.EditEventDialog;
 import com.team34.view.timeline.Timeline;
 
+/**
+ * This class represents the top layer of the view.
+ * <p>
+ * It manages the GUI and can only be called into; it is dependent on neither the model nor the controller.
+ * @author Kasper S. Skott
+ */
 public class MainView {
 
     private static final double MIN_WINDOW_WIDTH = 800.0;
@@ -55,12 +61,14 @@ public class MainView {
     ////////////////////////////////////////////////////
 
     /**
+     * Constructs the GUI.
+     * <p>
+     * Calls {@link MainView#setupTimeline(Pane, double)} and {@link MainView#setupRightPane()}
      *
-     * @param mainStage
-     * @param screenW
-     * @param screenH
-     * @param maximized
-     * @author Kasper S. Skott
+     * @param mainStage the stage associated with the {@link javafx.application.Application}.
+     * @param screenW the width the window should be at
+     * @param screenH the height the window should be at
+     * @param maximized true if window should start maximized
      */
     public MainView(Stage mainStage, double screenW, double screenH, boolean maximized) {
         eventOrderList = 0;
@@ -133,6 +141,11 @@ public class MainView {
         editEventDialog = new EditEventDialog(mainStage);
     }
 
+    /**
+     * Constructs and initializes the {@link Timeline}.
+     * @param parentPane the pane inside which the timeline is to reside
+     * @param screenW the minimum width of the timeline
+     */
     private void setupTimeline(Pane parentPane, double screenW) {
         timeline = new Timeline(screenW);
         timeline.addToPane(parentPane);
@@ -140,30 +153,61 @@ public class MainView {
         timeline.recalculateLayout();
     }
 
+    /**
+     * Constructs and initializes the right-most pane, which contains the character list.
+     */
     private void setupRightPane() {
 
     }
 
+    /**
+     * Returns the context menu of the timeline
+     * @return the context menu of the timeline
+     */
     public ContextMenu getTimelineContextMenu() {
         return timeline.getContextMenu();
     }
 
+    /**
+     * Returns the index of the list specifying the order of events.
+     * '0' is the default order list.
+     * @return the index of the event order list
+     */
     public int getEventOrderList() {
         return eventOrderList;
     }
 
+    /**
+     * Sets the index of which event order list to use.
+     * '0' is the default order list.
+     * @param eventOrderList the index of the event order list
+     */
     public void setEventOrderList(int eventOrderList) {
         this.eventOrderList = eventOrderList;
     }
 
+    /**
+     * Hooks up the event given to buttons
+     * @param buttonEventHandler the button event handler
+     */
     public void registerButtonEvents(EventHandler<ActionEvent> buttonEventHandler) {
 
     }
 
+    /**
+     * Installs the timeline context menu, and hooks it up to the given event.
+     * @param contextEventHandler the event handler for handling context menu items
+     */
     public void registerContextMenuEvents(EventHandler<ActionEvent> contextEventHandler) {
         timeline.installContextMenu(contextEventHandler);
     }
 
+    /**
+     * Refreshes the GUI concerned with events with the given data.
+     * See {@link EventManager#getEvents()} on how the data is formatted.
+     * @param events a 2-dimensional array containing all data on every event
+     * @param eventOrder the order in which the events should be displayed
+     */
     public void updateEvents(Object[][] events, Long[] eventOrder) {
         timeline.clear();
         if(events != null) {
@@ -179,6 +223,11 @@ public class MainView {
         //TODO insert code to update event list
     }
 
+    /**
+     * Returns a reference to the {@link EditEventDialog}, to be accessed directly
+     * from {@link com.team34.controller.MainController}.
+     * @return the edit event dialog.
+     */
     public EditEventDialog getEditEventDialog() {
         return editEventDialog;
     }

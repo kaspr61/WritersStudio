@@ -1,10 +1,8 @@
 package com.team34.view.timeline;
 
-import com.team34.model.event.Event;
 import com.team34.view.MainView;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.event.EventType;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.ContextMenuEvent;
@@ -14,7 +12,6 @@ import javafx.scene.shape.Rectangle;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Timeline is the main com.team34.view class of the timeline feature.
@@ -56,8 +53,8 @@ public class Timeline {
     private static final double LAYOUT_SPACING = 20.0;
 
     private static final int CONTEXT_MENU_ITEM_EDIT = 0;
-    private static final int CONTEXT_MENU_ITEM_ADD = 1;
-    private static final int CONTEXT_MENU_ITEM_REMOVE = 2;
+    private static final int CONTEXT_MENU_ITEM_REMOVE = 1;
+    private static final int CONTEXT_MENU_ITEM_ADD = 2;
 
     private double posX;
     private double posY;
@@ -162,6 +159,11 @@ public class Timeline {
         eventUIDOrder = null;
     }
 
+    /**
+     * Finds the UID associated with the given {@link Rectangle} contained within an {@link EventRectangle}.
+     * @param rectangle the rectangle to use when searching
+     * @return the UID or, if not found, -1L
+     */
     public Long getEventUIDByRectangle(Rectangle rectangle) {
         Iterator<Map.Entry<Long, EventRectangle>> it = eventRectMap.entrySet().iterator();
         Map.Entry<Long, EventRectangle> pair;
@@ -256,6 +258,12 @@ public class Timeline {
         recalculateLayout(eventUIDOrder);
     }
 
+    /**
+     * Constructs the context menu and hooks up the event to be fired when clicking menu items.
+     * <p>
+     * Should only be called once.
+     * @param contextEventHandler the event to fire when clicking the menu items
+     */
     public void installContextMenu(EventHandler<ActionEvent> contextEventHandler) {
         if(contextMenu != null)
             return;
@@ -268,15 +276,15 @@ public class Timeline {
         contextMenuItem[CONTEXT_MENU_ITEM_EDIT].setId(MainView.ID_TIMELINE_EDIT_EVENT);
         contextMenuItem[CONTEXT_MENU_ITEM_EDIT].setOnAction(contextEventHandler);
 
-        //// New Event
-        contextMenuItem[CONTEXT_MENU_ITEM_ADD] = new MenuItem("New Event");
-        contextMenuItem[CONTEXT_MENU_ITEM_ADD].setId(MainView.ID_TIMELINE_NEW_EVENT);
-        contextMenuItem[CONTEXT_MENU_ITEM_ADD].setOnAction(contextEventHandler);
-
         //// Remove Event
         contextMenuItem[CONTEXT_MENU_ITEM_REMOVE] = new MenuItem("Remove Event");
         contextMenuItem[CONTEXT_MENU_ITEM_REMOVE].setId(MainView.ID_TIMELINE_REMOVE_EVENT);
         contextMenuItem[CONTEXT_MENU_ITEM_REMOVE].setOnAction(contextEventHandler);
+
+        //// New Event
+        contextMenuItem[CONTEXT_MENU_ITEM_ADD] = new MenuItem("New Event");
+        contextMenuItem[CONTEXT_MENU_ITEM_ADD].setId(MainView.ID_TIMELINE_NEW_EVENT);
+        contextMenuItem[CONTEXT_MENU_ITEM_ADD].setOnAction(contextEventHandler);
 
         /////////////////////////////
 
@@ -284,12 +292,20 @@ public class Timeline {
         scrollPane.setContextMenu(contextMenu);
     }
 
+    /**
+     * Returns a reference to the context menu.
+     * @return a reference to the context menu
+     */
     public ContextMenu getContextMenu() {
         return contextMenu;
     }
 
     ////// EVENTS ////////////////////////////////////////////////////////////
 
+    /**
+     * This fires when right-clicking in empty space inside the timeline pane.
+     * This event is fired when the context menu should be shown.
+     */
     private class EventContextRequestPane implements EventHandler<ContextMenuEvent> {
         @Override
         public void handle(ContextMenuEvent e) {
@@ -298,6 +314,10 @@ public class Timeline {
         }
     }
 
+    /**
+     * This fires when right-clicking on an event inside the timeline pane.
+     * This event is fired when the context menu should be shown.
+     */
     private class EventContextRequestEvent implements EventHandler<ContextMenuEvent> {
         @Override
         public void handle(ContextMenuEvent e) {
@@ -314,29 +334,3 @@ public class Timeline {
     }
 
 }
-
-
-
-  ///////////////////////////////////////////////////////////////
- ////// Reference for later when implementing drag events //////
-///////////////////////////////////////////////////////////////
-
-/*  private void eventOnMouseDragged(javafx.scene.input.MouseEvent e, EventRectangle rect) {
-        rect.setX(e.getX());
-        rect.setY(e.getY());
-        for(Node n : pane.getChildren()) {
-            if(!(n instanceof EventRectangle) || n.equals(rect))
-                continue;
-
-            Shape shape = (Shape) n;
-            if(Shape.intersect(rect, shape).getBoundsInLocal().getWidth() != -1) {
-                // Collision detected
-            }
-            else {
-                // No collision detected
-                shape.applyCss();
-            }
-        }
-
-    }*/
-

@@ -4,14 +4,19 @@ import com.team34.view.dialogs.EditEventDialog;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
-import java.util.Random;
 
-import com.team34.Debug;
 import com.team34.model.Project;
 import com.team34.view.MainView;
 import javafx.scene.control.MenuItem;
 
 /**
+ * This class handles logic and communication between the model and view components of the system.
+ * <p>
+ * This is where many of the events that communicate between components are implemented. Since
+ * the model and view are completely independent of each other, their indirect interaction is
+ * managed by this class. By having the components encapsulating their area of responsibility,
+ * it makes it easier to implement changes in a safe manner, lowering the risk of errors.
+ *
  * @author Kasper S. Skott
  */
 public class MainController {
@@ -21,6 +26,12 @@ public class MainController {
     private final EventHandler<ActionEvent> evtButtonAction;
     private final EventHandler<ActionEvent> evtContextMenuAction;
 
+    /**
+     * Constructs the controller. Initializes member variables
+     * and calls {@link MainController#registerEventsOnView()}.
+     * @param view the view to control
+     * @param model the model to control
+     */
     public MainController(MainView view, Project model) {
         this.view = view;
         this.model = model;
@@ -31,11 +42,26 @@ public class MainController {
         registerEventsOnView();
     }
 
+    /**
+     * Registers events {@link MainController#evtButtonAction} and
+     * {@link MainController#evtContextMenuAction} on the view
+     */
     private void registerEventsOnView() {
         view.registerButtonEvents(evtButtonAction);
         view.registerContextMenuEvents(evtContextMenuAction);
     }
 
+    /**
+     * Opens an {@link EditEventDialog}, then creates a new event if not canceled.
+     * The edit event dialog will block until the dialog is closed.
+     * When the dialog has been closed, the model is instructed to construct a
+     * new event with the parameters specified in the edit event dialog. If creation
+     * failed, a popup warning will inform the user that either the name or description
+     * had an unsupported format.
+     * <p>
+     * This may be called from multiple events, thus allowing event manipulation
+     * from different sources, eg. timeline context menu, event list.
+     */
     private void createNewEvent() {
         if(view.getEditEventDialog().showCreateEvent() == EditEventDialog.WindowResult.OK) {
             long newEventUID = model.eventManager.newEvent(
@@ -49,6 +75,17 @@ public class MainController {
         }
     }
 
+    /**
+     * Opens an {@link EditEventDialog}, then edits the event if not canceled.
+     * The edit event dialog will block until the dialog is closed.
+     * When the dialog has been closed, the model is instructed to edit the event
+     * with the parameters specified in the edit event dialog. If this
+     * failed, a popup warning will inform the user that either the name or
+     * description had an unsupported format.
+     * <p>
+     * This may be called from multiple events, thus allowing event manipulation
+     * from different sources, eg. timeline context menu, event list.
+     */
     private void editEvent(long uid) {
         Object[] eventData = model.eventManager.getEventData(uid);
 
@@ -66,6 +103,9 @@ public class MainController {
         }
     }
 
+    /**
+     * Instructs the view to update the view of events with the current state of the model.
+     */
     private void refreshViewEvents() {
         view.updateEvents(
                 model.eventManager.getEvents(),
@@ -75,6 +115,9 @@ public class MainController {
 
     ////// ALL EVENTS ARE LISTED HERE //////////////////////////////////////////////
 
+    /**
+     * This event is fired from the user interacting with buttons.
+     */
     private class EventButtonAction implements EventHandler<ActionEvent> {
         @Override
         public void handle(ActionEvent e) {
@@ -87,7 +130,8 @@ public class MainController {
                     refreshViewEvents();
                     break;
 
-                default: Debug.println("Unrecognized ID: "+sourceID);
+                default:
+                    System.out.println("Unrecognized ID: "+sourceID);
                     break;
             }
 
@@ -96,6 +140,9 @@ public class MainController {
 
     ////////////////////////////////////////////////////////////////////////////
 
+    /**
+     * This event is fired from the user clicking context menu items.
+     */
     private class EventContextMenuAction implements EventHandler<ActionEvent> {
         @Override
         public void handle(ActionEvent e) {
@@ -122,7 +169,8 @@ public class MainController {
                     refreshViewEvents();
                     break;
 
-                default: Debug.println("Unrecognized ID: "+sourceID);
+                default:
+                    System.out.println("Unrecognized ID: "+sourceID);
                     break;
             }
 
