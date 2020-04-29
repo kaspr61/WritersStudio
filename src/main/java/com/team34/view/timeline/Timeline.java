@@ -55,8 +55,9 @@ public class Timeline {
     private static final int INITIAL_EVENT_CAPACITY = 20;
     private static final double LAYOUT_SPACING = 20.0;
 
-    private static final int CONTEXT_MENU_ITEM_ADD = 0;
-    private static final int CONTEXT_MENU_ITEM_REMOVE = 1;
+    private static final int CONTEXT_MENU_ITEM_EDIT = 0;
+    private static final int CONTEXT_MENU_ITEM_ADD = 1;
+    private static final int CONTEXT_MENU_ITEM_REMOVE = 2;
 
     private double posX;
     private double posY;
@@ -260,7 +261,12 @@ public class Timeline {
             return;
 
         contextMenu = new ContextMenu();
-        contextMenuItem = new MenuItem[2];
+        contextMenuItem = new MenuItem[3];
+
+        //// Edit Event
+        contextMenuItem[CONTEXT_MENU_ITEM_EDIT] = new MenuItem("Edit Event");
+        contextMenuItem[CONTEXT_MENU_ITEM_EDIT].setId(MainView.ID_TIMELINE_EDIT_EVENT);
+        contextMenuItem[CONTEXT_MENU_ITEM_EDIT].setOnAction(contextEventHandler);
 
         //// New Event
         contextMenuItem[CONTEXT_MENU_ITEM_ADD] = new MenuItem("New Event");
@@ -287,6 +293,7 @@ public class Timeline {
     private class EventContextRequestPane implements EventHandler<ContextMenuEvent> {
         @Override
         public void handle(ContextMenuEvent e) {
+            contextMenuItem[CONTEXT_MENU_ITEM_EDIT].setVisible(false);
             contextMenuItem[CONTEXT_MENU_ITEM_REMOVE].setVisible(false);
         }
     }
@@ -299,6 +306,7 @@ public class Timeline {
                 return;
 
             contextMenu.setUserData(uid);
+            contextMenuItem[CONTEXT_MENU_ITEM_EDIT].setVisible(true);
             contextMenuItem[CONTEXT_MENU_ITEM_REMOVE].setVisible(true);
             contextMenu.show((Node)e.getSource(), e.getScreenX(), e.getScreenY());
             e.consume();

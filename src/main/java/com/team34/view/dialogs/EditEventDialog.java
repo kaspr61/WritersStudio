@@ -1,23 +1,29 @@
-package com.team34.view;
+package com.team34.view.dialogs;
 
-import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 /**
+ *
  * @author Jim Andersson
  */
 
-public class EditEventPanel extends Stage {
+public class EditEventDialog extends Stage {
 
-    public EditEventPanel(Stage ownerStage) {
+    private WindowResult windowResult;
+
+    private TextField tfEventName;
+    private TextArea taEventDescription;
+    private ComboBox<String> cbEventGroup;
+
+    public EditEventDialog(Stage ownerStage) {
         setTitle("Edit Event");
+        setOnCloseRequest(e -> windowResult = WindowResult.CANCEL);
 
         // --- GUI elements --- //
 
@@ -27,22 +33,24 @@ public class EditEventPanel extends Stage {
         Label lblEventDescription = new Label("Event description:");
 
         //Textfield
-        TextField tfEventName = new TextField();
+        tfEventName = new TextField();
         tfEventName.setPromptText("Enter event name here");
         tfEventName.setMaxWidth(150);
 
         //TextArea
-        TextArea taEventDescription = new TextArea();
+        taEventDescription = new TextArea();
         taEventDescription.setPromptText("Enter event description here");
 
         //Drop down
-        ComboBox<String> cbEventGroup = new ComboBox<>();
+        cbEventGroup = new ComboBox<>();
         cbEventGroup.setPromptText("Choose event group");
 
         //Button
-        Button btnAdd = new Button("Add");
+        Button btnAdd = new Button("Ok");
+        btnAdd.setOnAction(e -> { windowResult = WindowResult.OK; close(); });
+
         Button btnCancel = new Button("Cancel");
-        btnCancel.setOnAction(e -> close());
+        btnCancel.setOnAction(e -> { windowResult = WindowResult.CANCEL; close(); });
 
         // --- Layouts --- //
 
@@ -85,6 +93,60 @@ public class EditEventPanel extends Stage {
         initModality(Modality.WINDOW_MODAL);
         initOwner(ownerStage);
 
+    }
+
+    /**
+     *
+     * @return
+     * @author Kasper S. Skott
+     */
+    public WindowResult showCreateEvent() {
+        setTitle("New Event");
+        tfEventName.setText("");
+        taEventDescription.setText("");
+        showAndWait();
+        return windowResult;
+    }
+
+    /**
+     *
+     * @param name
+     * @param description
+     * @return
+     * @author Kasper S. Skott
+     */
+    public WindowResult showEditEvent(String name, String description) {
+        setTitle("Edit Event");
+        tfEventName.setText(name);
+        taEventDescription.setText(description);
+        showAndWait();
+        return windowResult;
+    }
+
+    /**
+     *
+     * @return
+     * @author Kasper S. Skott
+     */
+    public String getEventName() {
+        return tfEventName.getText();
+    }
+
+    /**
+     *
+     * @return
+     * @author Kasper S. Skott
+     */
+    public String getEventDescription() {
+        return taEventDescription.getText();
+    }
+
+    /**
+     * @author Kasper S. Skott
+     */
+    public enum WindowResult {
+        OK,
+        CANCEL
     }
 
 }

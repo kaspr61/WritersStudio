@@ -1,5 +1,6 @@
 package com.team34.view;
 
+import com.team34.view.dialogs.EditEventDialog;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
@@ -26,6 +27,7 @@ public class MainView {
     public static final String ID_BTN_EVENT_ADD = "BTN_EVENT_ADD";
     public static final String ID_TIMELINE_NEW_EVENT = "TIMELINE_NEW_EVENT";
     public static final String ID_TIMELINE_REMOVE_EVENT = "TIMELINE_REMOVE_EVENT";
+    public static final String ID_TIMELINE_EDIT_EVENT = "TIMELINE_EDIT_EVENT";
 
     //// PANES /////////////////////////////////////////
 
@@ -47,6 +49,7 @@ public class MainView {
     private Scene mainScene;
     private String cssMain;
     private Timeline timeline;
+    private EditEventDialog editEventDialog;
     private int eventOrderList; // index to specify which order list to use
 
     ////////////////////////////////////////////////////
@@ -125,6 +128,9 @@ public class MainView {
         mainStage.setTitle("Writer's Studio");
         mainStage.setScene(mainScene);
         mainStage.show();
+
+        // Create event dialog
+        editEventDialog = new EditEventDialog(mainStage);
     }
 
     private void setupTimeline(Pane parentPane, double screenW) {
@@ -160,13 +166,21 @@ public class MainView {
 
     public void updateEvents(Object[][] events, Long[] eventOrder) {
         timeline.clear();
-        for (int i = 0; i < events.length; i++) {
-            timeline.addEvent((Long)events[i][0], (String)events[i][1]);
+        if(events != null) {
+            for (int i = 0; i < events.length; i++) {
+                timeline.addEvent((Long) events[i][0], (String) events[i][1]);
+            }
         }
-        timeline.setEventOrder(eventOrder);
+        if(eventOrder != null)
+            timeline.setEventOrder(eventOrder);
+
         timeline.recalculateLayout();
 
         //TODO insert code to update event list
+    }
+
+    public EditEventDialog getEditEventDialog() {
+        return editEventDialog;
     }
 
 }

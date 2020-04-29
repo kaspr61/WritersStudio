@@ -1,5 +1,6 @@
 package com.team34.controller;
 
+import com.team34.view.dialogs.EditEventDialog;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
@@ -36,8 +37,33 @@ public class MainController {
     }
 
     private void createNewEvent() {
-        // TODO open new event dialog and get arguments for the new event.
-        model.eventManager.newEvent("Event " + new Random().nextInt(1000), "test description");
+        if(view.getEditEventDialog().showCreateEvent() == EditEventDialog.WindowResult.OK) {
+            long newEventUID = model.eventManager.newEvent(
+                    view.getEditEventDialog().getEventName(),
+                    view.getEditEventDialog().getEventDescription()
+            );
+
+            if(newEventUID == -1L) {
+                // TODO Popup warning dialog, stating that either name or description has unsupported format
+            }
+        }
+    }
+
+    private void editEvent(long uid) {
+        Object[] eventData = model.eventManager.getEventData(uid);
+
+        if(view.getEditEventDialog().showEditEvent((String)eventData[0], (String)eventData[1])
+                == EditEventDialog.WindowResult.OK
+        ) {
+            boolean success = model.eventManager.editEvent(uid,
+                    view.getEditEventDialog().getEventName(),
+                    view.getEditEventDialog().getEventDescription()
+            );
+
+            if(!success) {
+                // TODO Popup warning dialog, stating that either name or description has unsupported format
+            }
+        }
     }
 
     private void refreshViewEvents() {
@@ -88,6 +114,11 @@ public class MainController {
 
                 case MainView.ID_TIMELINE_REMOVE_EVENT:
                     model.eventManager.removeEvent(sourceUID);
+                    refreshViewEvents();
+                    break;
+
+                case MainView.ID_TIMELINE_EDIT_EVENT:
+                    editEvent(sourceUID);
                     refreshViewEvents();
                     break;
 

@@ -39,13 +39,12 @@ public class EventManager {
         return uid;
     }
 
-    public void editEvent(long uid, String name, String description) {
-        if(!events.containsKey(uid)) {
-            throw new IndexOutOfBoundsException("EventManager::editEvent : event with uid " + uid + " doesn't exist");
-        }
-        else {
+    public boolean editEvent(long uid, String name, String description) {
+        if(events.containsKey(uid)) {
             events.replace(uid, new Event(name, description));
+            return true;
         }
+        return false;
     }
 
     public void removeEvent(long uid) {
@@ -56,9 +55,18 @@ public class EventManager {
             e.remove(uid);
     }
 
+    public Object[] getEventData(long uid) {
+        Object[] data = new Object[2];
+        Event event = events.get(uid);
+        data[0] = event.getName();
+        data[1] = event.getDescription();
+
+        return data;
+    }
+
     public Object[][] getEvents() {
         if(events.size() < 1)
-            throw new IndexOutOfBoundsException("There are no events");
+            return null;
 
         Long[] uidOrder = events.keySet().toArray(new Long[events.size()]);
         Object[][] eventArray = new Object[uidOrder.length][3];
