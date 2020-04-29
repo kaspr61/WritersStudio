@@ -5,6 +5,7 @@ import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.SplitPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
@@ -24,6 +25,7 @@ public class MainView {
 
     public static final String ID_BTN_EVENT_ADD = "BTN_EVENT_ADD";
     public static final String ID_TIMELINE_NEW_EVENT = "TIMELINE_NEW_EVENT";
+    public static final String ID_TIMELINE_REMOVE_EVENT = "TIMELINE_REMOVE_EVENT";
 
     //// PANES /////////////////////////////////////////
 
@@ -134,6 +136,10 @@ public class MainView {
 
     private void setupRightPane() {
 
+    }
+
+    public ContextMenu getTimelineContextMenu() {
+        return timeline.getContextMenu();
     }
 
     public int getEventOrderList() {

@@ -1,12 +1,20 @@
 package com.team34.view.timeline;
 
+import com.team34.model.event.Event;
 import com.team34.view.MainView;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.event.EventType;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.layout.Pane;
+import javafx.scene.shape.Rectangle;
+
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Timeline is the main com.team34.view class of the timeline feature.
@@ -47,6 +55,9 @@ public class Timeline {
     private static final int INITIAL_EVENT_CAPACITY = 20;
     private static final double LAYOUT_SPACING = 20.0;
 
+    private static final int CONTEXT_MENU_ITEM_ADD = 0;
+    private static final int CONTEXT_MENU_ITEM_REMOVE = 1;
+
     private double posX;
     private double posY;
     private double width;
@@ -55,6 +66,10 @@ public class Timeline {
     private ScrollPane scrollPane;
     private TimelineLine line;
     private ContextMenu contextMenu;
+    private MenuItem[] contextMenuItem;
+
+    private EventHandler<ContextMenuEvent> evtShowContextEvent; // Fires when an event is right-clicked
+    private EventHandler<ContextMenuEvent> evtShowContextPane; // Fires when the pane is right-clicked
 
     private HashMap<Long, EventRectangle> eventRectMap; // Stores references to EventRectangles by their eventUID.
     private Long[] eventUIDOrder; // This is a reference to the order of the events.
@@ -64,6 +79,10 @@ public class Timeline {
      * @param minWidth the minimum width in pixels
      */
     public Timeline(double minWidth) {
+
+        evtShowContextPane = new EventContextRequestPane();
+        evtShowContextEvent = new EventContextRequestEvent();
+
         pane = new Pane();
         pane.setMinSize(minWidth, EventRectangle.DEFAULT_HEIGHT + LAYOUT_SPACING + LAYOUT_SPACING);
         pane.setPrefSize(minWidth, pane.getMinHeight());
@@ -75,6 +94,7 @@ public class Timeline {
         scrollPane.setMinViewportHeight(pane.getMinHeight());
         scrollPane.setPrefViewportHeight(pane.getMinHeight());
         scrollPane.setContent(pane);
+        scrollPane.setOnContextMenuRequested(evtShowContextPane);
 
         this.posX = 0.0;
         this.posY = 0.0;
@@ -85,6 +105,7 @@ public class Timeline {
         line.addToPane(pane);
 
         eventRectMap = new HashMap<>(INITIAL_EVENT_CAPACITY);
+
     }
 
     /**
@@ -101,6 +122,7 @@ public class Timeline {
 
         if(existingRect != null) { // If the event is getting overwritten, remove the old shapes first.
             pane.getChildren().removeAll(existingRect.getRect(), existingRect.getText());
+            existingRect.getRect().setOnContextMenuRequested(null);
             Tooltip.uninstall(existingRect.getRect(), existingRect.getTooltip());
         }
 
@@ -109,6 +131,8 @@ public class Timeline {
 
         pane.getChildren().add(rect.getRect());
         pane.getChildren().add(rect.getText());
+
+        rect.getRect().setOnContextMenuRequested(evtShowContextEvent);
 
         Tooltip.install(rect.getRect(), rect.getTooltip());
     }
@@ -129,11 +153,27 @@ public class Timeline {
     public void clear() {
         eventRectMap.forEach((uid, rect) -> {
             pane.getChildren().removeAll(rect.getRect(), rect.getText());
+            rect.getRect().setOnContextMenuRequested(null);
             Tooltip.uninstall(rect.getRect(), rect.getTooltip());
         });
 
         eventRectMap.clear();
         eventUIDOrder = null;
+    }
+
+    public Long getEventUIDByRectangle(Rectangle rectangle) {
+        Iterator<Map.Entry<Long, EventRectangle>> it = eventRectMap.entrySet().iterator();
+        Map.Entry<Long, EventRectangle> pair;
+
+        // Find EventRectangle that contains the input rectangle and return its associated UID
+        while (it.hasNext()) {
+            pair = it.next();
+            if(pair.getValue().getRect().equals(rectangle)) {
+                return pair.getKey();
+            }
+        }
+
+        return -1L;
     }
 
     /**
@@ -220,20 +260,53 @@ public class Timeline {
             return;
 
         contextMenu = new ContextMenu();
+        contextMenuItem = new MenuItem[2];
 
         //// New Event
-        MenuItem contextMenuItem = new MenuItem("New Event");
-        contextMenuItem.setId(MainView.ID_TIMELINE_NEW_EVENT);
-        contextMenuItem.setOnAction(contextEventHandler);
-        contextMenu.getItems().add(contextMenuItem);
+        contextMenuItem[CONTEXT_MENU_ITEM_ADD] = new MenuItem("New Event");
+        contextMenuItem[CONTEXT_MENU_ITEM_ADD].setId(MainView.ID_TIMELINE_NEW_EVENT);
+        contextMenuItem[CONTEXT_MENU_ITEM_ADD].setOnAction(contextEventHandler);
 
-        ///////////////////////////////////////
+        //// Remove Event
+        contextMenuItem[CONTEXT_MENU_ITEM_REMOVE] = new MenuItem("Remove Event");
+        contextMenuItem[CONTEXT_MENU_ITEM_REMOVE].setId(MainView.ID_TIMELINE_REMOVE_EVENT);
+        contextMenuItem[CONTEXT_MENU_ITEM_REMOVE].setOnAction(contextEventHandler);
 
+        /////////////////////////////
+
+        contextMenu.getItems().addAll(contextMenuItem);
         scrollPane.setContextMenu(contextMenu);
     }
 
+    public ContextMenu getContextMenu() {
+        return contextMenu;
+    }
+
+    ////// EVENTS ////////////////////////////////////////////////////////////
+
+    private class EventContextRequestPane implements EventHandler<ContextMenuEvent> {
+        @Override
+        public void handle(ContextMenuEvent e) {
+            contextMenuItem[CONTEXT_MENU_ITEM_REMOVE].setVisible(false);
+        }
+    }
+
+    private class EventContextRequestEvent implements EventHandler<ContextMenuEvent> {
+        @Override
+        public void handle(ContextMenuEvent e) {
+            Long uid = getEventUIDByRectangle((Rectangle) e.getSource());
+            if(uid == -1)
+                return;
+
+            contextMenu.setUserData(uid);
+            contextMenuItem[CONTEXT_MENU_ITEM_REMOVE].setVisible(true);
+            contextMenu.show((Node)e.getSource(), e.getScreenX(), e.getScreenY());
+            e.consume();
+        }
+    }
 
 }
+
 
 
   ///////////////////////////////////////////////////////////////

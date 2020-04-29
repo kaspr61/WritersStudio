@@ -76,9 +76,18 @@ public class MainController {
             MenuItem source = (MenuItem) e.getSource();
             String sourceID = source.getId();
 
+            Long sourceUID = -1L;
+            if(view.getTimelineContextMenu().getUserData() instanceof Long)
+                sourceUID = (Long) view.getTimelineContextMenu().getUserData();
+
             switch(sourceID) {
                 case MainView.ID_TIMELINE_NEW_EVENT:
                     createNewEvent();
+                    refreshViewEvents();
+                    break;
+
+                case MainView.ID_TIMELINE_REMOVE_EVENT:
+                    model.eventManager.removeEvent(sourceUID);
                     refreshViewEvents();
                     break;
 
