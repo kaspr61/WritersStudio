@@ -65,38 +65,30 @@ public class CharacterList extends StackPane {
         delete = new Button();
 
         //Icons for Add/Edit/Delete
-        try {
-            addCharacter = com.team34.App.class.getResource("icons/add_character.png").getPath(); //Filestream for icon
-            FileInputStream inputAddCharacter = new FileInputStream(addCharacter);
-            Image imgAddCharacter = new Image(inputAddCharacter);
-            ImageView imageViewAddCharacter = new ImageView(imgAddCharacter);
+        addCharacter = com.team34.App.class.getResource("/icons/add_character.png").toExternalForm(); //Filestream for icon
+        Image imgAddCharacter = new Image(addCharacter);
+        ImageView imageViewAddCharacter = new ImageView(imgAddCharacter);
 
-            editCharacter = com.team34.App.class.getResource("icons/edit_character.png").getPath();
-            FileInputStream inputEditCharacter = new FileInputStream(editCharacter);
-            Image imgEditCharacter = new Image(inputEditCharacter);
-            ImageView imageViewEditCharacter = new ImageView(imgEditCharacter);
+        editCharacter = com.team34.App.class.getResource("/icons/edit_character.png").toExternalForm();
+        Image imgEditCharacter = new Image(editCharacter);
+        ImageView imageViewEditCharacter = new ImageView(imgEditCharacter);
 
-            deleteCharacter = com.team34.App.class.getResource("icons/delete_character.png").getPath();
-            FileInputStream inputDeleteCharacter = new FileInputStream(deleteCharacter);
-            Image imgDeleteCharacter = new Image(inputDeleteCharacter);
-            ImageView imageViewDeleteCharacter = new ImageView(imgDeleteCharacter);
+        deleteCharacter = com.team34.App.class.getResource("/icons/delete_character.png").toExternalForm();
+        Image imgDeleteCharacter = new Image(deleteCharacter);
+        ImageView imageViewDeleteCharacter = new ImageView(imgDeleteCharacter);
 
-            imageViewAddCharacter.setFitHeight(ICON_SIZE); // Set size for icon
-            imageViewAddCharacter.setFitWidth(ICON_SIZE);
+        imageViewAddCharacter.setFitHeight(ICON_SIZE); // Set size for icon
+        imageViewAddCharacter.setFitWidth(ICON_SIZE);
 
-            imageViewEditCharacter.setFitHeight(ICON_SIZE);
-            imageViewEditCharacter.setFitWidth(ICON_SIZE);
+        imageViewEditCharacter.setFitHeight(ICON_SIZE);
+        imageViewEditCharacter.setFitWidth(ICON_SIZE);
 
-            imageViewDeleteCharacter.setFitHeight(ICON_SIZE);
-            imageViewDeleteCharacter.setFitWidth(ICON_SIZE);
+        imageViewDeleteCharacter.setFitHeight(ICON_SIZE);
+        imageViewDeleteCharacter.setFitWidth(ICON_SIZE);
 
-            add.setGraphic(imageViewAddCharacter);
-            edit.setGraphic(imageViewEditCharacter);
-            delete.setGraphic(imageViewDeleteCharacter);
-
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+        add.setGraphic(imageViewAddCharacter);
+        edit.setGraphic(imageViewEditCharacter);
+        delete.setGraphic(imageViewDeleteCharacter);
 
         //Label
         title = new Label("Characters");
@@ -140,7 +132,7 @@ public class CharacterList extends StackPane {
         getChildren().add(outerPane);
 
         //CSS
-        cssCharacterlist = com.team34.App.class.getResource("css/characterlist.css").toExternalForm();
+        cssCharacterlist = com.team34.App.class.getResource("/css/characterlist.css").toExternalForm();
     }
 
     public void setStyleSheets() {

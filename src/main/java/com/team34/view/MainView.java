@@ -80,7 +80,7 @@ public class MainView {
         mainScene = new Scene(rootPane, screenW, screenH);
 
         // Construct the path to the main .css file, and add it to the root pane
-        cssMain = com.team34.App.class.getResource("css/main.css").toExternalForm();
+        cssMain = com.team34.App.class.getResource("/css/main.css").toExternalForm();
         rootPane.getStylesheets().add(cssMain);
 
         // Create and add the menu bar
