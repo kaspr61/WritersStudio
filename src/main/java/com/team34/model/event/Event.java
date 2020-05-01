@@ -1,4 +1,4 @@
-package com.team34;
+package com.team34.model.event;
 
 /**
  * Class for event objects that contains the event information.
