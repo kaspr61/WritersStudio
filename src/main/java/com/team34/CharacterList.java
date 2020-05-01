@@ -19,11 +19,19 @@ import java.io.FileInputStream;
 import java.net.URL;
 import java.util.ArrayList;
 
+/*
+
+//TODO: * Lägg till logiken i controller-klass
+        * Se till att en dialogprompt dyker upp när användaren väljer att ta bort en karaktär, som:
+        "Are you sure you want to delete [character]?"
+
+ */
+
 
 public class CharacterList extends Application {
     private ListView<String> characterList;
     private Button add, edit, delete;
-    private Button save, cancel;
+//    private Button save, cancel;
     private Label title;
 
     // Test purposes
@@ -54,7 +62,7 @@ public class CharacterList extends Application {
 
         //CSS
         cssMain = com.team34.App.class.getResource("css/characterlist.css").toExternalForm();
-        scene = new Scene(outerPane, 300, 500);
+        scene = new Scene(outerPane, 240, 500);
         scene.getStylesheets().add(cssMain);
 
         //Add, Edit, Delete buttons
@@ -64,7 +72,7 @@ public class CharacterList extends Application {
 
         //Save, Cancel buttons
         HBox sdBox = new HBox();
-        sdBox.setPadding(new Insets(10, 10, 10, 10));
+        sdBox.setPadding(new Insets(10, 10, 30, 10));
         sdBox.setSpacing(40);
         sdBox.setAlignment(Pos.CENTER);
 
@@ -76,11 +84,11 @@ public class CharacterList extends Application {
         add = new Button();
         edit = new Button();
         delete = new Button();
-        save = new Button("Save");
-        cancel = new Button("Cancel");
+/*        save = new Button("Save");
+        cancel = new Button("Cancel");*/
 
-        save.getStyleClass().add("button-save-cancel"); //TODO: Fixa i stylesheet så att save och cancel behåller default
-        cancel.getStyleClass().add("button-save-cancel");
+/*        save.getStyleClass().add("button-save-cancel"); //TODO: Ska save/cancel ha defualt-knappar?
+        cancel.getStyleClass().add("button-save-cancel");*/
 
         //Icons for Add/Edit/Delete
         addCharacter = com.team34.App.class.getResource("icons/add_character.png").getPath(); //Filestream for icon
@@ -120,7 +128,21 @@ public class CharacterList extends Application {
         characterList = new ListView<>();
         characters.add("Hamlet");
         characters.add("Claudius");
+        characters.add("Gertrud");
         characters.add("Ophelia");
+        characters.add("Horatio");
+        characters.add("Laertes");
+        characters.add("Polonius");
+        characters.add("Fortinbras");
+        characters.add("Rosencrantz");
+        characters.add("Guildenstern");
+        characters.add("Osric");
+        characters.add("Marcellus");
+        characters.add("Barnardo");
+        characters.add("Francisco");
+        characters.add("Reynaldo");
+        characters.add("Spöket (Hamlets far, den forne kungen");
+        
         characterList.getItems().addAll(characters);
 
         //Construct
@@ -128,7 +150,7 @@ public class CharacterList extends Application {
         aedBox.setAlignment(Pos.CENTER);
 
         characterBox.getChildren().addAll(characterList);
-        sdBox.getChildren().addAll(save, cancel);
+//        sdBox.getChildren().addAll(save, cancel);
 
         innerPane.setTop(aedBox);
         innerPane.setCenter(characterBox);
@@ -137,6 +159,7 @@ public class CharacterList extends Application {
         outerPane.setCenter(innerPane);
         outerPane.setBottom(sdBox);
         BorderPane.setAlignment(title, Pos.CENTER);
+        outerPane.getStyleClass().add("outerPane");
 
 
         /**

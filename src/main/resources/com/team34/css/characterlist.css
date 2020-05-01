@@ -7,7 +7,10 @@
     -color-main-background: #f4f4f4; /* The default color of the JavaFX pane is f4f4f4. */
     -color-text-primary: #151515;
     -color-main-blue: #aeccfc;
-    -color-secondary-blue: #bcd6ff;
+    -color-secondary-blue: #7baeff;
+
+    /*** Darker gray ***/
+    -color-gray-darker: #e2e2e2;
 
 
     /*** Miscellaneous ***/
@@ -16,6 +19,7 @@
 
 }
 /********************/
+
 
 /*** Icon buttons ***/
 .button {
@@ -33,6 +37,10 @@
 
 /*** Save / Cancel buttons ***/
 
+.button-save-cancel {
+    -fx-background-color: -color-gray-darker;
+}
+
 
 /*** Title label ***/
 
@@ -42,10 +50,28 @@
         -fx-text-fill: -color-text-primary;
 }
 
-/*** Listview cells ***/
+
+/*** List view ***/
 
 .list-view {
     -fx-padding: 0;
+}
+
+.list-view:focused {
+    -fx-background-insets: 0, 0, 0, 0;
+}
+
+
+/*** Listview cells ***/
+
+.list-cell {
+    -fx-font-size: 14;
+    -fx-alignment: center;
+}
+
+.list-cell:filled:hover {
+  -fx-background-color: -color-main-blue;
+  -fx-text-fill: white;
 }
 
 .list-cell:filled:selected:focused, .list-cell:filled:selected {
@@ -53,12 +79,11 @@
   -fx-text-fill: white;
 }
 
-.list-cell:odd {
-  -fx-background-color: white;
+.list-cell:odd, .list-cell:even {
+  -fx-background-color: -color-main-background;
 }
 
-.list-cell:filled:hover {
-  -fx-background-color: -color-secondary-blue;
-  -fx-text-fill: white;
-}
+/*** Panes ***/
+
+
 
