@@ -11,13 +11,13 @@ import java.util.UUID;
  * @version 1.0
  */
 public class UIDManager {
-    private ArrayList<Long> uidList = new ArrayList<>(); // TODO: How to store UID list during application downtime?
+    private static ArrayList<Long> uidList = new ArrayList<>(); // TODO: How to store UID list during application downtime?
 
     /**
      * Creates a UID and checks it against the UID list to ensure uniqueness. If unique, returns the UID.
      * @return Long UID.
      */
-    public long nextUID() {
+    public static long nextUID() {
         UUID idGenerator;
         long uid;
         do {
@@ -36,7 +36,7 @@ public class UIDManager {
      * @param uid UID
      * @return boolean
      */
-    private boolean isUnique(long uid) {
+    private static boolean isUnique(long uid) {
         for (long listEntry : uidList) {
             if (uid == listEntry) {
                 return false;
@@ -51,7 +51,7 @@ public class UIDManager {
      * @param uid UID
      * @return boolean
      */
-    public boolean removeUID(long uid) {
+    public static boolean removeUID(long uid) {
         return uidList.remove(uid);
     }
 
