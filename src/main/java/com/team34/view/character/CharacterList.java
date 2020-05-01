@@ -1,6 +1,5 @@
 package com.team34.view.character;
 
-import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -9,14 +8,11 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.Border;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
 import java.io.FileInputStream;
-import java.net.URL;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
 /*
@@ -28,18 +24,18 @@ import java.util.ArrayList;
  */
 
 
-public class CharacterList extends Application {
+public class CharacterList extends StackPane {
+
     private ListView<String> characterList;
     private Button add, edit, delete;
-//    private Button save, cancel;
     private Label title;
 
-    // Test purposes
-    private Stage window;
-    private Scene scene;
+    // Panes
+    BorderPane outerPane;
+    BorderPane innerPane;
 
     //CSS
-    private String cssMain;
+    private String cssCharacterlist;
 
     //Icons
     private String addCharacter;
@@ -47,34 +43,17 @@ public class CharacterList extends Application {
     private String deleteCharacter;
     private final int ICON_SIZE = 40;
 
-    public static void main(String[] args) {
-        launch(args);
-    }
-
-
-    @Override
-    public void start(Stage primaryStage) throws Exception {
-        window = primaryStage;
+    public CharacterList() {
+//        window = new Stage();
 
         //Panes
-        BorderPane outerPane = new BorderPane();
-        BorderPane innerPane = new BorderPane();
-
-        //CSS
-        cssMain = com.team34.App.class.getResource("css/characterlist.css").toExternalForm();
-        scene = new Scene(outerPane, 240, 500);
-        scene.getStylesheets().add(cssMain);
+        outerPane = new BorderPane();
+        innerPane = new BorderPane();
 
         //Add, Edit, Delete buttons
         HBox aedBox = new HBox();
         aedBox.setPadding(new Insets(10, 10, 10, 10));
         aedBox.setSpacing(20);
-
-        //Save, Cancel buttons
-        HBox sdBox = new HBox();
-        sdBox.setPadding(new Insets(10, 10, 30, 10));
-        sdBox.setSpacing(40);
-        sdBox.setAlignment(Pos.CENTER);
 
         //For the character list
         VBox characterBox = new VBox();
@@ -84,40 +63,40 @@ public class CharacterList extends Application {
         add = new Button();
         edit = new Button();
         delete = new Button();
-/*        save = new Button("Save");
-        cancel = new Button("Cancel");*/
-
-/*        save.getStyleClass().add("button-save-cancel"); //TODO: Ska save/cancel ha defualt-knappar?
-        cancel.getStyleClass().add("button-save-cancel");*/
 
         //Icons for Add/Edit/Delete
-        addCharacter = com.team34.App.class.getResource("icons/add_character.png").getPath(); //Filestream for icon
-        FileInputStream inputAddCharacter = new FileInputStream(addCharacter);
-        Image imgAddCharacter = new Image(inputAddCharacter);
-        ImageView imageViewAddCharacter = new ImageView(imgAddCharacter);
+        try {
+            addCharacter = com.team34.App.class.getResource("icons/add_character.png").getPath(); //Filestream for icon
+            FileInputStream inputAddCharacter = new FileInputStream(addCharacter);
+            Image imgAddCharacter = new Image(inputAddCharacter);
+            ImageView imageViewAddCharacter = new ImageView(imgAddCharacter);
 
-        editCharacter = com.team34.App.class.getResource("icons/edit_character.png").getPath();
-        FileInputStream inputEditCharacter = new FileInputStream(editCharacter);
-        Image imgEditCharacter = new Image(inputEditCharacter);
-        ImageView imageViewEditCharacter = new ImageView(imgEditCharacter);
+            editCharacter = com.team34.App.class.getResource("icons/edit_character.png").getPath();
+            FileInputStream inputEditCharacter = new FileInputStream(editCharacter);
+            Image imgEditCharacter = new Image(inputEditCharacter);
+            ImageView imageViewEditCharacter = new ImageView(imgEditCharacter);
 
-        deleteCharacter = com.team34.App.class.getResource("icons/delete_character.png").getPath();
-        FileInputStream inputDeleteCharacter = new FileInputStream(deleteCharacter);
-        Image imgDeleteCharacter = new Image(inputDeleteCharacter);
-        ImageView imageViewDeleteCharacter = new ImageView(imgDeleteCharacter);
+            deleteCharacter = com.team34.App.class.getResource("icons/delete_character.png").getPath();
+            FileInputStream inputDeleteCharacter = new FileInputStream(deleteCharacter);
+            Image imgDeleteCharacter = new Image(inputDeleteCharacter);
+            ImageView imageViewDeleteCharacter = new ImageView(imgDeleteCharacter);
 
-        imageViewAddCharacter.setFitHeight(ICON_SIZE); // Set size for icon
-        imageViewAddCharacter.setFitWidth(ICON_SIZE);
+            imageViewAddCharacter.setFitHeight(ICON_SIZE); // Set size for icon
+            imageViewAddCharacter.setFitWidth(ICON_SIZE);
 
-        imageViewEditCharacter.setFitHeight(ICON_SIZE);
-        imageViewEditCharacter.setFitWidth(ICON_SIZE);
+            imageViewEditCharacter.setFitHeight(ICON_SIZE);
+            imageViewEditCharacter.setFitWidth(ICON_SIZE);
 
-        imageViewDeleteCharacter.setFitHeight(ICON_SIZE);
-        imageViewDeleteCharacter.setFitWidth(ICON_SIZE);
+            imageViewDeleteCharacter.setFitHeight(ICON_SIZE);
+            imageViewDeleteCharacter.setFitWidth(ICON_SIZE);
 
-        add.setGraphic(imageViewAddCharacter);
-        edit.setGraphic(imageViewEditCharacter);
-        delete.setGraphic(imageViewDeleteCharacter);
+            add.setGraphic(imageViewAddCharacter);
+            edit.setGraphic(imageViewEditCharacter);
+            delete.setGraphic(imageViewDeleteCharacter);
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
 
         //Label
         title = new Label("Characters");
@@ -141,8 +120,8 @@ public class CharacterList extends Application {
         characters.add("Barnardo");
         characters.add("Francisco");
         characters.add("Reynaldo");
-        characters.add("Spöket (Hamlets far, den forne kungen");
-        
+        characters.add("Spöket");
+
         characterList.getItems().addAll(characters);
 
         //Construct
@@ -150,27 +129,21 @@ public class CharacterList extends Application {
         aedBox.setAlignment(Pos.CENTER);
 
         characterBox.getChildren().addAll(characterList);
-//        sdBox.getChildren().addAll(save, cancel);
 
         innerPane.setTop(aedBox);
         innerPane.setCenter(characterBox);
 
         outerPane.setTop(title);
         outerPane.setCenter(innerPane);
-        outerPane.setBottom(sdBox);
         BorderPane.setAlignment(title, Pos.CENTER);
-        outerPane.getStyleClass().add("outerPane");
 
+        getChildren().add(outerPane);
 
-        /**
-         * For test purposes
-         */
-
-
-        window.setScene(scene);
-        window.show();
-
+        //CSS
+        cssCharacterlist = com.team34.App.class.getResource("css/characterlist.css").toExternalForm();
     }
 
-
+    public void setStyleSheets() {
+        outerPane.getStyleClass().add("outerPane");
+    }
 }

@@ -20,31 +20,26 @@
 }
 /********************/
 
+/*** Background ***/
+
 
 /*** Icon buttons ***/
-.button {
+.character-list-buttons {
     -fx-background-color: -color-main-background; /* Creates the transparent look */
 }
 
-.button:hover {
+.character-list-buttons:button:hover {
     -fx-scale-y: 1.1;
     -fx-scale-x: 1.1;
 }
-.button:pressed {
+.character-list-buttons:button:pressed {
     -fx-scale-y: 0.9;
     -fx-scale-x: 0.9;
 }
 
-/*** Save / Cancel buttons ***/
-
-.button-save-cancel {
-    -fx-background-color: -color-gray-darker;
-}
-
-
 /*** Title label ***/
 
-.label {
+.character-list-label:label {
         -fx-font-size: 14pt;
         -fx-font-weight: bold;
         -fx-text-fill: -color-text-primary;
@@ -53,11 +48,11 @@
 
 /*** List view ***/
 
-.list-view {
+.character-list-list:list-view {
     -fx-padding: 0;
 }
 
-.list-view:focused {
+character-list:list-view:focused {
     -fx-background-insets: 0, 0, 0, 0;
 }
 

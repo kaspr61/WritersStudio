@@ -1,6 +1,7 @@
 package com.team34.view;
 
 import com.team34.model.event.EventManager;
+import com.team34.view.character.CharacterList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
@@ -39,7 +40,7 @@ public class MainView {
 
     private final BorderPane rootPane;
     private final BorderPane contentBorderPane;
-    private final StackPane centerPane;
+    private final StackPane topPane;
     private final StackPane bottomPane;
     private final SplitPane firstLayerSplit;
     private final StackPane leftPane;
@@ -89,20 +90,20 @@ public class MainView {
         contentBorderPane = new BorderPane();
 
         // Create the first-layer panes. These are separated horizontally
-        centerPane = new StackPane();
+        topPane = new StackPane();
         bottomPane = new StackPane();
         firstLayerSplit = new SplitPane();
 
-        centerPane.setMinSize(screenW, 200.0);
+        topPane.setMinSize(screenW, 200.0);
         bottomPane.setMinSize(screenW, 120.0);
 
         firstLayerSplit.setOrientation(Orientation.VERTICAL);
-        firstLayerSplit.getItems().addAll(centerPane, bottomPane);
+        firstLayerSplit.getItems().addAll(topPane, bottomPane);
         firstLayerSplit.setDividerPosition(0, 0.99);
 
         // Create the second-layer panes, contained by centerPane. These are separated vertically
         leftPane = new StackPane();
-        rightPane = new StackPane();
+        rightPane = new CharacterList();
         secondLayerSplit = new SplitPane();
 
         leftPane.setMinSize(100.0, 200.0);
@@ -111,7 +112,7 @@ public class MainView {
         secondLayerSplit.setOrientation(Orientation.HORIZONTAL); // layed-out horizontally, but splitted vertically
         secondLayerSplit.getItems().addAll(leftPane, rightPane);
         secondLayerSplit.setDividerPosition(0, 0.2);
-        centerPane.getChildren().add(secondLayerSplit);
+        topPane.getChildren().add(secondLayerSplit);
 
         // Add split the first layer split pane to the contentBorderPane
         contentBorderPane.setCenter(firstLayerSplit);
