@@ -44,6 +44,7 @@ public class MainView {
     private final StackPane bottomPane;
     private final SplitPane firstLayerSplit;
     private final StackPane leftPane;
+    private final StackPane centerPane;
     private final StackPane rightPane;
     private final SplitPane secondLayerSplit;
 
@@ -102,16 +103,18 @@ public class MainView {
         firstLayerSplit.setDividerPosition(0, 0.99);
 
         // Create the second-layer panes, contained by centerPane. These are separated vertically
-        leftPane = new StackPane();
-        rightPane = new CharacterList();
+        leftPane = new StackPane(); // Will contain event list
+        centerPane = new StackPane(); // Will contain character chart
+        rightPane = new CharacterList(); // Contains character list
         secondLayerSplit = new SplitPane();
 
         leftPane.setMinSize(100.0, 200.0);
         rightPane.setMinSize(250.0, 200.0);
 
         secondLayerSplit.setOrientation(Orientation.HORIZONTAL); // layed-out horizontally, but splitted vertically
-        secondLayerSplit.getItems().addAll(leftPane, rightPane);
-        secondLayerSplit.setDividerPosition(0, 0.2);
+        secondLayerSplit.getItems().addAll(leftPane, centerPane, rightPane);
+        secondLayerSplit.setDividerPosition(0, 0.25);
+        secondLayerSplit.setDividerPosition(1, 0.99);
         topPane.getChildren().add(secondLayerSplit);
 
         // Add split the first layer split pane to the contentBorderPane
