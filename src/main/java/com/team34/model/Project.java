@@ -75,6 +75,11 @@ public class Project {
                 if(event.isStartElement()) { // Start window tag
                     StartElement startElement = event.asStartElement();
                     switch (startElement.getName().getLocalPart()) {
+                        case "project_directory":
+                            event = eventReader.nextEvent();
+                            if(event.isCharacters())
+                                userPrefs.projectDir = event.asCharacters().getData();
+                            break;
                         case "window_maximized":
                             event = eventReader.nextEvent();
                             userPrefs.windowMaximized = Boolean.parseBoolean(event.asCharacters().getData());
@@ -107,6 +112,7 @@ public class Project {
         writer.add(event);
         event = factory.createEndElement("", "", localName);
         writer.add(event);
+        writer.add(factory.createCharacters(System.lineSeparator()));
     }
 
     public void writeUserPrefs() {
@@ -126,12 +132,14 @@ public class Project {
             XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
             XMLEventWriter eventWriter = outputFactory.createXMLEventWriter(fileStream);
 
-            XMLEvent event = eventFactory.createStartDocument("UTF-8", "1.0");
-            eventWriter.add(event);
+            eventWriter.add(eventFactory.createStartDocument("UTF-8", "1.0"));
+            eventWriter.add(eventFactory.createCharacters(System.lineSeparator()));
 
-            event = eventFactory.createStartElement("", "", "preferences");
-            eventWriter.add(event);
+            eventWriter.add(eventFactory.createStartElement("", "", "preferences"));
+            eventWriter.add(eventFactory.createCharacters(System.lineSeparator()));
 
+            addPreference(eventFactory, eventWriter,
+                    "project_directory", userPrefs.projectDir);
             addPreference(eventFactory, eventWriter,
                     "window_maximized", Boolean.toString(userPrefs.windowMaximized));
             addPreference(eventFactory, eventWriter,
@@ -139,11 +147,10 @@ public class Project {
             addPreference(eventFactory, eventWriter,
                     "window_height", Integer.toString(userPrefs.windowHeight));
 
-            event = eventFactory.createEndElement("", "", "preferences");
-            eventWriter.add(event);
+            eventWriter.add(eventFactory.createEndElement("", "", "preferences"));
+            eventWriter.add(eventFactory.createCharacters(System.lineSeparator()));
 
-            event = eventFactory.createEndDocument();
-            eventWriter.add(event);
+            eventWriter.add(eventFactory.createEndDocument());
 
             eventWriter.flush();
         } catch (IOException e) {
@@ -160,6 +167,7 @@ public class Project {
     }
 
     public class UserPreferences {
+        public String projectDir = "";
         public boolean windowMaximized = false;
         public int windowWidth = 1280;
         public int windowHeight = 720;
@@ -167,6 +175,7 @@ public class Project {
         public UserPreferences() { }
 
         public UserPreferences(UserPreferences ref) {
+            projectDir = ref.projectDir;
             windowMaximized = ref.windowMaximized;
             windowWidth = ref.windowWidth;
             windowHeight = ref.windowHeight;

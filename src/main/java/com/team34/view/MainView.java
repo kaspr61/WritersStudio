@@ -15,6 +15,7 @@ import javafx.stage.Stage;
 
 import com.team34.view.dialogs.EditEventDialog;
 import com.team34.view.timeline.Timeline;
+import javafx.stage.WindowEvent;
 
 /**
  * This class represents the top layer of the view.
@@ -32,9 +33,13 @@ public class MainView {
     //// CONTROL IDs ///////////////////////////
 
     public static final String ID_BTN_EVENT_ADD = "BTN_EVENT_ADD";
+
     public static final String ID_TIMELINE_NEW_EVENT = "TIMELINE_NEW_EVENT";
     public static final String ID_TIMELINE_REMOVE_EVENT = "TIMELINE_REMOVE_EVENT";
     public static final String ID_TIMELINE_EDIT_EVENT = "TIMELINE_EDIT_EVENT";
+
+    public static final String ID_MENU_OPEN = "MENU_OPEN_PROJECT";
+    public static final String ID_MENU_EXIT = "MENU_EXIT";
 
     //// PANES /////////////////////////////////////////
 
@@ -54,6 +59,7 @@ public class MainView {
 
     ////////////////////////////////////////////////////
 
+    private Stage mainStage;
     private Scene mainScene;
     private String cssMain;
     private Timeline timeline;
@@ -74,6 +80,7 @@ public class MainView {
      */
     public MainView(Stage mainStage, double screenW, double screenH, boolean maximized) {
         eventOrderList = 0;
+        this.mainStage = mainStage;
 
         // Create the root parent pane and the main scene
         rootPane = new BorderPane();
@@ -84,7 +91,7 @@ public class MainView {
         rootPane.getStylesheets().add(cssMain);
 
         // Create and add the menu bar
-        menuBar = new MenuBar();
+        menuBar = new MenuBar(mainStage);
         rootPane.setTop(menuBar);
 
         // Create the contentBorderPane
@@ -206,6 +213,14 @@ public class MainView {
         timeline.installContextMenu(contextEventHandler);
     }
 
+    public void registerCloseRequestEvent(EventHandler<WindowEvent> windowEventHandler) {
+        mainStage.setOnCloseRequest(windowEventHandler);
+    }
+
+    public void registerMenuBarActionEvents(EventHandler<ActionEvent> menuEventHandler) {
+        menuBar.registerMenuBarAction(menuEventHandler);
+    }
+
     /**
      * Refreshes the GUI concerned with events with the given data.
      * See {@link EventManager#getEvents()} on how the data is formatted.
@@ -234,6 +249,14 @@ public class MainView {
      */
     public EditEventDialog getEditEventDialog() {
         return editEventDialog;
+    }
+
+    public Stage getMainStage() {
+        return mainStage;
+    }
+
+    public void exitApplication() {
+        mainStage.fireEvent(new WindowEvent(mainStage, WindowEvent.WINDOW_CLOSE_REQUEST));
     }
 
 }

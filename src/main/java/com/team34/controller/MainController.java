@@ -8,6 +8,11 @@ import javafx.scene.Node;
 import com.team34.model.Project;
 import com.team34.view.MainView;
 import javafx.scene.control.MenuItem;
+import javafx.stage.FileChooser;
+import javafx.stage.WindowEvent;
+
+import java.io.File;
+import java.nio.file.Paths;
 
 /**
  * This class handles logic and communication between the model and view components of the system.
@@ -25,6 +30,8 @@ public class MainController {
     private final Project model;
     private final EventHandler<ActionEvent> evtButtonAction;
     private final EventHandler<ActionEvent> evtContextMenuAction;
+    private final EventHandler<WindowEvent> evtCloseRequest;
+    private final EventHandler<ActionEvent> evtMenuBarAction;
 
     /**
      * Constructs the controller. Initializes member variables
@@ -38,6 +45,8 @@ public class MainController {
 
         this.evtButtonAction = new EventButtonAction();
         this.evtContextMenuAction = new EventContextMenuAction();
+        this.evtCloseRequest = new EventCloseRequest();
+        this.evtMenuBarAction = new EventMenuBarAction();
 
         registerEventsOnView();
     }
@@ -49,6 +58,8 @@ public class MainController {
     private void registerEventsOnView() {
         view.registerButtonEvents(evtButtonAction);
         view.registerContextMenuEvents(evtContextMenuAction);
+        view.registerCloseRequestEvent(evtCloseRequest);
+        view.registerMenuBarActionEvents(evtMenuBarAction);
     }
 
     /**
@@ -111,6 +122,29 @@ public class MainController {
                 model.eventManager.getEvents(),
                 model.eventManager.getEventOrder(view.getEventOrderList())
         );
+    }
+
+    private void openProject() {
+        Project.UserPreferences userPrefs = model.getUserPreferences();
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Open Project File");
+        fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("Writer's Studio Project File", "*.wsp")
+        );
+
+        File directory = Paths.get(userPrefs.projectDir).toFile();
+        if(directory.exists())
+            fileChooser.setInitialDirectory(Paths.get(userPrefs.projectDir).toFile());
+
+        File file = fileChooser.showOpenDialog(view.getMainStage());
+        if(file == null)
+            return;
+
+        userPrefs.projectDir = file.getParent();
+        model.writeUserPrefs();
+        //TODO model.loadProject(file);
+
     }
 
     ////// ALL EVENTS ARE LISTED HERE //////////////////////////////////////////////
@@ -177,4 +211,39 @@ public class MainController {
         }
     };
 
+    private class EventCloseRequest implements EventHandler<WindowEvent> {
+        @Override
+        public void handle(WindowEvent e) {
+
+            Project.UserPreferences prefs = model.getUserPreferences();
+            prefs.windowWidth = (int) view.getMainStage().getWidth();
+            prefs.windowHeight = (int) view.getMainStage().getHeight();
+            prefs.windowMaximized = view.getMainStage().isMaximized();
+
+            model.writeUserPrefs();
+        }
+    }
+
+    private class EventMenuBarAction implements EventHandler<ActionEvent> {
+        @Override
+        public void handle(ActionEvent e) {
+            MenuItem source = (MenuItem) e.getSource();
+            String sourceID = source.getId();
+
+            switch (sourceID) {
+                case MainView.ID_MENU_OPEN:
+                    openProject();
+                    break;
+
+                case MainView.ID_MENU_EXIT:
+                    view.exitApplication();
+                    break;
+
+                default:
+                    System.out.println("Unrecognized ID: "+sourceID);
+                    break;
+            }
+
+        }
+    }
 }
