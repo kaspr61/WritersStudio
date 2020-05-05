@@ -6,8 +6,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
 
 import javax.xml.stream.*;
+import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
@@ -30,6 +34,7 @@ public class Project {
     private Path workingPath;
 
     private UserPreferences userPrefs;
+    private String currProjectName;
 
 
     /**
@@ -52,6 +57,10 @@ public class Project {
         writeUserPrefs();
     }
 
+    public String getProjectName() {
+        return currProjectName;
+    }
+
     private void loadUserPrefs() {
         File file = new File(workingDir, "preferences.xml");
         if(!file.exists()) {
@@ -72,7 +81,7 @@ public class Project {
             while(eventReader.hasNext()) {
                 event = eventReader.nextEvent();
 
-                if(event.isStartElement()) { // Start window tag
+                if(event.isStartElement()) {
                     StartElement startElement = event.asStartElement();
                     switch (startElement.getName().getLocalPart()) {
                         case "project_directory":
@@ -160,7 +169,153 @@ public class Project {
         }
 
 
+    }
+
+    private void loadUIDManager(XMLEvent event, XMLEventReader reader)
+            throws XMLStreamException
+    {
+        while(reader.hasNext()) {
+            event = reader.nextEvent();
+
+            if(event.isStartElement()) {
+                StartElement startElement = event.asStartElement();
+
+                if(startElement.getName().getLocalPart() == "uid"){
+                    event = reader.nextEvent();
+                    if(event.isCharacters()) {
+                        UIDManager.addUID(Long.parseLong(event.asCharacters().getData()));
+                    }
+                    event = reader.nextEvent();
+                }
+
+            }
+            else if(event.isEndElement()) {
+                if(event.asEndElement().getName().getLocalPart() == "uid_manager")
+                    return;
+            }
         }
+    }
+
+    private void loadEvents(XMLEvent event, XMLEventReader reader)
+            throws XMLStreamException
+    {
+        long uid = -1L;
+        String name = null;
+
+        while(reader.hasNext()) {
+            event = reader.nextEvent();
+
+            if(event.isStartElement()) {
+                StartElement startElement = event.asStartElement();
+
+                if(startElement.getName().getLocalPart() == "event"){
+                    Iterator<Attribute> attrIt = startElement.getAttributes();
+                    while(attrIt.hasNext()) {
+                        Attribute attr = attrIt.next();
+                        switch(attr.getName().getLocalPart()) {
+                            case "uid":
+                                uid = Long.parseLong(attr.getValue());
+                                break;
+                            case "name":
+                                name = attr.getValue();
+                                break;
+                        }
+                    }
+
+                    event = reader.nextEvent();
+                    if(event.isCharacters() && uid != -1L && name != null) {
+                        eventManager.addEvent(uid, name, event.asCharacters().getData());
+                    }
+                }
+
+            }
+            else if(event.isEndElement()) {
+                if(event.asEndElement().getName().getLocalPart() == "events")
+                    return;
+            }
+        }
+    }
+
+    private void loadEventOrderLists(XMLEvent event, XMLEventReader reader)
+            throws XMLStreamException
+    {
+        LinkedList<Long> orderList = new LinkedList<>();
+
+        while(reader.hasNext()) {
+            event = reader.nextEvent();
+
+            if (event.isStartElement()) {
+                StartElement startElement = event.asStartElement();
+
+                if (startElement.getName().getLocalPart() == "order_list") {
+                    orderList = new LinkedList<Long>();
+
+                    while (reader.hasNext()) {
+                        event = reader.nextEvent();
+
+                        if (event.isStartElement()) {
+                            startElement = event.asStartElement();
+                            if (startElement.getName().getLocalPart() == "li") {
+                                event = reader.nextEvent();
+                                if (event.isCharacters())
+                                    orderList.add(Long.parseLong(event.asCharacters().getData()));
+                            }
+                        }
+                        else if(event.isEndElement()) {
+                            if (event.asEndElement().getName().getLocalPart() == "order_list")
+                                eventManager.addOrderList(orderList);
+                            if (event.asEndElement().getName().getLocalPart() == "event_order")
+                                    return;
+                        }
+                    }
+                }
+
+            }
+
+        }
+    }
+
+    public void clearProject() {
+        eventManager.clear();
+        UIDManager.clear();
+        currProjectName = "";
+    }
+
+    public void loadProject(File projectFile) throws IOException, XMLStreamException {
+        clearProject();
+
+        try(FileInputStream fileStream = new FileInputStream(projectFile)) {
+
+            XMLInputFactory inputFactory = XMLInputFactory.newInstance();
+            XMLEventReader eventReader = inputFactory.createXMLEventReader(fileStream);
+
+            XMLEvent event;
+            while(eventReader.hasNext()) {
+                event = eventReader.nextEvent();
+
+                if(event.isStartElement()) {
+                    StartElement startElement = event.asStartElement();
+                    switch (startElement.getName().getLocalPart()) {
+                        case "project":
+                            Attribute projName = startElement.getAttributes().next();
+                            if(projName.getName().getLocalPart() == "name")
+                                currProjectName = projName.getValue();
+                            break;
+                        case "uid_manager":
+                            loadUIDManager(event, eventReader);
+                            break;
+                        case "events":
+                            loadEvents(event, eventReader);
+                            break;
+                        case "event_order":
+                            loadEventOrderLists(event, eventReader);
+                            break;
+                    }
+                }
+            }
+        }
+
+    }
 
     public UserPreferences getUserPreferences() {
         return userPrefs;

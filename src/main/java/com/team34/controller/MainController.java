@@ -143,8 +143,20 @@ public class MainController {
 
         userPrefs.projectDir = file.getParent();
         model.writeUserPrefs();
-        //TODO model.loadProject(file);
 
+        try {
+            model.loadProject(file);
+            refreshViewEvents();
+
+            if(model.getProjectName().isEmpty())
+                view.getMainStage().setTitle("Writer's Studio - untitled");
+            else
+                view.getMainStage().setTitle("Writer's Studio - " + model.getProjectName());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            // TODO popup error dialog, error reading file.
+        }
     }
 
     ////// ALL EVENTS ARE LISTED HERE //////////////////////////////////////////////
@@ -216,9 +228,11 @@ public class MainController {
         public void handle(WindowEvent e) {
 
             Project.UserPreferences prefs = model.getUserPreferences();
-            prefs.windowWidth = (int) view.getMainStage().getWidth();
-            prefs.windowHeight = (int) view.getMainStage().getHeight();
             prefs.windowMaximized = view.getMainStage().isMaximized();
+            if(!prefs.windowMaximized) {
+                prefs.windowWidth = (int) view.getMainStage().getScene().getWidth();
+                prefs.windowHeight = (int) view.getMainStage().getScene().getHeight();
+            }
 
             model.writeUserPrefs();
         }

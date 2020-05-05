@@ -50,11 +50,7 @@ public class EventManager {
      */
     public long newEvent(String name, String description) {
         long uid = UIDManager.nextUID();
-        events.put(uid, new Event(name, description));
-
-        for(LinkedList<Long> e : eventOrderLists)
-            e.add(uid);
-
+        addEvent(uid, name, description);
         return uid;
     }
 
@@ -84,6 +80,13 @@ public class EventManager {
 
         for(LinkedList<Long> e : eventOrderLists)
             e.remove(uid);
+    }
+
+    public void addEvent(long uid, String name, String description) {
+        events.put(uid, new Event(name, description));
+
+        for(LinkedList<Long> e : eventOrderLists)
+            e.add(uid);
     }
 
     /**
@@ -169,6 +172,15 @@ public class EventManager {
 
     public void moveEvent(int orderList, int fromIndex, int toIndex) {
         // TODO move to (insert at) specified location.
+    }
+
+    public void addOrderList(LinkedList<Long> orderList) {
+        eventOrderLists.add(orderList);
+    }
+
+    public void clear() {
+        events.clear();
+        eventOrderLists.clear();
     }
 
 }

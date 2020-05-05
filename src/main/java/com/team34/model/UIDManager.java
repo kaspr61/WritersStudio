@@ -55,8 +55,13 @@ public class UIDManager {
         return uidList.remove(uid);
     }
 
+    public static void addUID(long uid) {
+        uidList.add(uid);
+    }
 
-
+    public static void clear() {
+        uidList.clear();
+    }
 
 
     //////////////////
