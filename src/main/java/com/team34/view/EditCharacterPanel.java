@@ -1,5 +1,6 @@
 package com.team34.view;
 
+import com.team34.view.dialogs.EditEventDialog;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -15,6 +16,10 @@ import javafx.stage.Stage;
 
 public class EditCharacterPanel extends Stage {
 
+    private TextField tfCharacterName;
+    private TextArea taCharacterDescription;
+    private WindowResult windowResult;
+
     public EditCharacterPanel(Stage ownerStage) {
         setTitle("Edit Character");
 
@@ -25,12 +30,12 @@ public class EditCharacterPanel extends Stage {
         Label lblCharacterDescription = new Label("Character description:");
 
         //Textfield
-        TextField tfCharacterName = new TextField();
+        tfCharacterName = new TextField();
         tfCharacterName.setPromptText("Enter character name here");
         tfCharacterName.setMaxWidth(150);
 
         //TextArea
-        TextArea taCharacterDescription = new TextArea();
+        taCharacterDescription = new TextArea();
         taCharacterDescription.setPromptText("Enter character description here");
 
         //Button
@@ -71,7 +76,32 @@ public class EditCharacterPanel extends Stage {
         // --- Set ownership and modality --- //
         initModality(Modality.WINDOW_MODAL);
         initOwner(ownerStage);
-
     }
+
+    public WindowResult showCreateCharacter() {
+        setTitle("New Character");
+
+        tfCharacterName.setText("");
+        taCharacterDescription.setText("");
+
+        tfCharacterName.requestFocus();
+        showAndWait();
+
+        return windowResult;
+    }
+
+    public String getCharacterName() {
+        return tfCharacterName.getText();
+    }
+
+    public String getCharacterDescription() {
+        return taCharacterDescription.getText();
+    }
+
+    public enum WindowResult {
+        OK,
+        CANCEL
+    }
+
 
 }

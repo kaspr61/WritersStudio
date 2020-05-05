@@ -14,12 +14,14 @@ import com.team34.model.character.*;
 public class Project {
 
     public final EventManager eventManager;
+    public final CharacterManager characterManager;
 
     /**
      * Contructs the project.
      */
     public Project() {
         eventManager = new EventManager(0, 0);
+        characterManager = new CharacterManager();
     }
 
 }

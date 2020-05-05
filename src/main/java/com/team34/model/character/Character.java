@@ -1,36 +1,33 @@
 package com.team34.model.character;
 
-import com.team34.model.event.Event;
-
 /**
  * @author Morgan Karlsson
  */
 
 public class Character {
 
-    private String characterName = "";
-    private String characterDescription = "";
-    private Event event;
+    private String name = "";
+    private String description = "";
 
-    public Character( String characterName, String characterDescription, Event event){
-        this.characterName = characterName;
-        this.characterDescription = characterDescription;
-        this.event = event;
+
+    public Character(String name, String description){
+        this.name = name;
+        this.description = description;
     }
 
-    public String getCharacterName() {
-        return characterName;
+    public String getName() {
+        return name;
     }
 
-    public void setCharacterName(String characterName) {
-        this.characterName = characterName;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getCharacterDescription() {
-        return characterDescription;
+    public String getDescription() {
+        return description;
     }
 
-    public void setCharacterDescription(String characterDescription) {
-        this.characterDescription = characterDescription;
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

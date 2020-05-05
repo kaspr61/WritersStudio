@@ -16,6 +16,8 @@ import javafx.stage.Stage;
 import com.team34.view.dialogs.EditEventDialog;
 import com.team34.view.timeline.Timeline;
 
+import java.util.ArrayList;
+
 /**
  * This class represents the top layer of the view.
  * <p>
@@ -35,6 +37,10 @@ public class MainView {
     public static final String ID_TIMELINE_NEW_EVENT = "TIMELINE_NEW_EVENT";
     public static final String ID_TIMELINE_REMOVE_EVENT = "TIMELINE_REMOVE_EVENT";
     public static final String ID_TIMELINE_EDIT_EVENT = "TIMELINE_EDIT_EVENT";
+    public static final String ID_BTN_CHARACTERLIST_ADD = "ID_BTN_CHARACTERLIST_ADD";
+    public static final String ID_BTN_CHARACTERLIST_EDIT = "ID_BTN_CHARACTERLIST_EDIT";
+    public static final String ID_BTN_CHARACTERLIST_DELETE = "ID_BTN_CHARACTERLIST_DELETE";
+
 
     //// PANES /////////////////////////////////////////
 
@@ -58,6 +64,7 @@ public class MainView {
     private String cssMain;
     private Timeline timeline;
     private EditEventDialog editEventDialog;
+    private EditCharacterPanel editCharacterPanel;
     private int eventOrderList; // index to specify which order list to use
 
     ////////////////////////////////////////////////////
@@ -234,6 +241,20 @@ public class MainView {
      */
     public EditEventDialog getEditEventDialog() {
         return editEventDialog;
+    }
+
+    /**
+     * Returns a reference to the {@link EditCharacterPanel}, to be accessed directly
+     * from {@link com.team34.controller.MainController}.
+     * @return the edit character dialog
+     */
+    public EditCharacterPanel getEditCharacterPanel() {
+        return editCharacterPanel;
+    }
+
+    public void updateCharacterList(ArrayList<String> characters) {
+        rightPane.
+        //TODO: Hur att lösa att MainView behandlar CharacterList ("rightPane") som en StackPane?
     }
 
 }

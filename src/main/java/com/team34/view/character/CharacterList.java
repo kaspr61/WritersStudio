@@ -1,18 +1,15 @@
 package com.team34.view.character;
 
+import com.team34.view.MainView;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
-import javafx.stage.Stage;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
 /*
@@ -63,32 +60,8 @@ public class CharacterList extends StackPane {
         add = new Button();
         edit = new Button();
         delete = new Button();
-
-        //Icons for Add/Edit/Delete
-        addCharacter = com.team34.App.class.getResource("/icons/add_character.png").toExternalForm(); //Filestream for icon
-        Image imgAddCharacter = new Image(addCharacter);
-        ImageView imageViewAddCharacter = new ImageView(imgAddCharacter);
-
-        editCharacter = com.team34.App.class.getResource("/icons/edit_character.png").toExternalForm();
-        Image imgEditCharacter = new Image(editCharacter);
-        ImageView imageViewEditCharacter = new ImageView(imgEditCharacter);
-
-        deleteCharacter = com.team34.App.class.getResource("/icons/delete_character.png").toExternalForm();
-        Image imgDeleteCharacter = new Image(deleteCharacter);
-        ImageView imageViewDeleteCharacter = new ImageView(imgDeleteCharacter);
-
-        imageViewAddCharacter.setFitHeight(ICON_SIZE); // Set size for icon
-        imageViewAddCharacter.setFitWidth(ICON_SIZE);
-
-        imageViewEditCharacter.setFitHeight(ICON_SIZE);
-        imageViewEditCharacter.setFitWidth(ICON_SIZE);
-
-        imageViewDeleteCharacter.setFitHeight(ICON_SIZE);
-        imageViewDeleteCharacter.setFitWidth(ICON_SIZE);
-
-        add.setGraphic(imageViewAddCharacter);
-        edit.setGraphic(imageViewEditCharacter);
-        delete.setGraphic(imageViewDeleteCharacter);
+        installButtonIcons();
+        installButtonIds();
 
         //Label
         title = new Label("Characters");
@@ -97,22 +70,6 @@ public class CharacterList extends StackPane {
         //Character List
         ArrayList<String> characters = new ArrayList<>();
         characterList = new ListView<>();
-        characters.add("Hamlet");
-        characters.add("Claudius");
-        characters.add("Gertrud");
-        characters.add("Ophelia");
-        characters.add("Horatio");
-        characters.add("Laertes");
-        characters.add("Polonius");
-        characters.add("Fortinbras");
-        characters.add("Rosencrantz");
-        characters.add("Guildenstern");
-        characters.add("Osric");
-        characters.add("Marcellus");
-        characters.add("Barnardo");
-        characters.add("Francisco");
-        characters.add("Reynaldo");
-        characters.add("Spöket");
 
         characterList.getItems().addAll(characters);
 
@@ -137,5 +94,42 @@ public class CharacterList extends StackPane {
 
     public void setStyleSheets() {
         outerPane.getStyleClass().add("outerPane");
+    }
+
+    public void installButtonIcons() {
+        addCharacter = com.team34.App.class.getResource("/icons/add_character.png").toExternalForm(); //Filestream for icon
+        Image imgAddCharacter = new Image(addCharacter);
+        ImageView imageViewAddCharacter = new ImageView(imgAddCharacter);
+
+        editCharacter = com.team34.App.class.getResource("/icons/edit_character.png").toExternalForm();
+        Image imgEditCharacter = new Image(editCharacter);
+        ImageView imageViewEditCharacter = new ImageView(imgEditCharacter);
+
+        deleteCharacter = com.team34.App.class.getResource("/icons/delete_character.png").toExternalForm();
+        Image imgDeleteCharacter = new Image(deleteCharacter);
+        ImageView imageViewDeleteCharacter = new ImageView(imgDeleteCharacter);
+
+        imageViewAddCharacter.setFitHeight(ICON_SIZE); // Set size for icon
+        imageViewAddCharacter.setFitWidth(ICON_SIZE);
+
+        imageViewEditCharacter.setFitHeight(ICON_SIZE);
+        imageViewEditCharacter.setFitWidth(ICON_SIZE);
+
+        imageViewDeleteCharacter.setFitHeight(ICON_SIZE);
+        imageViewDeleteCharacter.setFitWidth(ICON_SIZE);
+
+        add.setGraphic(imageViewAddCharacter);
+        edit.setGraphic(imageViewEditCharacter);
+        delete.setGraphic(imageViewDeleteCharacter);
+    }
+
+    public void installButtonIds() {
+        add.setId(MainView.ID_BTN_CHARACTERLIST_ADD);
+        edit.setId(MainView.ID_BTN_CHARACTERLIST_EDIT);
+        delete.setId(MainView.ID_BTN_CHARACTERLIST_DELETE);
+    }
+
+    public void updateListView(ArrayList<String> characters) {
+        characterList.getItems().addAll(characters);
     }
 }
