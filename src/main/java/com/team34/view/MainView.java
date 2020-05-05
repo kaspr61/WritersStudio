@@ -253,7 +253,7 @@ public class MainView {
     }
 
     public void updateCharacterList(ArrayList<String> characters) {
-        rightPane.
+//        rightPane.updateListView();
         //TODO: Hur att lösa att MainView behandlar CharacterList ("rightPane") som en StackPane?
     }
 
