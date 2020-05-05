@@ -12,7 +12,9 @@ import javafx.scene.control.MenuItem;
 import javafx.stage.FileChooser;
 import javafx.stage.WindowEvent;
 
+import javax.xml.stream.XMLStreamException;
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Paths;
 
 /**
@@ -85,6 +87,7 @@ public class MainController {
                 // TODO Popup warning dialog, stating that either name or description has unsupported format
             }
         }
+        refreshTitleBar();
     }
 
     /**
@@ -113,6 +116,7 @@ public class MainController {
                 // TODO Popup warning dialog, stating that either name or description has unsupported format
             }
         }
+        refreshTitleBar();
     }
 
     /**
@@ -126,10 +130,32 @@ public class MainController {
     }
 
     private void refreshTitleBar() {
+        String title = "Writer's Studio - ";
+
         if(model.getProjectName().isEmpty())
-            view.getMainStage().setTitle("Writer's Studio - untitled");
+            title += "untitled";
         else
-            view.getMainStage().setTitle("Writer's Studio - " + model.getProjectName());
+            title += model.getProjectName();
+
+        if(model.hasUnsavedChanges())
+            title += "*";
+
+        view.getMainStage().setTitle(title);
+    }
+
+    // Returns false if action should not continue
+    private boolean saveBeforeContinue() {
+        if(model.hasUnsavedChanges()) {
+            ButtonType result = view.showUnsavedChangesDialog();
+            if (result == ButtonType.YES) {
+                saveProject();
+            }
+            else if (result == ButtonType.CANCEL || result == ButtonType.CLOSE) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private void openProject() {
@@ -150,7 +176,12 @@ public class MainController {
             return;
 
         userPrefs.projectDir = file.getParent();
+
+        try {
         model.writeUserPrefs();
+        } catch (IOException | XMLStreamException e) {
+            e.printStackTrace();
+        }
 
         try {
             model.loadProject(file);
@@ -180,12 +211,18 @@ public class MainController {
             File file = fileChooser.showSaveDialog(view.getMainStage());
             if (file == null)
                 return;
-            else
+            else {
                 model.setProjectFile(file);
+                model.setProjectName(file.getName());
+            }
         }
 
-        model.saveProject();
-
+        try {
+            model.saveProject();
+            refreshTitleBar();
+        } catch (IOException | XMLStreamException e) {
+            e.printStackTrace();
+        }
     }
 
     ////// ALL EVENTS ARE LISTED HERE //////////////////////////////////////////////
@@ -237,6 +274,7 @@ public class MainController {
                 case MainView.ID_TIMELINE_REMOVE_EVENT:
                     model.eventManager.removeEvent(sourceUID);
                     refreshViewEvents();
+                    refreshTitleBar();
                     break;
 
                 case MainView.ID_TIMELINE_EDIT_EVENT:
@@ -255,21 +293,8 @@ public class MainController {
     private class EventCloseRequest implements EventHandler<WindowEvent> {
         @Override
         public void handle(WindowEvent e) {
-
-            if(model.hasUnsavedChanges()) {
-                // TODO open save dialog
-                ButtonType result = view.showUnsavedChangesDialog();
-                if (result == ButtonType.YES) {
-                    saveProject();
-                }
-                else if (result == ButtonType.CANCEL || result == ButtonType.CLOSE) {
-                    e.consume();
-                    return;
-                }
-                else if (result == ButtonType.NO) {
-                    return;
-                }
-            }
+            if(!saveBeforeContinue()) // If user pressed cancel
+                e.consume();
 
             Project.UserPreferences prefs = model.getUserPreferences();
             prefs.windowMaximized = view.getMainStage().isMaximized();
@@ -278,7 +303,11 @@ public class MainController {
                 prefs.windowHeight = (int) view.getMainStage().getScene().getHeight();
             }
 
-            model.writeUserPrefs();
+            try {
+                model.writeUserPrefs();
+            } catch (IOException | XMLStreamException ex) {
+                ex.printStackTrace();
+            }
         }
     }
 
@@ -290,13 +319,25 @@ public class MainController {
 
             switch (sourceID) {
                 case MainView.ID_MENU_NEW:
-                    model.clearProject();
-                    refreshViewEvents();
+                    if(saveBeforeContinue()) {
+                        model.clearProject();
+                        refreshViewEvents();
+                    }
                     refreshTitleBar();
                     break;
 
                 case MainView.ID_MENU_OPEN:
-                    openProject();
+                    if(saveBeforeContinue())
+                        openProject();
+                    break;
+
+                case MainView.ID_MENU_SAVE:
+                    saveProject();
+                    break;
+
+                case MainView.ID_MENU_SAVE_AS:
+                    model.setProjectFile(null);
+                    saveProject();
                     break;
 
                 case MainView.ID_MENU_EXIT:

@@ -6,7 +6,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -56,8 +55,11 @@ public class Project {
             workingPath = Paths.get(workingDir);
         }
 
-        loadUserPrefs();
-        writeUserPrefs();
+        try {
+            loadUserPrefs();
+        } catch (IOException | XMLStreamException e) {
+            e.printStackTrace();
+        }
     }
 
     public String getProjectName() {
@@ -80,16 +82,10 @@ public class Project {
         return eventManager.hasChanged();
     }
 
-    private void loadUserPrefs() {
+    private void loadUserPrefs() throws IOException, XMLStreamException {
         File file = new File(workingDir, "preferences.xml");
-        if(!file.exists()) {
-            try {
-                file.createNewFile();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        if(!file.exists())
             return;
-        }
 
         try(FileInputStream fileStream = new FileInputStream(file)) {
 
@@ -123,10 +119,6 @@ public class Project {
                     }
                 }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (XMLStreamException e) {
-            e.printStackTrace();
         }
     }
 
@@ -143,16 +135,9 @@ public class Project {
         writer.add(factory.createCharacters(System.lineSeparator()));
     }
 
-    public void writeUserPrefs() {
+    public void writeUserPrefs() throws IOException, XMLStreamException {
         File file = new File(workingDir, "preferences.xml");
-        if(!file.exists()) {
-            try {
-                file.createNewFile();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return;
-        }
+        file.createNewFile();
 
         try(FileOutputStream fileStream = new FileOutputStream(file, false)) {
 
@@ -181,13 +166,7 @@ public class Project {
             eventWriter.add(eventFactory.createEndDocument());
 
             eventWriter.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (XMLStreamException e) {
-            e.printStackTrace();
         }
-
-
     }
 
     private void loadUIDManager(XMLEvent event, XMLEventReader reader)
@@ -242,8 +221,12 @@ public class Project {
                     }
 
                     event = reader.nextEvent();
-                    if(event.isCharacters() && uid != -1L && name != null) {
-                        eventManager.addEvent(uid, name, event.asCharacters().getData());
+                    if(uid != -1L && name != null) {
+                        if(event.isCharacters())
+                            eventManager.addEvent(uid, name, event.asCharacters().getData());
+                        else
+                            eventManager.addEvent(uid, name, "");
+
                     }
                 }
 
@@ -294,13 +277,6 @@ public class Project {
         }
     }
 
-    public void clearProject() {
-        eventManager.clear();
-        UIDManager.clear();
-        currProjectName = "";
-        currProjectFile = null;
-    }
-
     public void loadProject(File projectFile) throws IOException, XMLStreamException {
         clearProject();
 
@@ -341,8 +317,122 @@ public class Project {
 
     }
 
-    public void saveProject() {
+    private void writeUIDManager(XMLEventFactory factory, XMLEventWriter writer)
+            throws XMLStreamException
+    {
+        Long[] uids = UIDManager.getUIDs();
+        if(uids == null)
+            return;
 
+        for(int i = 0; i < uids.length; i++) {
+            writer.add(factory.createStartElement("", "", "uid"));
+            writer.add(factory.createCharacters(Long.toString(uids[i])));
+            writer.add(factory.createEndElement("", "", "uid"));
+            writer.add(factory.createCharacters(System.lineSeparator()));
+        }
+    }
+
+    private void writeEvents(XMLEventFactory factory, XMLEventWriter writer)
+            throws XMLStreamException
+    {
+        Object[][] event = eventManager.getEvents();
+        if(event == null)
+            return;
+
+        for(int i = 0; i < event.length; i++) {
+            writer.add(factory.createStartElement("", "", "event"));
+            writer.add(factory.createAttribute("name", (String) event[i][1]));
+            writer.add(factory.createAttribute("uid", Long.toString((Long) event[i][0])));
+
+            writer.add(factory.createCharacters((String) event[i][2]));
+
+            writer.add(factory.createEndElement("", "", "event"));
+            writer.add(factory.createCharacters(System.lineSeparator()));
+        }
+    }
+
+    private void writeEventOrderLists(XMLEventFactory factory, XMLEventWriter writer)
+            throws XMLStreamException
+    {
+        int i = 0;
+        Long[] orderList = eventManager.getEventOrder(i);
+        if(orderList == null)
+            return;
+
+        while(orderList != null) {
+            writer.add(factory.createStartElement("", "", "order_list"));
+            writer.add(factory.createCharacters(System.lineSeparator()));
+
+            for (int j = 0; j < orderList.length; j++) {
+                writer.add(factory.createStartElement("", "", "li"));
+                writer.add(factory.createCharacters(Long.toString(orderList[j])));
+                writer.add(factory.createEndElement("", "", "li"));
+                writer.add(factory.createCharacters(System.lineSeparator()));
+            }
+
+            writer.add(factory.createEndElement("", "", "order_list"));
+            writer.add(factory.createCharacters(System.lineSeparator()));
+
+            orderList = eventManager.getEventOrder(++i);
+        }
+    }
+
+    public void saveProject() throws IOException, XMLStreamException {
+        if(currProjectFile == null)
+            throw new NullPointerException("currProjectFile must not be null");
+
+        currProjectFile.createNewFile();
+
+        if(currProjectName.isEmpty())
+            currProjectName = currProjectFile.getName();
+
+        try(FileOutputStream fileStream = new FileOutputStream(currProjectFile, false)) {
+
+            XMLEventFactory eventFactory = XMLEventFactory.newFactory();
+            XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
+            XMLEventWriter eventWriter = outputFactory.createXMLEventWriter(fileStream);
+
+            eventWriter.add(eventFactory.createStartDocument("UTF-8", "1.0"));
+            eventWriter.add(eventFactory.createCharacters(System.lineSeparator()));
+
+            eventWriter.add(eventFactory.createStartElement("", "", "project"));
+            eventWriter.add(eventFactory.createAttribute("name", currProjectName));
+            eventWriter.add(eventFactory.createCharacters(System.lineSeparator()));
+
+            eventWriter.add(eventFactory.createStartElement("", "", "uid_manager"));
+            eventWriter.add(eventFactory.createCharacters(System.lineSeparator()));
+            writeUIDManager(eventFactory, eventWriter);
+            eventWriter.add(eventFactory.createEndElement("", "", "uid_manager"));
+            eventWriter.add(eventFactory.createCharacters(System.lineSeparator()));
+
+            eventWriter.add(eventFactory.createStartElement("", "", "events"));
+            eventWriter.add(eventFactory.createCharacters(System.lineSeparator()));
+            writeEvents(eventFactory, eventWriter);
+            eventWriter.add(eventFactory.createEndElement("", "", "events"));
+            eventWriter.add(eventFactory.createCharacters(System.lineSeparator()));
+
+            eventWriter.add(eventFactory.createStartElement("", "", "event_order"));
+            eventWriter.add(eventFactory.createCharacters(System.lineSeparator()));
+            writeEventOrderLists(eventFactory, eventWriter);
+            eventWriter.add(eventFactory.createEndElement("", "", "event_order"));
+            eventWriter.add(eventFactory.createCharacters(System.lineSeparator()));
+
+            eventWriter.add(eventFactory.createEndElement("", "", "project"));
+            eventWriter.add(eventFactory.createCharacters(System.lineSeparator()));
+
+            eventWriter.add(eventFactory.createEndDocument());
+
+            eventWriter.flush();
+
+            eventManager.resetChanges();
+        }
+    }
+
+    public void clearProject() {
+        eventManager.clear();
+        UIDManager.clear();
+        currProjectName = "";
+        currProjectFile = null;
     }
 
     public UserPreferences getUserPreferences() {

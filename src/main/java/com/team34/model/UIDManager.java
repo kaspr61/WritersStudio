@@ -63,6 +63,10 @@ public class UIDManager {
         uidList.clear();
     }
 
+    public static Long[] getUIDs() {
+        return uidList.toArray(new Long[uidList.size()]);
+    }
+
 
     //////////////////
     /// TEST AREA ///

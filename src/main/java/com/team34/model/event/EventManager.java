@@ -54,6 +54,13 @@ public class EventManager {
     public long newEvent(String name, String description) {
         long uid = UIDManager.nextUID();
         addEvent(uid, name, description);
+
+        if(eventOrderLists.size() < 1)
+            eventOrderLists.add(new LinkedList<>());
+
+        for(LinkedList<Long> e : eventOrderLists)
+            e.add(uid);
+
         return uid;
     }
 
@@ -90,10 +97,6 @@ public class EventManager {
 
     public void addEvent(long uid, String name, String description) {
         events.put(uid, new Event(name, description));
-
-        for(LinkedList<Long> e : eventOrderLists)
-            e.add(uid);
-
         hasChanged = true;
     }
 
@@ -171,6 +174,8 @@ public class EventManager {
     public Long[] getEventOrder(int eventOrderList) {
         if(eventOrderLists == null)
             return null;
+        if(eventOrderList >= eventOrderLists.size() || eventOrderList < 0)
+            return null;
 
         return eventOrderLists.get(eventOrderList).toArray(
                 new Long[eventOrderLists.get(eventOrderList).size()]
@@ -194,7 +199,6 @@ public class EventManager {
     public void clear() {
         events.clear();
         eventOrderLists.clear();
-        eventOrderLists.add(new LinkedList<Long>());
         hasChanged = false;
     }
 

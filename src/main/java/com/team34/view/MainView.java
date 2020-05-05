@@ -41,6 +41,8 @@ public class MainView {
 
     public static final String ID_MENU_NEW = "MENU_NEW_PROJECT";
     public static final String ID_MENU_OPEN = "MENU_OPEN_PROJECT";
+    public static final String ID_MENU_SAVE = "MENU_SAVE";
+    public static final String ID_MENU_SAVE_AS = "MENU_SAVE_AS";
     public static final String ID_MENU_EXIT = "MENU_EXIT";
 
     //// PANES /////////////////////////////////////////
