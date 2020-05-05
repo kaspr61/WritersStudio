@@ -12,6 +12,7 @@ import javafx.stage.WindowEvent;
  */
 public class MenuBar extends javafx.scene.control.MenuBar {
 
+    private MenuItem fileNew;
     private MenuItem fileOpen;
     private MenuItem fileExit;
 
@@ -19,6 +20,9 @@ public class MenuBar extends javafx.scene.control.MenuBar {
         super();
 
         Menu menuFile = new Menu("File");
+
+        fileNew = new MenuItem("New Project");
+        fileNew.setId(MainView.ID_MENU_NEW);
 
         fileOpen = new MenuItem("Open Project");
         fileOpen.setId(MainView.ID_MENU_OPEN);
@@ -33,7 +37,7 @@ public class MenuBar extends javafx.scene.control.MenuBar {
         MenuItem menuItem4 = new MenuItem("Temp 4");
 
         getMenus().add(menuFile);
-        menuFile.getItems().addAll(fileOpen, fileExit);
+        menuFile.getItems().addAll(fileNew, fileOpen, fileExit);
 
         getMenus().add(menuEdit);
         menuEdit.getItems().add(subMenu3);
@@ -44,6 +48,7 @@ public class MenuBar extends javafx.scene.control.MenuBar {
     }
 
     public void registerMenuBarAction(EventHandler<ActionEvent> menuActionHandler) {
+        fileNew.setOnAction(menuActionHandler);
         fileOpen.setOnAction(menuActionHandler);
         fileExit.setOnAction(menuActionHandler);
     }

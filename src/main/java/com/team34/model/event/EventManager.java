@@ -20,6 +20,7 @@ public class EventManager {
 
     private HashMap<Long, Event> events;
     private ArrayList<LinkedList<Long>> eventOrderLists;
+    private boolean hasChanged;
 
     /**
      * Constructs the EventManager and sets optional initial capacities for events and order lists.
@@ -27,6 +28,8 @@ public class EventManager {
      * @param orderListCapacity if 0, uses default constructor for order lists
      */
     public EventManager(int eventCapacity, int orderListCapacity) {
+        hasChanged = false;
+
         if(eventCapacity > 0)
             events = new HashMap<Long, Event>(eventCapacity);
         else
@@ -64,6 +67,7 @@ public class EventManager {
     public boolean editEvent(long uid, String name, String description) {
         if(events.containsKey(uid)) {
             events.replace(uid, new Event(name, description));
+            hasChanged = true;
             return true;
         }
         return false;
@@ -80,6 +84,8 @@ public class EventManager {
 
         for(LinkedList<Long> e : eventOrderLists)
             e.remove(uid);
+
+        hasChanged = true;
     }
 
     public void addEvent(long uid, String name, String description) {
@@ -87,6 +93,8 @@ public class EventManager {
 
         for(LinkedList<Long> e : eventOrderLists)
             e.add(uid);
+
+        hasChanged = true;
     }
 
     /**
@@ -161,6 +169,9 @@ public class EventManager {
      * @return the order of event UIDs
      */
     public Long[] getEventOrder(int eventOrderList) {
+        if(eventOrderLists == null)
+            return null;
+
         return eventOrderLists.get(eventOrderList).toArray(
                 new Long[eventOrderLists.get(eventOrderList).size()]
         );
@@ -168,10 +179,12 @@ public class EventManager {
 
     public void swapEvent(int orderList, int index1, int index2) {
         //TODO swap places between two events in the specified order list.
+        hasChanged = true;
     }
 
     public void moveEvent(int orderList, int fromIndex, int toIndex) {
         // TODO move to (insert at) specified location.
+        hasChanged = true;
     }
 
     public void addOrderList(LinkedList<Long> orderList) {
@@ -181,6 +194,16 @@ public class EventManager {
     public void clear() {
         events.clear();
         eventOrderLists.clear();
+        eventOrderLists.add(new LinkedList<Long>());
+        hasChanged = false;
+    }
+
+    public boolean hasChanged() {
+        return hasChanged;
+    }
+
+    public void resetChanges() {
+        hasChanged = false;
     }
 
 }

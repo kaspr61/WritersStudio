@@ -35,6 +35,7 @@ public class Project {
 
     private UserPreferences userPrefs;
     private String currProjectName;
+    private File currProjectFile;
 
 
     /**
@@ -46,6 +47,8 @@ public class Project {
 
         workingDir = System.getProperty("user.dir");
         workingPath = Paths.get(workingDir);
+        currProjectName = "";
+        currProjectFile = null;
 
         if(workingPath.endsWith("bin")) {
             System.setProperty("user.dir", workingPath.getRoot().resolve(workingPath.subpath(0, workingPath.getNameCount()-1)).toString());
@@ -59,6 +62,22 @@ public class Project {
 
     public String getProjectName() {
         return currProjectName;
+    }
+
+    public void setProjectName(String name) {
+        currProjectName = name;
+    }
+
+    public File getProjectFile() {
+        return currProjectFile;
+    }
+
+    public void setProjectFile(File file) {
+        currProjectFile = file;
+    }
+
+    public boolean hasUnsavedChanges() {
+        return eventManager.hasChanged();
     }
 
     private void loadUserPrefs() {
@@ -279,6 +298,7 @@ public class Project {
         eventManager.clear();
         UIDManager.clear();
         currProjectName = "";
+        currProjectFile = null;
     }
 
     public void loadProject(File projectFile) throws IOException, XMLStreamException {
@@ -314,12 +334,22 @@ public class Project {
                 }
             }
         }
+        finally {
+            currProjectFile = projectFile;
+            eventManager.resetChanges();
+        }
+
+    }
+
+    public void saveProject() {
 
     }
 
     public UserPreferences getUserPreferences() {
         return userPrefs;
     }
+
+    /////////////////////////////////////////////////////////////////////////
 
     public class UserPreferences {
         public String projectDir = "";

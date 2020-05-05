@@ -6,8 +6,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.SplitPane;
+import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
@@ -16,6 +15,8 @@ import javafx.stage.Stage;
 import com.team34.view.dialogs.EditEventDialog;
 import com.team34.view.timeline.Timeline;
 import javafx.stage.WindowEvent;
+
+import java.util.Optional;
 
 /**
  * This class represents the top layer of the view.
@@ -38,6 +39,7 @@ public class MainView {
     public static final String ID_TIMELINE_REMOVE_EVENT = "TIMELINE_REMOVE_EVENT";
     public static final String ID_TIMELINE_EDIT_EVENT = "TIMELINE_EDIT_EVENT";
 
+    public static final String ID_MENU_NEW = "MENU_NEW_PROJECT";
     public static final String ID_MENU_OPEN = "MENU_OPEN_PROJECT";
     public static final String ID_MENU_EXIT = "MENU_EXIT";
 
@@ -257,6 +259,21 @@ public class MainView {
 
     public void exitApplication() {
         mainStage.fireEvent(new WindowEvent(mainStage, WindowEvent.WINDOW_CLOSE_REQUEST));
+    }
+
+    public ButtonType showUnsavedChangesDialog() {
+        Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.setTitle("Unsaved changes");
+        dialog.setContentText("Would you like to save your project?");
+        dialog.getDialogPane().getButtonTypes().addAll(
+                ButtonType.YES, ButtonType.NO, ButtonType.CANCEL
+        );
+
+        Optional<ButtonType> result = dialog.showAndWait();
+        if(!result.isPresent())
+            return ButtonType.CLOSE;
+        else
+            return result.get();
     }
 
 }

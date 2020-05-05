@@ -7,6 +7,7 @@ import javafx.scene.Node;
 
 import com.team34.model.Project;
 import com.team34.view.MainView;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.MenuItem;
 import javafx.stage.FileChooser;
 import javafx.stage.WindowEvent;
@@ -124,6 +125,13 @@ public class MainController {
         );
     }
 
+    private void refreshTitleBar() {
+        if(model.getProjectName().isEmpty())
+            view.getMainStage().setTitle("Writer's Studio - untitled");
+        else
+            view.getMainStage().setTitle("Writer's Studio - " + model.getProjectName());
+    }
+
     private void openProject() {
         Project.UserPreferences userPrefs = model.getUserPreferences();
 
@@ -147,16 +155,37 @@ public class MainController {
         try {
             model.loadProject(file);
             refreshViewEvents();
-
-            if(model.getProjectName().isEmpty())
-                view.getMainStage().setTitle("Writer's Studio - untitled");
-            else
-                view.getMainStage().setTitle("Writer's Studio - " + model.getProjectName());
-
+            refreshTitleBar();
         } catch (Exception e) {
             e.printStackTrace();
             // TODO popup error dialog, error reading file.
         }
+    }
+
+    private void saveProject() {
+        if(model.getProjectFile() == null) {
+
+            Project.UserPreferences userPrefs = model.getUserPreferences();
+
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Save Project File");
+            fileChooser.getExtensionFilters().add(
+                    new FileChooser.ExtensionFilter("Writer's Studio Project File", "*.wsp")
+            );
+
+            File directory = Paths.get(userPrefs.projectDir).toFile();
+            if (directory.exists())
+                fileChooser.setInitialDirectory(Paths.get(userPrefs.projectDir).toFile());
+
+            File file = fileChooser.showSaveDialog(view.getMainStage());
+            if (file == null)
+                return;
+            else
+                model.setProjectFile(file);
+        }
+
+        model.saveProject();
+
     }
 
     ////// ALL EVENTS ARE LISTED HERE //////////////////////////////////////////////
@@ -227,6 +256,21 @@ public class MainController {
         @Override
         public void handle(WindowEvent e) {
 
+            if(model.hasUnsavedChanges()) {
+                // TODO open save dialog
+                ButtonType result = view.showUnsavedChangesDialog();
+                if (result == ButtonType.YES) {
+                    saveProject();
+                }
+                else if (result == ButtonType.CANCEL || result == ButtonType.CLOSE) {
+                    e.consume();
+                    return;
+                }
+                else if (result == ButtonType.NO) {
+                    return;
+                }
+            }
+
             Project.UserPreferences prefs = model.getUserPreferences();
             prefs.windowMaximized = view.getMainStage().isMaximized();
             if(!prefs.windowMaximized) {
@@ -245,6 +289,12 @@ public class MainController {
             String sourceID = source.getId();
 
             switch (sourceID) {
+                case MainView.ID_MENU_NEW:
+                    model.clearProject();
+                    refreshViewEvents();
+                    refreshTitleBar();
+                    break;
+
                 case MainView.ID_MENU_OPEN:
                     openProject();
                     break;
