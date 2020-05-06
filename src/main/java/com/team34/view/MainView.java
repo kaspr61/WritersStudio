@@ -33,13 +33,14 @@ public class MainView {
 
     //// CONTROL IDs ///////////////////////////
 
+    public static final String ID_BTN_CHARACTERLIST_ADD = "ID_BTN_CHARACTERLIST_ADD";
+    public static final String ID_BTN_CHARACTERLIST_EDIT = "ID_BTN_CHARACTERLIST_EDIT";
+    public static final String ID_BTN_CHARACTERLIST_DELETE = "ID_BTN_CHARACTERLIST_DELETE";
     public static final String ID_BTN_EVENT_ADD = "BTN_EVENT_ADD";
     public static final String ID_TIMELINE_NEW_EVENT = "TIMELINE_NEW_EVENT";
     public static final String ID_TIMELINE_REMOVE_EVENT = "TIMELINE_REMOVE_EVENT";
     public static final String ID_TIMELINE_EDIT_EVENT = "TIMELINE_EDIT_EVENT";
-    public static final String ID_BTN_CHARACTERLIST_ADD = "ID_BTN_CHARACTERLIST_ADD";
-    public static final String ID_BTN_CHARACTERLIST_EDIT = "ID_BTN_CHARACTERLIST_EDIT";
-    public static final String ID_BTN_CHARACTERLIST_DELETE = "ID_BTN_CHARACTERLIST_DELETE";
+
 
 
     //// PANES /////////////////////////////////////////
@@ -51,7 +52,7 @@ public class MainView {
     private final SplitPane firstLayerSplit;
     private final StackPane leftPane;
     private final StackPane centerPane;
-    private final StackPane rightPane;
+    private final CharacterList rightPane;
     private final SplitPane secondLayerSplit;
 
     //// CONTROLS //////////////////////////////////////
@@ -150,6 +151,9 @@ public class MainView {
 
         // Create event dialog
         editEventDialog = new EditEventDialog(mainStage);
+
+        // Create character dialog
+        editCharacterPanel = new EditCharacterPanel(mainStage);
     }
 
     /**
@@ -202,7 +206,8 @@ public class MainView {
      * @param buttonEventHandler the button event handler
      */
     public void registerButtonEvents(EventHandler<ActionEvent> buttonEventHandler) {
-
+        rightPane.registerButtonEvents(buttonEventHandler);
+//        editCharacterPanel.registerButtonEvents(buttonEventHandler); TODO: Probably delete
     }
 
     /**
@@ -253,8 +258,7 @@ public class MainView {
     }
 
     public void updateCharacterList(ArrayList<String> characters) {
-//        rightPane.updateListView();
-        //TODO: Hur att lösa att MainView behandlar CharacterList ("rightPane") som en StackPane?
+        rightPane.updateListView(characters);
     }
 
 }

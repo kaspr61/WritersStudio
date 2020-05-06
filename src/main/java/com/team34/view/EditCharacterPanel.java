@@ -1,7 +1,8 @@
 package com.team34.view;
 
 import com.team34.view.dialogs.EditEventDialog;
-import javafx.application.Application;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -16,6 +17,8 @@ import javafx.stage.Stage;
 
 public class EditCharacterPanel extends Stage {
 
+    private Button btnSave;
+    private Button btnCancel;
     private TextField tfCharacterName;
     private TextArea taCharacterDescription;
     private WindowResult windowResult;
@@ -38,10 +41,13 @@ public class EditCharacterPanel extends Stage {
         taCharacterDescription = new TextArea();
         taCharacterDescription.setPromptText("Enter character description here");
 
-        //Button
-        Button btnAdd = new Button("add");
-        Button btnCancel = new Button("cancel");
-        btnCancel.setOnAction(e -> this.close());
+        //Buttons
+        btnSave = new Button("Save");
+        btnSave.setOnAction(e -> { windowResult = EditCharacterPanel.WindowResult.OK; close(); });
+
+        btnCancel = new Button("Cancel");
+        btnCancel.setOnAction(e -> { windowResult = EditCharacterPanel.WindowResult.CANCEL; close(); });
+
 
         // --- Layouts --- //
 
@@ -54,7 +60,7 @@ public class EditCharacterPanel extends Stage {
         //Add-Cancel Layout
         HBox buttonLayout = new HBox();
         buttonLayout.setSpacing(10);
-        buttonLayout.getChildren().addAll(btnAdd, btnCancel);
+        buttonLayout.getChildren().addAll(btnSave, btnCancel);
 
         //Overall Layout
         GridPane layout = new GridPane();
@@ -97,6 +103,11 @@ public class EditCharacterPanel extends Stage {
     public String getCharacterDescription() {
         return taCharacterDescription.getText();
     }
+
+/*    public void registerButtonEvents(EventHandler<ActionEvent> buttonEventHandler) {
+        btnSave.setOnAction(buttonEventHandler);
+        btnCancel.setOnAction(buttonEventHandler);
+    }*/
 
     public enum WindowResult {
         OK,

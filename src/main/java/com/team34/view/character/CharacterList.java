@@ -1,6 +1,8 @@
 package com.team34.view.character;
 
 import com.team34.view.MainView;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -132,4 +134,9 @@ public class CharacterList extends StackPane {
     public void updateListView(ArrayList<String> characters) {
         characterList.getItems().addAll(characters);
     }
+
+    public void registerButtonEvents(EventHandler<ActionEvent> buttonEventHandler) {
+        add.setOnAction(buttonEventHandler);
+    }
 }
+

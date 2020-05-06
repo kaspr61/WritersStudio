@@ -115,12 +115,17 @@ public class MainController {
         );
     }
 
-    private void createNewCharacter() {
+/*    public void showCharacterDialog() { //TODO: Look over logic, throws exception
+        view.getEditCharacterPanel().showCreateCharacter();
+    }*/
+
+    private void createNewCharacter() { //TODO: Look over logic, throws exception
         if (view.getEditCharacterPanel().showCreateCharacter() == EditCharacterPanel.WindowResult.OK) {
             long newCharacterUID = model.characterManager.newCharacter(
                     view.getEditCharacterPanel().getCharacterName(),
                     view.getEditCharacterPanel().getCharacterDescription()
             );
+            view.updateCharacterList(model.characterManager.getCharacters());
 
             if (newCharacterUID == -1L) {
                 // TODO Popup warning dialog, stating that either name or description has unsupported format
@@ -153,7 +158,7 @@ public class MainController {
 
                 case MainView.ID_BTN_CHARACTERLIST_ADD:
                     createNewCharacter();
-                    refreshCharacterList();
+                    break;
 
                 default:
                     System.out.println("Unrecognized ID: " + sourceID);
