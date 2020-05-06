@@ -55,14 +55,30 @@ public class UIDManager {
         return uidList.remove(uid);
     }
 
+    /**
+     * Adds a UID to {@link UIDManager#uidList} manually.
+     * This should only be used when loading a project.
+     * @param uid the UID to add
+     * @author Kasper S. Skott
+     */
     public static void addUID(long uid) {
         uidList.add(uid);
     }
 
+    /**
+     * Removes all UIDs from {@link UIDManager#uidList}.
+     * This should only ever need to be used when creating or loading a project.
+     * @author Kasper S. Skott
+     */
     public static void clear() {
         uidList.clear();
     }
 
+    /**
+     * Returns all UIDs as an array.
+     * @return the UIDs contained within {@link UIDManager#uidList}
+     * @author Kasper S. Skott
+     */
     public static Long[] getUIDs() {
         return uidList.toArray(new Long[uidList.size()]);
     }

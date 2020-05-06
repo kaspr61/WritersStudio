@@ -20,7 +20,7 @@ import java.nio.file.Paths;
 /**
  * This class handles logic and communication between the model and view components of the system.
  * <p>
- * This is where many of the events that communicate between components are implemented. Since
+ * This is where the events that communicate between components are implemented. Since
  * the model and view are completely independent of each other, their indirect interaction is
  * managed by this class. By having the components encapsulating their area of responsibility,
  * it makes it easier to implement changes in a safe manner, lowering the risk of errors.
@@ -129,6 +129,11 @@ public class MainController {
         );
     }
 
+    /**
+     * Updates the title of the application window.
+     * Displays the name of the project, followed by an asterisk, if
+     * there are any unsaved changes.
+     */
     private void refreshTitleBar() {
         String title = "Writer's Studio - ";
 
@@ -144,6 +149,12 @@ public class MainController {
     }
 
     // Returns false if action should not continue
+
+    /**
+     * If there are any unsaved changes, the unsaved changes dialog will be shown.
+     * If there are no unsaved changes, nothing happens, and it returns true.
+     * @return false if the action should not continue (user canceled)
+     */
     private boolean saveBeforeContinue() {
         if(model.hasUnsavedChanges()) {
             ButtonType result = view.showUnsavedChangesDialog();
@@ -158,6 +169,9 @@ public class MainController {
         return true;
     }
 
+    /**
+     * Opens the file chooser, loads the project file and updates and refreshes the view.
+     */
     private void openProject() {
         Project.UserPreferences userPrefs = model.getUserPreferences();
 
@@ -193,6 +207,9 @@ public class MainController {
         }
     }
 
+    /**
+     * Opens the file chooser if no project file is in use, then saves the current project to that file.
+     */
     private void saveProject() {
         if(model.getProjectFile() == null) {
 

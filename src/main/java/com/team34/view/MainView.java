@@ -217,10 +217,18 @@ public class MainView {
         timeline.installContextMenu(contextEventHandler);
     }
 
+    /**
+     * Registers the given EventHandler on the mainStage.
+     * @param windowEventHandler
+     */
     public void registerCloseRequestEvent(EventHandler<WindowEvent> windowEventHandler) {
         mainStage.setOnCloseRequest(windowEventHandler);
     }
 
+    /**
+     * Registers the given EventHandler on the menuBar
+     * @param menuEventHandler
+     */
     public void registerMenuBarActionEvents(EventHandler<ActionEvent> menuEventHandler) {
         menuBar.registerMenuBarAction(menuEventHandler);
     }
@@ -255,14 +263,27 @@ public class MainView {
         return editEventDialog;
     }
 
+    /**
+     * Returns a reference to the main stage.
+     * @return the main stage
+     */
     public Stage getMainStage() {
         return mainStage;
     }
 
+    /**
+     * Fires a close request event on the main stage.
+     */
     public void exitApplication() {
         mainStage.fireEvent(new WindowEvent(mainStage, WindowEvent.WINDOW_CLOSE_REQUEST));
     }
 
+    /**
+     * Shows a dialog that waits for the user to click one of the buttons.
+     * The user is prompted with "Would you like to save your project?".
+     * The choices are Yes, No, and Cancel.
+     * @return the clicked button type. Either YES, NO, CANCEL, or CLOSE.
+     */
     public ButtonType showUnsavedChangesDialog() {
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Unsaved changes");

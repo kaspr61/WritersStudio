@@ -17,12 +17,19 @@ import javax.xml.stream.events.XMLEvent;
 import com.team34.model.event.*;
 import com.team34.model.character.*;
 
-// This class will hold the main load and save functions for the project file.
-// This class will perhaps also hold information about project specific
-// preferences and layout, in terms of character block coordinates, associations, and so forth.
-
 /**
  * This class represents the top layer of the model/data.
+ * <p>
+ * All file loading and saving is handled by this class.
+ * <p>
+ * Writer's Studio uses a file called "preferences.xml" in order to allows settings to be made
+ * and stored throughout and between sessions.
+ * <p>
+ * Writer's Studio stores each project a user creates as an individual wsp-file (Writer's Studio Project).
+ * By calling the method {@link Project#loadProject(File)}, the project file will be loaded.
+ * Likewise, if the method {@link Project#saveProject()} is called, the project file will be saved.
+ * Any project that was already loaded when loading a new project, will be discarded.
+ *
  * @author Kasper S. Skott
  */
 public class Project {
@@ -38,10 +45,10 @@ public class Project {
 
 
     /**
-     * Contructs the project.
+     * Constructs the project, sets up the working directory, and loads the preferences file.
      */
     public Project() {
-        eventManager = new EventManager(0, 0);
+        eventManager = new EventManager();
         userPrefs = new UserPreferences();
 
         workingDir = System.getProperty("user.dir");
@@ -62,26 +69,43 @@ public class Project {
         }
     }
 
+    /**
+     * Returns the current project name.
+     * @return {@link Project#currProjectName}
+     */
     public String getProjectName() {
         return currProjectName;
     }
 
+    /**
+     * Sets the current project name.
+     * @param name the new name
+     */
     public void setProjectName(String name) {
         currProjectName = name;
     }
 
+    /**
+     * Returns the file of the current project.
+     * @return {@link Project#currProjectFile}
+     */
     public File getProjectFile() {
         return currProjectFile;
     }
 
+    /**
+     * Sets the file of the current project
+     * @param file the new file
+     */
     public void setProjectFile(File file) {
         currProjectFile = file;
     }
 
-    public boolean hasUnsavedChanges() {
-        return eventManager.hasChanged();
-    }
-
+    /**
+     * Loads the preferences file.
+     * @throws IOException
+     * @throws XMLStreamException
+     */
     private void loadUserPrefs() throws IOException, XMLStreamException {
         File file = new File(workingDir, "preferences.xml");
         if(!file.exists())
@@ -122,6 +146,14 @@ public class Project {
         }
     }
 
+    /**
+     * Internal helper method to {@link Project#writeUserPrefs()}
+     * @param factory
+     * @param writer
+     * @param localName
+     * @param content
+     * @throws XMLStreamException
+     */
     private void addPreference(XMLEventFactory factory, XMLEventWriter writer, String localName, String content)
         throws XMLStreamException
     {
@@ -135,40 +167,12 @@ public class Project {
         writer.add(factory.createCharacters(System.lineSeparator()));
     }
 
-    public void writeUserPrefs() throws IOException, XMLStreamException {
-        File file = new File(workingDir, "preferences.xml");
-        file.createNewFile();
-
-        try(FileOutputStream fileStream = new FileOutputStream(file, false)) {
-
-            XMLEventFactory eventFactory = XMLEventFactory.newFactory();
-            XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
-            XMLEventWriter eventWriter = outputFactory.createXMLEventWriter(fileStream);
-
-            eventWriter.add(eventFactory.createStartDocument("UTF-8", "1.0"));
-            eventWriter.add(eventFactory.createCharacters(System.lineSeparator()));
-
-            eventWriter.add(eventFactory.createStartElement("", "", "preferences"));
-            eventWriter.add(eventFactory.createCharacters(System.lineSeparator()));
-
-            addPreference(eventFactory, eventWriter,
-                    "project_directory", userPrefs.projectDir);
-            addPreference(eventFactory, eventWriter,
-                    "window_maximized", Boolean.toString(userPrefs.windowMaximized));
-            addPreference(eventFactory, eventWriter,
-                    "window_width", Integer.toString(userPrefs.windowWidth));
-            addPreference(eventFactory, eventWriter,
-                    "window_height", Integer.toString(userPrefs.windowHeight));
-
-            eventWriter.add(eventFactory.createEndElement("", "", "preferences"));
-            eventWriter.add(eventFactory.createCharacters(System.lineSeparator()));
-
-            eventWriter.add(eventFactory.createEndDocument());
-
-            eventWriter.flush();
-        }
-    }
-
+    /**
+     * Internal helper method to {@link Project#loadProject(File)}
+     * @param event
+     * @param reader
+     * @throws XMLStreamException
+     */
     private void loadUIDManager(XMLEvent event, XMLEventReader reader)
             throws XMLStreamException
     {
@@ -194,6 +198,12 @@ public class Project {
         }
     }
 
+    /**
+     * Internal helper method to {@link Project#loadProject(File)}
+     * @param event
+     * @param reader
+     * @throws XMLStreamException
+     */
     private void loadEvents(XMLEvent event, XMLEventReader reader)
             throws XMLStreamException
     {
@@ -238,6 +248,12 @@ public class Project {
         }
     }
 
+    /**
+     * Internal helper method to {@link Project#loadProject(File)} ()}
+     * @param event
+     * @param reader
+     * @throws XMLStreamException
+     */
     private void loadEventOrderLists(XMLEvent event, XMLEventReader reader)
             throws XMLStreamException
     {
@@ -267,7 +283,7 @@ public class Project {
                             if (event.asEndElement().getName().getLocalPart() == "order_list")
                                 eventManager.addOrderList(orderList);
                             if (event.asEndElement().getName().getLocalPart() == "event_order")
-                                    return;
+                                return;
                         }
                     }
                 }
@@ -277,6 +293,130 @@ public class Project {
         }
     }
 
+    /**
+     * Internal helper method to {@link Project#saveProject()}
+     * @param factory
+     * @param writer
+     * @throws XMLStreamException
+     */
+    private void writeUIDManager(XMLEventFactory factory, XMLEventWriter writer)
+            throws XMLStreamException
+    {
+        Long[] uids = UIDManager.getUIDs();
+        if(uids == null)
+            return;
+
+        for(int i = 0; i < uids.length; i++) {
+            writer.add(factory.createStartElement("", "", "uid"));
+            writer.add(factory.createCharacters(Long.toString(uids[i])));
+            writer.add(factory.createEndElement("", "", "uid"));
+            writer.add(factory.createCharacters(System.lineSeparator()));
+        }
+    }
+
+    /**
+     * Internal helper method to {@link Project#saveProject()}
+     * @param factory
+     * @param writer
+     * @throws XMLStreamException
+     */
+    private void writeEvents(XMLEventFactory factory, XMLEventWriter writer)
+            throws XMLStreamException
+    {
+        Object[][] event = eventManager.getEvents();
+        if(event == null)
+            return;
+
+        for(int i = 0; i < event.length; i++) {
+            writer.add(factory.createStartElement("", "", "event"));
+            writer.add(factory.createAttribute("name", (String) event[i][1]));
+            writer.add(factory.createAttribute("uid", Long.toString((Long) event[i][0])));
+
+            writer.add(factory.createCharacters((String) event[i][2]));
+
+            writer.add(factory.createEndElement("", "", "event"));
+            writer.add(factory.createCharacters(System.lineSeparator()));
+        }
+    }
+
+    /**
+     * Internal helper method to {@link Project#saveProject()}
+     * @param factory
+     * @param writer
+     * @throws XMLStreamException
+     */
+    private void writeEventOrderLists(XMLEventFactory factory, XMLEventWriter writer)
+            throws XMLStreamException
+    {
+        int i = 0;
+        Long[] orderList = eventManager.getEventOrder(i);
+        if(orderList == null)
+            return;
+
+        while(orderList != null) {
+            writer.add(factory.createStartElement("", "", "order_list"));
+            writer.add(factory.createCharacters(System.lineSeparator()));
+
+            for (int j = 0; j < orderList.length; j++) {
+                writer.add(factory.createStartElement("", "", "li"));
+                writer.add(factory.createCharacters(Long.toString(orderList[j])));
+                writer.add(factory.createEndElement("", "", "li"));
+                writer.add(factory.createCharacters(System.lineSeparator()));
+            }
+
+            writer.add(factory.createEndElement("", "", "order_list"));
+            writer.add(factory.createCharacters(System.lineSeparator()));
+
+            orderList = eventManager.getEventOrder(++i);
+        }
+    }
+
+    /**
+     * Saves the current state of {@link Project#userPrefs} to the preferences file
+     * @throws IOException
+     * @throws XMLStreamException
+     */
+    public void writeUserPrefs() throws IOException, XMLStreamException {
+        File file = new File(workingDir, "preferences.xml");
+        file.createNewFile();
+
+        try(FileOutputStream fileStream = new FileOutputStream(file, false)) {
+
+            XMLEventFactory eventFactory = XMLEventFactory.newFactory();
+            XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
+            XMLEventWriter eventWriter = outputFactory.createXMLEventWriter(fileStream);
+
+            eventWriter.add(eventFactory.createStartDocument("UTF-8", "1.0"));
+            eventWriter.add(eventFactory.createCharacters(System.lineSeparator()));
+
+            eventWriter.add(eventFactory.createStartElement("", "", "preferences"));
+            eventWriter.add(eventFactory.createCharacters(System.lineSeparator()));
+
+            addPreference(eventFactory, eventWriter,
+                    "project_directory", userPrefs.projectDir);
+            addPreference(eventFactory, eventWriter,
+                    "window_maximized", Boolean.toString(userPrefs.windowMaximized));
+            addPreference(eventFactory, eventWriter,
+                    "window_width", Integer.toString(userPrefs.windowWidth));
+            addPreference(eventFactory, eventWriter,
+                    "window_height", Integer.toString(userPrefs.windowHeight));
+
+            eventWriter.add(eventFactory.createEndElement("", "", "preferences"));
+            eventWriter.add(eventFactory.createCharacters(System.lineSeparator()));
+
+            eventWriter.add(eventFactory.createEndDocument());
+
+            eventWriter.flush();
+        }
+    }
+
+    /**
+     * Loads the given file as a project.
+     * This will discard any existing data, present in the currently loaded project.
+     * @param projectFile the project file to load
+     * @throws IOException
+     * @throws XMLStreamException
+     */
     public void loadProject(File projectFile) throws IOException, XMLStreamException {
         clearProject();
 
@@ -317,66 +457,11 @@ public class Project {
 
     }
 
-    private void writeUIDManager(XMLEventFactory factory, XMLEventWriter writer)
-            throws XMLStreamException
-    {
-        Long[] uids = UIDManager.getUIDs();
-        if(uids == null)
-            return;
-
-        for(int i = 0; i < uids.length; i++) {
-            writer.add(factory.createStartElement("", "", "uid"));
-            writer.add(factory.createCharacters(Long.toString(uids[i])));
-            writer.add(factory.createEndElement("", "", "uid"));
-            writer.add(factory.createCharacters(System.lineSeparator()));
-        }
-    }
-
-    private void writeEvents(XMLEventFactory factory, XMLEventWriter writer)
-            throws XMLStreamException
-    {
-        Object[][] event = eventManager.getEvents();
-        if(event == null)
-            return;
-
-        for(int i = 0; i < event.length; i++) {
-            writer.add(factory.createStartElement("", "", "event"));
-            writer.add(factory.createAttribute("name", (String) event[i][1]));
-            writer.add(factory.createAttribute("uid", Long.toString((Long) event[i][0])));
-
-            writer.add(factory.createCharacters((String) event[i][2]));
-
-            writer.add(factory.createEndElement("", "", "event"));
-            writer.add(factory.createCharacters(System.lineSeparator()));
-        }
-    }
-
-    private void writeEventOrderLists(XMLEventFactory factory, XMLEventWriter writer)
-            throws XMLStreamException
-    {
-        int i = 0;
-        Long[] orderList = eventManager.getEventOrder(i);
-        if(orderList == null)
-            return;
-
-        while(orderList != null) {
-            writer.add(factory.createStartElement("", "", "order_list"));
-            writer.add(factory.createCharacters(System.lineSeparator()));
-
-            for (int j = 0; j < orderList.length; j++) {
-                writer.add(factory.createStartElement("", "", "li"));
-                writer.add(factory.createCharacters(Long.toString(orderList[j])));
-                writer.add(factory.createEndElement("", "", "li"));
-                writer.add(factory.createCharacters(System.lineSeparator()));
-            }
-
-            writer.add(factory.createEndElement("", "", "order_list"));
-            writer.add(factory.createCharacters(System.lineSeparator()));
-
-            orderList = eventManager.getEventOrder(++i);
-        }
-    }
-
+    /**
+     * Saves the current state of the project data into the file, {@link Project#currProjectFile}.
+     * @throws IOException
+     * @throws XMLStreamException
+     */
     public void saveProject() throws IOException, XMLStreamException {
         if(currProjectFile == null)
             throw new NullPointerException("currProjectFile must not be null");
@@ -428,6 +513,10 @@ public class Project {
         }
     }
 
+    /**
+     * Discards all data currently loaded. Does not overwrite or erase any file.
+     * This only affects the data currently loaded in the application.
+     */
     public void clearProject() {
         eventManager.clear();
         UIDManager.clear();
@@ -435,20 +524,42 @@ public class Project {
         currProjectFile = null;
     }
 
+    /**
+     * Returns whether the project contains any unsaved changes.
+     * @return true if there are unsaved changed
+     */
+    public boolean hasUnsavedChanges() {
+        return eventManager.hasChanged();
+    }
+
+    /**
+     * Returns a reference to the internal user preferences {@link Project#userPrefs}.
+     * @return {@link Project#userPrefs}
+     */
     public UserPreferences getUserPreferences() {
         return userPrefs;
     }
 
     /////////////////////////////////////////////////////////////////////////
 
+    /**
+     * This class stores data for the user preferences.
+     */
     public class UserPreferences {
         public String projectDir = "";
         public boolean windowMaximized = false;
         public int windowWidth = 1280;
         public int windowHeight = 720;
 
+        /**
+         * Default constructor
+         */
         public UserPreferences() { }
 
+        /**
+         * Copy constructor.
+         * @param ref the instance to copy from.
+         */
         public UserPreferences(UserPreferences ref) {
             projectDir = ref.projectDir;
             windowMaximized = ref.windowMaximized;

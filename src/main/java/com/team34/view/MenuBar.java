@@ -66,6 +66,10 @@ public class MenuBar extends javafx.scene.control.MenuBar {
 
     }
 
+    /**
+     * Registers the given EventHandler on the menu items.
+     * @param menuActionHandler
+     */
     public void registerMenuBarAction(EventHandler<ActionEvent> menuActionHandler) {
         fileNew.setOnAction(menuActionHandler);
         fileOpen.setOnAction(menuActionHandler);
