@@ -3,6 +3,7 @@ package com.team34.view;
 import com.team34.model.character.CharacterListObject;
 import com.team34.model.event.EventManager;
 import com.team34.view.character.CharacterList;
+import com.team34.view.event.EventList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
@@ -40,6 +41,8 @@ public class MainView {
     public static final String ID_BTN_CHARACTERLIST_EDIT = "ID_BTN_CHARACTERLIST_EDIT";
     public static final String ID_BTN_CHARACTERLIST_DELETE = "ID_BTN_CHARACTERLIST_DELETE";
     public static final String ID_BTN_EVENT_ADD = "BTN_EVENT_ADD";
+    public static final String ID_BTN_EVENT_EDIT = "BTN_EVENT_EDIT";
+    public static final String ID_BTN_EVENT_DELETE = "BTN_EVENT_DELETE";
 
     public static final String ID_TIMELINE_NEW_EVENT = "TIMELINE_NEW_EVENT";
     public static final String ID_TIMELINE_REMOVE_EVENT = "TIMELINE_REMOVE_EVENT";
@@ -58,7 +61,7 @@ public class MainView {
     private final StackPane topPane;
     private final StackPane bottomPane;
     private final SplitPane firstLayerSplit;
-    private final StackPane leftPane;
+    private final EventList leftPane;
     private final StackPane centerPane;
     private final CharacterList rightPane;
     private final SplitPane secondLayerSplit;
@@ -121,12 +124,12 @@ public class MainView {
         firstLayerSplit.setDividerPosition(0, 0.99);
 
         // Create the second-layer panes, contained by centerPane. These are separated vertically
-        leftPane = new StackPane(); // Will contain event list
+        leftPane = new EventList(); // Will contain event list
         centerPane = new StackPane(); // Will contain character chart
         rightPane = new CharacterList(); // Contains character list
         secondLayerSplit = new SplitPane();
 
-        leftPane.setMinSize(100.0, 200.0);
+        leftPane.setMinSize(250.0, 200.0);
         rightPane.setMinSize(250.0, 200.0);
 
         secondLayerSplit.setOrientation(Orientation.HORIZONTAL); // layed-out horizontally, but splitted vertically
@@ -217,7 +220,7 @@ public class MainView {
      */
     public void registerButtonEvents(EventHandler<ActionEvent> buttonEventHandler) {
         rightPane.registerButtonEvents(buttonEventHandler);
-//        editCharacterPanel.registerButtonEvents(buttonEventHandler); TODO: Probably delete
+        leftPane.registerButtonEvents(buttonEventHandler);
     }
 
     /**
@@ -262,7 +265,7 @@ public class MainView {
 
         timeline.recalculateLayout();
 
-        //TODO insert code to update event list
+        leftPane.updateListView(events);
     }
 
     /**
@@ -325,6 +328,10 @@ public class MainView {
 
     public long getCharacterUID() {
         return rightPane.getCharacterUID();
+    }
+
+    public long getSelectedEventUID() {
+        return leftPane.getEventUID();
     }
 
 }

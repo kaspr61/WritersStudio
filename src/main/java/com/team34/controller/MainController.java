@@ -139,12 +139,12 @@ public class MainController {
     private void refreshTitleBar() {
         String title = "Writer's Studio - ";
 
-        if(model.getProjectName().isEmpty())
+        if (model.getProjectName().isEmpty())
             title += "untitled";
         else
             title += model.getProjectName();
 
-        if(model.hasUnsavedChanges())
+        if (model.hasUnsavedChanges())
             title += "*";
 
         view.getMainStage().setTitle(title);
@@ -155,15 +155,15 @@ public class MainController {
     /**
      * If there are any unsaved changes, the unsaved changes dialog will be shown.
      * If there are no unsaved changes, nothing happens, and it returns true.
+     *
      * @return false if the action should not continue (user canceled)
      */
     private boolean saveBeforeContinue() {
-        if(model.hasUnsavedChanges()) {
+        if (model.hasUnsavedChanges()) {
             ButtonType result = view.showUnsavedChangesDialog();
             if (result == ButtonType.YES) {
                 saveProject();
-            }
-            else if (result == ButtonType.CANCEL || result == ButtonType.CLOSE) {
+            } else if (result == ButtonType.CANCEL || result == ButtonType.CLOSE) {
                 return false;
             }
         }
@@ -184,17 +184,17 @@ public class MainController {
         );
 
         File directory = Paths.get(userPrefs.projectDir).toFile();
-        if(directory.exists())
+        if (directory.exists())
             fileChooser.setInitialDirectory(Paths.get(userPrefs.projectDir).toFile());
 
         File file = fileChooser.showOpenDialog(view.getMainStage());
-        if(file == null)
+        if (file == null)
             return;
 
         userPrefs.projectDir = file.getParent();
 
         try {
-        model.writeUserPrefs();
+            model.writeUserPrefs();
         } catch (IOException | XMLStreamException e) {
             e.printStackTrace();
         }
@@ -314,10 +314,22 @@ public class MainController {
         public void handle(ActionEvent e) {
             Node source = (Node) e.getSource();
             String sourceID = source.getId();
+            long eventUID = view.getSelectedEventUID();
 
             switch (sourceID) {
                 case MainView.ID_BTN_EVENT_ADD:
                     createNewEvent();
+                    refreshViewEvents();
+                    break;
+
+                case MainView.ID_BTN_EVENT_DELETE:
+                    model.eventManager.removeEvent(eventUID);
+                    refreshViewEvents();
+                    refreshTitleBar();
+                    break;
+
+                case MainView.ID_BTN_EVENT_EDIT:
+                    editEvent(eventUID);
                     refreshViewEvents();
                     break;
 
@@ -393,12 +405,12 @@ public class MainController {
     private class EventCloseRequest implements EventHandler<WindowEvent> {
         @Override
         public void handle(WindowEvent e) {
-            if(!saveBeforeContinue()) // If user pressed cancel
+            if (!saveBeforeContinue()) // If user pressed cancel
                 e.consume();
 
             Project.UserPreferences prefs = model.getUserPreferences();
             prefs.windowMaximized = view.getMainStage().isMaximized();
-            if(!prefs.windowMaximized) {
+            if (!prefs.windowMaximized) {
                 prefs.windowWidth = (int) view.getMainStage().getScene().getWidth();
                 prefs.windowHeight = (int) view.getMainStage().getScene().getHeight();
             }
@@ -419,7 +431,7 @@ public class MainController {
 
             switch (sourceID) {
                 case MainView.ID_MENU_NEW:
-                    if(saveBeforeContinue()) {
+                    if (saveBeforeContinue()) {
                         model.clearProject();
                         refreshViewEvents();
                     }
@@ -427,7 +439,7 @@ public class MainController {
                     break;
 
                 case MainView.ID_MENU_OPEN:
-                    if(saveBeforeContinue())
+                    if (saveBeforeContinue())
                         openProject();
                     break;
 
@@ -445,7 +457,7 @@ public class MainController {
                     break;
 
                 default:
-                    System.out.println("Unrecognized ID: "+sourceID);
+                    System.out.println("Unrecognized ID: " + sourceID);
                     break;
             }
 

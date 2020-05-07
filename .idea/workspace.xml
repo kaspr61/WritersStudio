@@ -33,11 +33,15 @@
   <component name="ProjectId" id="1ZGnN8lErsvgqGw2sufuzTcDNCb" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="PropertiesComponent">
+    <property name="GenerateAntBuildDialog.backupFiles" value="true" />
+    <property name="GenerateAntBuildDialog.enableUiFormCompile" value="true" />
+    <property name="GenerateAntBuildDialog.forceTargetJdk" value="true" />
+    <property name="GenerateAntBuildDialog.outputFileNameProperty" value="writersstudio" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
-    <property name="project.structure.last.edited" value="Project" />
-    <property name="project.structure.proportion" value="0.0" />
-    <property name="project.structure.side.proportion" value="0.0" />
-    <property name="settings.editor.selected.configurable" value="terminal" />
+    <property name="project.structure.last.edited" value="SDKs" />
+    <property name="project.structure.proportion" value="0.15" />
+    <property name="project.structure.side.proportion" value="0.2" />
+    <property name="settings.editor.selected.configurable" value="reference.projectsettings.compiler.javacompiler" />
   </component>
   <component name="RecentsManager">
     <key name="CopyClassDialog.RECENTS_KEY">
@@ -60,7 +64,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Application.EditCharacterPanel">
+  <component name="RunManager" selected="Application.App">
     <configuration name="App" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="com.team34.App" />
       <module name="writers-studio" />
@@ -143,15 +147,15 @@
     <list>
       <item itemvalue="Application.TimelineTestApp" />
       <item itemvalue="Application.App" />
-      <item itemvalue="Maven.run" />
       <item itemvalue="Application.EditCharacterPanel" />
       <item itemvalue="Application.EventMainHomeView" />
+      <item itemvalue="Maven.run" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Application.App" />
         <item itemvalue="Application.EditCharacterPanel" />
         <item itemvalue="Application.EventMainHomeView" />
-        <item itemvalue="Application.App" />
         <item itemvalue="Application.TimelineTestApp" />
       </list>
     </recent_temporary>
