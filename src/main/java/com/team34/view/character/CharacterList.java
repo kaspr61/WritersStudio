@@ -1,12 +1,17 @@
 package com.team34.view.character;
 
+import com.team34.model.character.CharacterListObject;
 import com.team34.view.MainView;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -14,18 +19,16 @@ import javafx.scene.layout.*;
 
 import java.util.ArrayList;
 
-/*
 
-//TODO: * Lägg till logiken i controller-klass
-        * Se till att en dialogprompt dyker upp när användaren väljer att ta bort en karaktär, som:
-        "Are you sure you want to delete [character]?"
-
+/**
+ * StackPane for the {@link MainView} that contains add-, edit-, and create character buttons,
+ * and a list of all characters.
+ * @author Jim Andersosn
  */
-
-
 public class CharacterList extends StackPane {
 
-    private ListView<String> characterList;
+    private ArrayList<CharacterListObject> chListObjArray;
+    private ListView<CharacterListObject> list;
     private Button add, edit, delete;
     private Label title;
 
@@ -42,6 +45,9 @@ public class CharacterList extends StackPane {
     private String deleteCharacter;
     private final int ICON_SIZE = 40;
 
+    /**
+     * Initializes StackPane.
+     */
     public CharacterList() {
 //        window = new Stage();
 
@@ -70,16 +76,13 @@ public class CharacterList extends StackPane {
         title.setPadding(new Insets(20, 0, 0, 0));
 
         //Character List
-        ArrayList<String> characters = new ArrayList<>();
-        characterList = new ListView<>();
-
-        characterList.getItems().addAll(characters);
+        list = new ListView<>();
 
         //Construct
         aedBox.getChildren().addAll(add, edit, delete);
         aedBox.setAlignment(Pos.CENTER);
 
-        characterBox.getChildren().addAll(characterList);
+        characterBox.getChildren().addAll(list);
 
         innerPane.setTop(aedBox);
         innerPane.setCenter(characterBox);
@@ -98,6 +101,9 @@ public class CharacterList extends StackPane {
         outerPane.getStyleClass().add("outerPane");
     }
 
+    /**
+     * Sets the icon graphics for the Add-, Edit- and Delete buttons.
+     */
     public void installButtonIcons() {
         addCharacter = com.team34.App.class.getResource("/icons/add_character.png").toExternalForm(); //Filestream for icon
         Image imgAddCharacter = new Image(addCharacter);
@@ -125,18 +131,48 @@ public class CharacterList extends StackPane {
         delete.setGraphic(imageViewDeleteCharacter);
     }
 
+    /**
+     * Sets button IDs for the Add-, Edit- and Delete buttons. The IDs are used in the
+     * {@link com.team34.controller.MainController} class for event handling.
+     */
     public void installButtonIds() {
         add.setId(MainView.ID_BTN_CHARACTERLIST_ADD);
         edit.setId(MainView.ID_BTN_CHARACTERLIST_EDIT);
         delete.setId(MainView.ID_BTN_CHARACTERLIST_DELETE);
     }
 
-    public void updateListView(ArrayList<String> characters) {
-        characterList.getItems().addAll(characters);
+    /**
+     * Updates the list view to correspond with currently existing characters in the project.
+     * @param characters Array of {@link CharacterListObject} objects, containing character name and UID.
+     */
+    public void updateListView(ArrayList<CharacterListObject> characters) {
+        chListObjArray = characters;
+        ObservableList<CharacterListObject> ol = FXCollections.observableArrayList();
+        ol.addAll(characters);
+        list.setItems(ol);
     }
 
+    /**
+     * Registers the Add-, Edit- and Delete buttons to the event handler in the
+     * {@link com.team34.controller.MainController} class.
+     * @param buttonEventHandler
+     */
     public void registerButtonEvents(EventHandler<ActionEvent> buttonEventHandler) {
         add.setOnAction(buttonEventHandler);
+        edit.setOnAction(buttonEventHandler);
+        delete.setOnAction(buttonEventHandler);
+    }
+
+    /**
+     * If a character is selected in the list view, returns the character's UID. Else, returns -1.
+     * @return long
+     */
+    public long getCharacterUID() {
+        if (list.getSelectionModel().getSelectedItem() != null) {
+            return list.getSelectionModel().getSelectedItem().getUid();
+        }
+
+        return -1;
     }
 }
 

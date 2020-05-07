@@ -1,5 +1,6 @@
 package com.team34.view;
 
+import com.team34.model.character.CharacterListObject;
 import com.team34.model.event.EventManager;
 import com.team34.view.character.CharacterList;
 import javafx.event.ActionEvent;
@@ -257,8 +258,11 @@ public class MainView {
         return editCharacterPanel;
     }
 
-    public void updateCharacterList(ArrayList<String> characters) {
+    public void updateCharacterList(ArrayList<CharacterListObject> characters) {
         rightPane.updateListView(characters);
     }
 
+    public long getCharacterUID() {
+        return rightPane.getCharacterUID();
+    }
 }

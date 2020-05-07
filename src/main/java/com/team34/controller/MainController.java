@@ -115,17 +115,17 @@ public class MainController {
         );
     }
 
-/*    public void showCharacterDialog() { //TODO: Look over logic, throws exception
-        view.getEditCharacterPanel().showCreateCharacter();
-    }*/
-
-    private void createNewCharacter() { //TODO: Look over logic, throws exception
+    /**
+     * Opens an {@link EditCharacterPanel} dialog window. If the action is not cancelled by the user, the
+     * {@link com.team34.model.character.CharacterManager} creates a new character with the user input.
+     */
+    private void createNewCharacter() {
         if (view.getEditCharacterPanel().showCreateCharacter() == EditCharacterPanel.WindowResult.OK) {
             long newCharacterUID = model.characterManager.newCharacter(
                     view.getEditCharacterPanel().getCharacterName(),
                     view.getEditCharacterPanel().getCharacterDescription()
             );
-            view.updateCharacterList(model.characterManager.getCharacters());
+            view.updateCharacterList(model.characterManager.getCharacterList());
 
             if (newCharacterUID == -1L) {
                 // TODO Popup warning dialog, stating that either name or description has unsupported format
@@ -133,9 +133,44 @@ public class MainController {
         }
     }
 
+    /**
+     * Edits character. Identifies the selected character in the list view and retrieves data from the corresponding
+     * character stored in {@link com.team34.model.character.CharacterManager}. The data is then set in a new
+     * {@link EditCharacterPanel} dialog window. If the action is not cancelled, updates the character with new
+     * user input.
+     */
+    private void editCharacter(long uid) {
+        Object[] characterData = model.characterManager.getCharacterData(uid);
+
+        if (view.getEditCharacterPanel().showEditCharacter((String) characterData[0], (String) characterData[1])
+                == EditCharacterPanel.WindowResult.OK
+        ) {
+            boolean success = model.characterManager.editCharacter(uid,
+                    view.getEditCharacterPanel().getCharacterName(),
+                    view.getEditCharacterPanel().getCharacterDescription()
+            );
+
+            if (!success) {
+                // TODO Popup warning dialog, stating that either name or description has unsupported format
+            }
+        }
+    }
+
+    /**
+     * Deletes character. Identifies the selected character in the list view and removes the corresponding
+     * character stored in {@link com.team34.model.character.CharacterManager}.
+     */
+    private void deleteCharacter(long uid) {
+        model.characterManager.deleteCharacter(uid);
+    }
+
+    /**
+     * Retrieves an updated list of characters from {@link com.team34.model.character.CharacterManager} and updates
+     * the character list view.
+     */
     private void refreshCharacterList() {
         view.updateCharacterList(
-                model.characterManager.getCharacters()
+                model.characterManager.getCharacterList()
         );
     }
 
@@ -160,6 +195,19 @@ public class MainController {
                     createNewCharacter();
                     break;
 
+                case MainView.ID_BTN_CHARACTERLIST_EDIT:
+                    if (view.getCharacterUID() != -1) {
+                        editCharacter(view.getCharacterUID());
+                        refreshCharacterList();
+                    }
+                    break;
+
+                case MainView.ID_BTN_CHARACTERLIST_DELETE:
+                    if (view.getCharacterUID() != -1) {
+                        deleteCharacter(view.getCharacterUID());
+                        refreshCharacterList();
+                    }
+
                 default:
                     System.out.println("Unrecognized ID: " + sourceID);
                     break;
@@ -168,7 +216,6 @@ public class MainController {
         }
     }
 
-    ;
 
     ////////////////////////////////////////////////////////////////////////////
 

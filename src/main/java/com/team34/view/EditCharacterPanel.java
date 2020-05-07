@@ -84,11 +84,35 @@ public class EditCharacterPanel extends Stage {
         initOwner(ownerStage);
     }
 
+    /**
+     * Displays the New Character dialog window.
+     * @author Jim Andersson
+     * @return how the user closed the window
+     */
     public WindowResult showCreateCharacter() {
         setTitle("New Character");
 
         tfCharacterName.setText("");
         taCharacterDescription.setText("");
+
+        tfCharacterName.requestFocus();
+        showAndWait();
+
+        return windowResult;
+    }
+
+    /**
+     * Shows the Edit Character dialog window.
+     * @author Jim Andersson
+     * @param name Character name
+     * @param description Character description
+     * @return how the user closed the window
+     */
+    public WindowResult showEditCharacter(String name, String description) {
+        setTitle("Edit Character");
+
+        tfCharacterName.setText(name);
+        taCharacterDescription.setText(description);
 
         tfCharacterName.requestFocus();
         showAndWait();
@@ -104,11 +128,11 @@ public class EditCharacterPanel extends Stage {
         return taCharacterDescription.getText();
     }
 
-/*    public void registerButtonEvents(EventHandler<ActionEvent> buttonEventHandler) {
-        btnSave.setOnAction(buttonEventHandler);
-        btnCancel.setOnAction(buttonEventHandler);
-    }*/
-
+    /**
+     * Used to specify how the window was closed. If the user confirmed the action,
+     * use OK, otherwise use CANCEL.
+     * @author Kasper S. Skott
+     */
     public enum WindowResult {
         OK,
         CANCEL
