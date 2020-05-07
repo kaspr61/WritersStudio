@@ -1,6 +1,8 @@
 package com.team34.view;
 
-import javafx.application.Application;
+import com.team34.view.dialogs.EditEventDialog;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -15,6 +17,12 @@ import javafx.stage.Stage;
 
 public class EditCharacterPanel extends Stage {
 
+    private Button btnSave;
+    private Button btnCancel;
+    private TextField tfCharacterName;
+    private TextArea taCharacterDescription;
+    private WindowResult windowResult;
+
     public EditCharacterPanel(Stage ownerStage) {
         setTitle("Edit Character");
 
@@ -25,18 +33,21 @@ public class EditCharacterPanel extends Stage {
         Label lblCharacterDescription = new Label("Character description:");
 
         //Textfield
-        TextField tfCharacterName = new TextField();
+        tfCharacterName = new TextField();
         tfCharacterName.setPromptText("Enter character name here");
         tfCharacterName.setMaxWidth(150);
 
         //TextArea
-        TextArea taCharacterDescription = new TextArea();
+        taCharacterDescription = new TextArea();
         taCharacterDescription.setPromptText("Enter character description here");
 
-        //Button
-        Button btnAdd = new Button("add");
-        Button btnCancel = new Button("cancel");
-        btnCancel.setOnAction(e -> this.close());
+        //Buttons
+        btnSave = new Button("Save");
+        btnSave.setOnAction(e -> { windowResult = EditCharacterPanel.WindowResult.OK; close(); });
+
+        btnCancel = new Button("Cancel");
+        btnCancel.setOnAction(e -> { windowResult = EditCharacterPanel.WindowResult.CANCEL; close(); });
+
 
         // --- Layouts --- //
 
@@ -49,7 +60,7 @@ public class EditCharacterPanel extends Stage {
         //Add-Cancel Layout
         HBox buttonLayout = new HBox();
         buttonLayout.setSpacing(10);
-        buttonLayout.getChildren().addAll(btnAdd, btnCancel);
+        buttonLayout.getChildren().addAll(btnSave, btnCancel);
 
         //Overall Layout
         GridPane layout = new GridPane();
@@ -71,7 +82,61 @@ public class EditCharacterPanel extends Stage {
         // --- Set ownership and modality --- //
         initModality(Modality.WINDOW_MODAL);
         initOwner(ownerStage);
-
     }
+
+    /**
+     * Displays the New Character dialog window.
+     * @author Jim Andersson
+     * @return how the user closed the window
+     */
+    public WindowResult showCreateCharacter() {
+        setTitle("New Character");
+
+        tfCharacterName.setText("");
+        taCharacterDescription.setText("");
+
+        tfCharacterName.requestFocus();
+        showAndWait();
+
+        return windowResult;
+    }
+
+    /**
+     * Shows the Edit Character dialog window.
+     * @author Jim Andersson
+     * @param name Character name
+     * @param description Character description
+     * @return how the user closed the window
+     */
+    public WindowResult showEditCharacter(String name, String description) {
+        setTitle("Edit Character");
+
+        tfCharacterName.setText(name);
+        taCharacterDescription.setText(description);
+
+        tfCharacterName.requestFocus();
+        showAndWait();
+
+        return windowResult;
+    }
+
+    public String getCharacterName() {
+        return tfCharacterName.getText();
+    }
+
+    public String getCharacterDescription() {
+        return taCharacterDescription.getText();
+    }
+
+    /**
+     * Used to specify how the window was closed. If the user confirmed the action,
+     * use OK, otherwise use CANCEL.
+     * @author Kasper S. Skott
+     */
+    public enum WindowResult {
+        OK,
+        CANCEL
+    }
+
 
 }

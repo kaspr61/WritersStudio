@@ -1,5 +1,6 @@
 package com.team34.controller;
 
+import com.team34.view.EditCharacterPanel;
 import com.team34.view.dialogs.EditEventDialog;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -39,7 +40,8 @@ public class MainController {
     /**
      * Constructs the controller. Initializes member variables
      * and calls {@link MainController#registerEventsOnView()}.
-     * @param view the view to control
+     *
+     * @param view  the view to control
      * @param model the model to control
      */
     public MainController(MainView view, Project model) {
@@ -77,13 +79,13 @@ public class MainController {
      * from different sources, eg. timeline context menu, event list.
      */
     private void createNewEvent() {
-        if(view.getEditEventDialog().showCreateEvent() == EditEventDialog.WindowResult.OK) {
+        if (view.getEditEventDialog().showCreateEvent() == EditEventDialog.WindowResult.OK) {
             long newEventUID = model.eventManager.newEvent(
                     view.getEditEventDialog().getEventName(),
                     view.getEditEventDialog().getEventDescription()
             );
 
-            if(newEventUID == -1L) {
+            if (newEventUID == -1L) {
                 // TODO Popup warning dialog, stating that either name or description has unsupported format
             }
         }
@@ -104,7 +106,7 @@ public class MainController {
     private void editEvent(long uid) {
         Object[] eventData = model.eventManager.getEventData(uid);
 
-        if(view.getEditEventDialog().showEditEvent((String)eventData[0], (String)eventData[1])
+        if (view.getEditEventDialog().showEditEvent((String) eventData[0], (String) eventData[1])
                 == EditEventDialog.WindowResult.OK
         ) {
             boolean success = model.eventManager.editEvent(uid,
@@ -112,7 +114,7 @@ public class MainController {
                     view.getEditEventDialog().getEventDescription()
             );
 
-            if(!success) {
+            if (!success) {
                 // TODO Popup warning dialog, stating that either name or description has unsupported format
             }
         }
@@ -211,7 +213,7 @@ public class MainController {
      * Opens the file chooser if no project file is in use, then saves the current project to that file.
      */
     private void saveProject() {
-        if(model.getProjectFile() == null) {
+        if (model.getProjectFile() == null) {
 
             Project.UserPreferences userPrefs = model.getUserPreferences();
 
@@ -242,6 +244,66 @@ public class MainController {
         }
     }
 
+    /**
+     * Opens an {@link EditCharacterPanel} dialog window. If the action is not cancelled by the user, the
+     * {@link com.team34.model.character.CharacterManager} creates a new character with the user input.
+     */
+    private void createNewCharacter() {
+        if (view.getEditCharacterPanel().showCreateCharacter() == EditCharacterPanel.WindowResult.OK) {
+            long newCharacterUID = model.characterManager.newCharacter(
+                    view.getEditCharacterPanel().getCharacterName(),
+                    view.getEditCharacterPanel().getCharacterDescription()
+            );
+            view.updateCharacterList(model.characterManager.getCharacterList());
+
+            if (newCharacterUID == -1L) {
+                // TODO Popup warning dialog, stating that either name or description has unsupported format
+            }
+        }
+    }
+
+    /**
+     * Edits character. Identifies the selected character in the list view and retrieves data from the corresponding
+     * character stored in {@link com.team34.model.character.CharacterManager}. The data is then set in a new
+     * {@link EditCharacterPanel} dialog window. If the action is not cancelled, updates the character with new
+     * user input.
+     */
+    private void editCharacter(long uid) {
+        Object[] characterData = model.characterManager.getCharacterData(uid);
+
+        if (view.getEditCharacterPanel().showEditCharacter((String) characterData[0], (String) characterData[1])
+                == EditCharacterPanel.WindowResult.OK
+        ) {
+            boolean success = model.characterManager.editCharacter(uid,
+                    view.getEditCharacterPanel().getCharacterName(),
+                    view.getEditCharacterPanel().getCharacterDescription()
+            );
+
+            if (!success) {
+                // TODO Popup warning dialog, stating that either name or description has unsupported format
+            }
+        }
+    }
+
+    /**
+     * Deletes character. Identifies the selected character in the list view and removes the corresponding
+     * character stored in {@link com.team34.model.character.CharacterManager}.
+     */
+    private void deleteCharacter(long uid) {
+        model.characterManager.deleteCharacter(uid);
+    }
+
+    /**
+     * Retrieves an updated list of characters from {@link com.team34.model.character.CharacterManager} and updates
+     * the character list view.
+     */
+    private void refreshCharacterList() {
+        view.updateCharacterList(
+                model.characterManager.getCharacterList()
+        );
+
+    }
+
     ////// ALL EVENTS ARE LISTED HERE //////////////////////////////////////////////
 
     /**
@@ -253,19 +315,38 @@ public class MainController {
             Node source = (Node) e.getSource();
             String sourceID = source.getId();
 
-            switch(sourceID) {
+            switch (sourceID) {
                 case MainView.ID_BTN_EVENT_ADD:
                     createNewEvent();
                     refreshViewEvents();
                     break;
 
+                case MainView.ID_BTN_CHARACTERLIST_ADD:
+                    createNewCharacter();
+                    break;
+
+                case MainView.ID_BTN_CHARACTERLIST_EDIT:
+                    if (view.getCharacterUID() != -1) {
+                        editCharacter(view.getCharacterUID());
+                        refreshCharacterList();
+                    }
+                    break;
+
+                case MainView.ID_BTN_CHARACTERLIST_DELETE:
+                    if (view.getCharacterUID() != -1) {
+                        deleteCharacter(view.getCharacterUID());
+                        refreshCharacterList();
+                    }
+                    break;
+
                 default:
-                    System.out.println("Unrecognized ID: "+sourceID);
+                    System.out.println("Unrecognized ID: " + sourceID);
                     break;
             }
 
         }
-    };
+    }
+
 
     ////////////////////////////////////////////////////////////////////////////
 
@@ -279,10 +360,10 @@ public class MainController {
             String sourceID = source.getId();
 
             Long sourceUID = -1L;
-            if(view.getTimelineContextMenu().getUserData() instanceof Long)
+            if (view.getTimelineContextMenu().getUserData() instanceof Long)
                 sourceUID = (Long) view.getTimelineContextMenu().getUserData();
 
-            switch(sourceID) {
+            switch (sourceID) {
                 case MainView.ID_TIMELINE_NEW_EVENT:
                     createNewEvent();
                     refreshViewEvents();
@@ -300,12 +381,14 @@ public class MainController {
                     break;
 
                 default:
-                    System.out.println("Unrecognized ID: "+sourceID);
+                    System.out.println("Unrecognized ID: " + sourceID);
                     break;
             }
 
         }
-    };
+    }
+
+    ;
 
     private class EventCloseRequest implements EventHandler<WindowEvent> {
         @Override

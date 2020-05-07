@@ -1,5 +1,6 @@
 package com.team34.view;
 
+import com.team34.model.character.CharacterListObject;
 import com.team34.model.event.EventManager;
 import com.team34.view.character.CharacterList;
 import javafx.event.ActionEvent;
@@ -18,6 +19,8 @@ import javafx.stage.WindowEvent;
 
 import java.util.Optional;
 
+import java.util.ArrayList;
+
 /**
  * This class represents the top layer of the view.
  * <p>
@@ -33,6 +36,9 @@ public class MainView {
 
     //// CONTROL IDs ///////////////////////////
 
+    public static final String ID_BTN_CHARACTERLIST_ADD = "ID_BTN_CHARACTERLIST_ADD";
+    public static final String ID_BTN_CHARACTERLIST_EDIT = "ID_BTN_CHARACTERLIST_EDIT";
+    public static final String ID_BTN_CHARACTERLIST_DELETE = "ID_BTN_CHARACTERLIST_DELETE";
     public static final String ID_BTN_EVENT_ADD = "BTN_EVENT_ADD";
 
     public static final String ID_TIMELINE_NEW_EVENT = "TIMELINE_NEW_EVENT";
@@ -54,7 +60,7 @@ public class MainView {
     private final SplitPane firstLayerSplit;
     private final StackPane leftPane;
     private final StackPane centerPane;
-    private final StackPane rightPane;
+    private final CharacterList rightPane;
     private final SplitPane secondLayerSplit;
 
     //// CONTROLS //////////////////////////////////////
@@ -68,6 +74,7 @@ public class MainView {
     private String cssMain;
     private Timeline timeline;
     private EditEventDialog editEventDialog;
+    private EditCharacterPanel editCharacterPanel;
     private int eventOrderList; // index to specify which order list to use
 
     ////////////////////////////////////////////////////
@@ -154,6 +161,9 @@ public class MainView {
 
         // Create event dialog
         editEventDialog = new EditEventDialog(mainStage);
+
+        // Create character dialog
+        editCharacterPanel = new EditCharacterPanel(mainStage);
     }
 
     /**
@@ -206,7 +216,8 @@ public class MainView {
      * @param buttonEventHandler the button event handler
      */
     public void registerButtonEvents(EventHandler<ActionEvent> buttonEventHandler) {
-
+        rightPane.registerButtonEvents(buttonEventHandler);
+//        editCharacterPanel.registerButtonEvents(buttonEventHandler); TODO: Probably delete
     }
 
     /**
@@ -297,6 +308,23 @@ public class MainView {
             return ButtonType.CLOSE;
         else
             return result.get();
+    }
+
+    /**
+     * Returns a reference to the {@link EditCharacterPanel}, to be accessed directly
+     * from {@link com.team34.controller.MainController}.
+     * @return the edit character dialog
+     */
+    public EditCharacterPanel getEditCharacterPanel() {
+        return editCharacterPanel;
+    }
+
+    public void updateCharacterList(ArrayList<CharacterListObject> characters) {
+        rightPane.updateListView(characters);
+    }
+
+    public long getCharacterUID() {
+        return rightPane.getCharacterUID();
     }
 
 }
