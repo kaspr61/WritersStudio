@@ -1,6 +1,6 @@
 package com.team34.controller;
 
-import com.team34.view.EditCharacterPanel;
+import com.team34.view.dialogs.EditCharacterDialog;
 import com.team34.view.dialogs.EditEventDialog;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -245,11 +245,11 @@ public class MainController {
     }
 
     /**
-     * Opens an {@link EditCharacterPanel} dialog window. If the action is not cancelled by the user, the
+     * Opens an {@link EditCharacterDialog} dialog window. If the action is not cancelled by the user, the
      * {@link com.team34.model.character.CharacterManager} creates a new character with the user input.
      */
     private void createNewCharacter() {
-        if (view.getEditCharacterPanel().showCreateCharacter() == EditCharacterPanel.WindowResult.OK) {
+        if (view.getEditCharacterPanel().showCreateCharacter() == EditCharacterDialog.WindowResult.OK) {
             long newCharacterUID = model.characterManager.newCharacter(
                     view.getEditCharacterPanel().getCharacterName(),
                     view.getEditCharacterPanel().getCharacterDescription()
@@ -265,14 +265,14 @@ public class MainController {
     /**
      * Edits character. Identifies the selected character in the list view and retrieves data from the corresponding
      * character stored in {@link com.team34.model.character.CharacterManager}. The data is then set in a new
-     * {@link EditCharacterPanel} dialog window. If the action is not cancelled, updates the character with new
+     * {@link EditCharacterDialog} dialog window. If the action is not cancelled, updates the character with new
      * user input.
      */
     private void editCharacter(long uid) {
         Object[] characterData = model.characterManager.getCharacterData(uid);
 
         if (view.getEditCharacterPanel().showEditCharacter((String) characterData[0], (String) characterData[1])
-                == EditCharacterPanel.WindowResult.OK
+                == EditCharacterDialog.WindowResult.OK
         ) {
             boolean success = model.characterManager.editCharacter(uid,
                     view.getEditCharacterPanel().getCharacterName(),

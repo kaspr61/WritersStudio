@@ -1,9 +1,6 @@
 package com.team34.view;
 
-import com.team34.model.character.CharacterListObject;
-import com.team34.model.event.EventManager;
-import com.team34.view.character.CharacterList;
-import com.team34.view.event.EventList;
+import com.team34.view.dialogs.EditCharacterDialog;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
@@ -13,10 +10,14 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
+import com.team34.model.event.EventManager;
+import com.team34.model.character.CharacterListObject;
+import com.team34.view.character.CharacterList;
+import com.team34.view.event.EventList;
 import com.team34.view.dialogs.EditEventDialog;
 import com.team34.view.timeline.Timeline;
-import javafx.stage.WindowEvent;
 
 import java.util.Optional;
 
@@ -77,7 +78,7 @@ public class MainView {
     private String cssMain;
     private Timeline timeline;
     private EditEventDialog editEventDialog;
-    private EditCharacterPanel editCharacterPanel;
+    private EditCharacterDialog editCharacterPanel;
     private int eventOrderList; // index to specify which order list to use
 
     ////////////////////////////////////////////////////
@@ -166,7 +167,7 @@ public class MainView {
         editEventDialog = new EditEventDialog(mainStage);
 
         // Create character dialog
-        editCharacterPanel = new EditCharacterPanel(mainStage);
+        editCharacterPanel = new EditCharacterDialog(mainStage);
     }
 
     /**
@@ -314,11 +315,11 @@ public class MainView {
     }
 
     /**
-     * Returns a reference to the {@link EditCharacterPanel}, to be accessed directly
+     * Returns a reference to the {@link EditCharacterDialog}, to be accessed directly
      * from {@link com.team34.controller.MainController}.
      * @return the edit character dialog
      */
-    public EditCharacterPanel getEditCharacterPanel() {
+    public EditCharacterDialog getEditCharacterPanel() {
         return editCharacterPanel;
     }
 

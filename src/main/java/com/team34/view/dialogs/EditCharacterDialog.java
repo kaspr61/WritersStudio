@@ -1,8 +1,5 @@
-package com.team34.view;
+package com.team34.view.dialogs;
 
-import com.team34.view.dialogs.EditEventDialog;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -15,7 +12,7 @@ import javafx.stage.Stage;
  * @author Morgan Karlsson
  */
 
-public class EditCharacterPanel extends Stage {
+public class EditCharacterDialog extends Stage {
 
     private Button btnSave;
     private Button btnCancel;
@@ -23,7 +20,7 @@ public class EditCharacterPanel extends Stage {
     private TextArea taCharacterDescription;
     private WindowResult windowResult;
 
-    public EditCharacterPanel(Stage ownerStage) {
+    public EditCharacterDialog(Stage ownerStage) {
         setTitle("Edit Character");
 
         // --- GUI elements --- //
@@ -43,10 +40,10 @@ public class EditCharacterPanel extends Stage {
 
         //Buttons
         btnSave = new Button("Save");
-        btnSave.setOnAction(e -> { windowResult = EditCharacterPanel.WindowResult.OK; close(); });
+        btnSave.setOnAction(e -> { windowResult = EditCharacterDialog.WindowResult.OK; close(); });
 
         btnCancel = new Button("Cancel");
-        btnCancel.setOnAction(e -> { windowResult = EditCharacterPanel.WindowResult.CANCEL; close(); });
+        btnCancel.setOnAction(e -> { windowResult = EditCharacterDialog.WindowResult.CANCEL; close(); });
 
 
         // --- Layouts --- //
