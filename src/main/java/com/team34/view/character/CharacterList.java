@@ -11,13 +11,12 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
-
 import java.util.ArrayList;
+
 
 
 /**
@@ -37,7 +36,7 @@ public class CharacterList extends StackPane {
     BorderPane innerPane;
 
     //CSS
-    private String cssCharacterlist;
+    private String css;
 
     //Icons
     private String addCharacter;
@@ -94,11 +93,12 @@ public class CharacterList extends StackPane {
         getChildren().add(outerPane);
 
         //CSS
-        cssCharacterlist = com.team34.App.class.getResource("/css/characterlist.css").toExternalForm();
+        css = com.team34.App.class.getResource("/css/characterlist.css").toExternalForm();
+        setStyleSheets();
     }
 
     public void setStyleSheets() {
-        outerPane.getStyleClass().add("outerPane");
+        add.getStyleClass().add("characterButtons");
     }
 
     /**
@@ -149,7 +149,8 @@ public class CharacterList extends StackPane {
         chListObjArray = characters;
         ObservableList<CharacterListObject> ol = FXCollections.observableArrayList();
         ol.addAll(characters);
-        list.setItems(ol);
+        SortedList sl = new SortedList(ol);
+        list.setItems(sl.sorted());
     }
 
     /**

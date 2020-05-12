@@ -1,7 +1,6 @@
 package com.team34.view.event;
 
 import com.team34.model.event.EventListObject;
-import com.team34.model.event.EventManager;
 import com.team34.view.MainView;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -15,8 +14,6 @@ import javafx.scene.control.ListView;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
-
-import java.util.ArrayList;
 
 
 public class EventList extends StackPane {
@@ -98,15 +95,15 @@ public class EventList extends StackPane {
      * Sets the icon graphics for the Add-, Edit- and Delete buttons.
      */
     public void installButtonIcons() {
-        addEvent = com.team34.App.class.getResource("/icons/add_character.png").toExternalForm(); //Filestream for icon
+        addEvent = com.team34.App.class.getResource("/icons/add_event.png").toExternalForm(); //Filestream for icon
         Image imgAddEvent = new Image(addEvent);
         ImageView imageViewAddEvent = new ImageView(imgAddEvent);
 
-        editEvent = com.team34.App.class.getResource("/icons/edit_character.png").toExternalForm();
+        editEvent = com.team34.App.class.getResource("/icons/edit_event.png").toExternalForm();
         Image imgEditEvent = new Image(editEvent);
         ImageView imageViewEditEvent = new ImageView(imgEditEvent);
 
-        deleteEvent = com.team34.App.class.getResource("/icons/delete_character.png").toExternalForm();
+        deleteEvent = com.team34.App.class.getResource("/icons/delete_event.png").toExternalForm();
         Image imgDeleteEvent = new Image(deleteEvent);
         ImageView imageViewDeleteEvent = new ImageView(imgDeleteEvent);
 
