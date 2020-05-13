@@ -64,6 +64,7 @@ public class EventList extends StackPane {
         //Label
         title = new Label("Events");
         title.setPadding(new Insets(20, 0, 0, 0));
+        title.getStyleClass().add("list-headline");
 
         //Event List
         list = new ListView<>();

@@ -74,6 +74,7 @@ public class CharacterList extends StackPane {
         //Label
         title = new Label("Characters");
         title.setPadding(new Insets(20, 0, 0, 0));
+        title.getStyleClass().add("list-headline");
 
         //Character List
         list = new ListView<>();
@@ -92,19 +93,8 @@ public class CharacterList extends StackPane {
         BorderPane.setAlignment(title, Pos.CENTER);
 
         getChildren().add(outerPane);
-
-        //CSS
-        css = com.team34.App.class.getResource("/css/characterlist.css").toExternalForm();
-        setStyleSheets();
     }
 
-    public void setStyleSheets() {
-        add.getStyleClass().add("characterButtons");
-    }
-
-    public void mouseEvent() {
-//        list.mouse
-    }
 
     /**
      * Sets the icon graphics for the Add-, Edit- and Delete buttons.
@@ -169,6 +159,11 @@ public class CharacterList extends StackPane {
         delete.setOnAction(buttonEventHandler);
     }
 
+    /**
+     * Registers the character list to the mouse event handler in the
+     * {@link com.team34.controller.MainController} class.
+     * @param listEventHandler
+     */
     public void registerMouseEvents(EventHandler<MouseEvent> listEventHandler) {
         list.setOnMouseClicked(listEventHandler);
     }
@@ -185,6 +180,10 @@ public class CharacterList extends StackPane {
         return -1;
     }
 
+    /**
+     * Checks if a list item is selected
+     * @return boolean
+     */
     public boolean listItemSelected() {
         return list.getSelectionModel().getSelectedIndex() >= 0;
     }
