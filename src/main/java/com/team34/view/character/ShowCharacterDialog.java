@@ -5,8 +5,9 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -18,8 +19,10 @@ import javafx.stage.Stage;
 public class ShowCharacterDialog extends Stage {
 
     private Button btnOk;
-    private Label lblCharacterName;
-    private Text txtCharacterDescription;
+    private Label lblCharacter;
+    private Label lblName;
+    private Label lblDescription;
+    private Text txtDescription;
 
     /**
      * Initializes dialog window.
@@ -30,14 +33,16 @@ public class ShowCharacterDialog extends Stage {
         // --- GUI elements --- //
 
         //Label
-        lblCharacterName = new Label("Character name:");
+        lblCharacter = new Label("Name: ");
+        lblName = new Label();
+        lblDescription = new Label("Description:");
 
         //Textfield
-        lblCharacterName = new Label();
-        lblCharacterName.setMaxWidth(150);
+        lblName = new Label();
+        lblName.setMaxWidth(150);
 
         //TextArea
-        txtCharacterDescription = new Text();
+        txtDescription = new Text();
 
         //Buttons
         btnOk = new Button("OK");
@@ -50,7 +55,13 @@ public class ShowCharacterDialog extends Stage {
         HBox nameLayout = new HBox();
         nameLayout.setMinHeight(30);
         nameLayout.setSpacing(10);
-        nameLayout.getChildren().addAll(lblCharacterName);
+        nameLayout.getChildren().addAll(lblCharacter, lblName);
+
+        //Description layout
+        VBox descriptionLayout = new VBox();
+        descriptionLayout.setMinHeight(40);
+        nameLayout.setSpacing(10);
+        nameLayout.getChildren().addAll(lblDescription, txtDescription);
 
         //Button Layout
         HBox buttonLayout = new HBox();
@@ -59,15 +70,16 @@ public class ShowCharacterDialog extends Stage {
 
         //Overall Layout
         GridPane layout = new GridPane();
-        layout.setMinSize(100, 300);
+        layout.setMinSize(300, 300);
         layout.setHgap(5);
         layout.setVgap(10);
         layout.setAlignment(Pos.CENTER);
         layout.setPadding(new Insets(10, 10, 10, 10));
 
         layout.add(nameLayout, 0, 0);
-        layout.add(txtCharacterDescription, 0, 2);
-        layout.add(buttonLayout, 0, 3);
+        layout.add(lblDescription, 0, 2);
+        layout.add(txtDescription, 0, 3);
+        layout.add(buttonLayout, 0, 4);
 
         // --- Set Scene --- //
         Scene scene = new Scene(layout);
@@ -80,12 +92,17 @@ public class ShowCharacterDialog extends Stage {
 
     /**
      * Sets the character data displayed in the dialog window.
-     * @param name Character name.
-     * @param description Character description.
+     * @param data array containing character information
      */
-    public void setData(String name, String description) {
-        lblCharacterName.setText(name);
-        txtCharacterDescription.setText(description);
+    public void showCharacter(Object[] data) {
+        String name, description;
+        name = (String)data[0];
+        description = (String)data[1];
+
+        lblName.setText(name);
+        txtDescription.setText(description);
+
+        showAndWait();
     }
 
 }

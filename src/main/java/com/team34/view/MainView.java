@@ -1,11 +1,13 @@
 package com.team34.view;
 
+import com.team34.view.character.ShowCharacterDialog;
 import com.team34.view.dialogs.EditCharacterDialog;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
@@ -79,6 +81,7 @@ public class MainView {
     private Timeline timeline;
     private EditEventDialog editEventDialog;
     private EditCharacterDialog editCharacterPanel;
+    private ShowCharacterDialog showCharacterDialog;
     private int eventOrderList; // index to specify which order list to use
 
     ////////////////////////////////////////////////////
@@ -168,6 +171,9 @@ public class MainView {
 
         // Create character dialog
         editCharacterPanel = new EditCharacterDialog(mainStage);
+
+        //Create show character dialog
+        showCharacterDialog = new ShowCharacterDialog(mainStage);
     }
 
     /**
@@ -222,6 +228,10 @@ public class MainView {
     public void registerButtonEvents(EventHandler<ActionEvent> buttonEventHandler) {
         rightPane.registerButtonEvents(buttonEventHandler);
         leftPane.registerButtonEvents(buttonEventHandler);
+    }
+
+    public void registerMouseEvents(EventHandler<MouseEvent> listEventHandler) {
+        rightPane.registerMouseEvents(listEventHandler);
     }
 
     /**
@@ -333,6 +343,14 @@ public class MainView {
 
     public long getSelectedEventUID() {
         return leftPane.getEventUID();
+    }
+
+    public boolean characterListItemSelected() {
+        return rightPane.listItemSelected();
+    }
+
+    public ShowCharacterDialog getShowCharacterDialog() {
+        return showCharacterDialog;
     }
 
 }

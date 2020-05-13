@@ -10,6 +10,8 @@ import com.team34.model.Project;
 import com.team34.view.MainView;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.MenuItem;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.stage.FileChooser;
 import javafx.stage.WindowEvent;
 
@@ -36,6 +38,7 @@ public class MainController {
     private final EventHandler<ActionEvent> evtContextMenuAction;
     private final EventHandler<WindowEvent> evtCloseRequest;
     private final EventHandler<ActionEvent> evtMenuBarAction;
+    private final EventHandler<MouseEvent> evtMouseCharacterList;
 
     /**
      * Constructs the controller. Initializes member variables
@@ -52,6 +55,7 @@ public class MainController {
         this.evtContextMenuAction = new EventContextMenuAction();
         this.evtCloseRequest = new EventCloseRequest();
         this.evtMenuBarAction = new EventMenuBarAction();
+        this.evtMouseCharacterList = new CharacterListMouseEvent();
 
         registerEventsOnView();
     }
@@ -65,6 +69,7 @@ public class MainController {
         view.registerContextMenuEvents(evtContextMenuAction);
         view.registerCloseRequestEvent(evtCloseRequest);
         view.registerMenuBarActionEvents(evtMenuBarAction);
+        view.registerMouseEvents(evtMouseCharacterList);
     }
 
     /**
@@ -285,6 +290,11 @@ public class MainController {
         }
     }
 
+    private void showCharacter(long uid) {
+        Object[] characterData = model.characterManager.getCharacterData(uid);
+        view.getShowCharacterDialog().showCharacter(characterData);
+    }
+
     /**
      * Deletes character. Identifies the selected character in the list view and removes the corresponding
      * character stored in {@link com.team34.model.character.CharacterManager}.
@@ -400,8 +410,6 @@ public class MainController {
         }
     }
 
-    ;
-
     private class EventCloseRequest implements EventHandler<WindowEvent> {
         @Override
         public void handle(WindowEvent e) {
@@ -463,4 +471,16 @@ public class MainController {
 
         }
     }
+
+    private class CharacterListMouseEvent implements EventHandler<MouseEvent> {
+
+        @Override
+        public void handle(MouseEvent click) {
+            if (click.getButton() == MouseButton.PRIMARY && click.getClickCount() == 2
+            && view.characterListItemSelected()) {
+                showCharacter(view.getCharacterUID());
+            }
+        }
+    }
+
 }

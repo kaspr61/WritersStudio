@@ -14,6 +14,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import java.util.ArrayList;
 
@@ -101,6 +102,10 @@ public class CharacterList extends StackPane {
         add.getStyleClass().add("characterButtons");
     }
 
+    public void mouseEvent() {
+//        list.mouse
+    }
+
     /**
      * Sets the icon graphics for the Add-, Edit- and Delete buttons.
      */
@@ -149,7 +154,7 @@ public class CharacterList extends StackPane {
         chListObjArray = characters;
         ObservableList<CharacterListObject> ol = FXCollections.observableArrayList();
         ol.addAll(characters);
-        SortedList sl = new SortedList(ol);
+        SortedList sl = new SortedList(ol); //Sorts list alphabetically
         list.setItems(sl.sorted());
     }
 
@@ -164,6 +169,10 @@ public class CharacterList extends StackPane {
         delete.setOnAction(buttonEventHandler);
     }
 
+    public void registerMouseEvents(EventHandler<MouseEvent> listEventHandler) {
+        list.setOnMouseClicked(listEventHandler);
+    }
+
     /**
      * If a character is selected in the list view, returns the character's UID. Else, returns -1.
      * @return long
@@ -174,6 +183,10 @@ public class CharacterList extends StackPane {
         }
 
         return -1;
+    }
+
+    public boolean listItemSelected() {
+        return list.getSelectionModel().getSelectedIndex() >= 0;
     }
 }
 
