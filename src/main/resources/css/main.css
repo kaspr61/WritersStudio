@@ -83,4 +83,25 @@
     -fx-scale-x: 0.9;
 }
 
+/*** Character Chart ***/
+.characterchart-scrollpane > .viewport {
+    -fx-background-color: red;
+}
+
+.characterchart-rect {
+    -fx-fill: -color-timeline-event-rect;
+    -fx-stroke: -color-timeline-line;
+    -fx-stroke-width: 1;
+    -fx-stroke-line-cap: round;
+    -fx-effect: -effect-dropshadow;
+}
+
+.characterchart-tooltip {
+    -fx-background-color: -color-tooltip-background;
+    -fx-background-radius: 0 0 0 0;
+    -fx-text-fill: -color-text-primary;
+    -fx-effect: -effect-dropshadow;
+}
+
+
 /***************

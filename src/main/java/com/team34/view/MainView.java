@@ -1,5 +1,6 @@
 package com.team34.view;
 
+import com.team34.view.characterchart.CharacterChart;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
@@ -76,6 +77,7 @@ public class MainView {
     private Scene mainScene;
     private String cssMain;
     private Timeline timeline;
+    private CharacterChart characterChart;
     private EditEventDialog editEventDialog;
     private EditCharacterDialog editCharacterPanel;
     private int eventOrderList; // index to specify which order list to use
@@ -124,8 +126,8 @@ public class MainView {
         firstLayerSplit.setDividerPosition(0, 0.99);
 
         // Create the second-layer panes, contained by centerPane. These are separated vertically
-        leftPane = new EventList(); // Will contain event list
-        centerPane = new StackPane(); // Will contain character chart
+        leftPane = new EventList(); // Contains event list
+        centerPane = new StackPane(); // Contains character chart
         rightPane = new CharacterList(); // Contains character list
         secondLayerSplit = new SplitPane();
 
@@ -143,6 +145,11 @@ public class MainView {
 
         // Add the contentBorderPane to the root pane
         rootPane.setCenter(contentBorderPane);
+
+        // Set up character chart
+        characterChart = new CharacterChart(centerPane.getWidth(), centerPane.getHeight());
+        characterChart.addToPane(centerPane);
+
 
         // Set up timeline
         setupTimeline(bottomPane, screenW);

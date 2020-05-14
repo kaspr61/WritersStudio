@@ -1,5 +1,6 @@
 package com.team34.view.timeline;
 
+import com.team34.view.LabeledRectangle;
 import com.team34.view.MainView;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -69,7 +70,7 @@ public class Timeline {
     private EventHandler<ContextMenuEvent> evtShowContextEvent; // Fires when an event is right-clicked
     private EventHandler<ContextMenuEvent> evtShowContextPane; // Fires when the pane is right-clicked
 
-    private HashMap<Long, EventRectangle> eventRectMap; // Stores references to EventRectangles by their eventUID.
+    private HashMap<Long, LabeledRectangle> eventRectMap; // Stores references to LabeledRectangles by their eventUID.
     private Long[] eventUIDOrder; // This is a reference to the order of the events.
 
     /**
@@ -82,7 +83,7 @@ public class Timeline {
         evtShowContextEvent = new EventContextRequestEvent();
 
         pane = new Pane();
-        pane.setMinSize(minWidth, EventRectangle.DEFAULT_HEIGHT + LAYOUT_SPACING + LAYOUT_SPACING);
+        pane.setMinSize(minWidth, LabeledRectangle.DEFAULT_HEIGHT + LAYOUT_SPACING + LAYOUT_SPACING);
         pane.setPrefSize(minWidth, pane.getMinHeight());
         pane.setMaxHeight(pane.getMinHeight());
 
@@ -116,7 +117,7 @@ public class Timeline {
      * @param width the width of the rectangle. Set to 0.0 to use default
      */
     public void addEvent(long eventUID, String label, double width) {
-        EventRectangle existingRect = eventRectMap.get(eventUID);
+        LabeledRectangle existingRect = eventRectMap.get(eventUID);
 
         if(existingRect != null) { // If the event is getting overwritten, remove the old shapes first.
             pane.getChildren().removeAll(existingRect.getRect(), existingRect.getText());
@@ -124,7 +125,8 @@ public class Timeline {
             Tooltip.uninstall(existingRect.getRect(), existingRect.getTooltip());
         }
 
-        EventRectangle rect = new EventRectangle(label, width);
+        LabeledRectangle rect = new LabeledRectangle(label, width, 0.0f);
+        rect.setStylesheetClasses("timeline-event-rect", "timeline-event-text", "timeline-tooltip");
         eventRectMap.put(eventUID, rect);
 
         pane.getChildren().add(rect.getRect());
@@ -160,15 +162,15 @@ public class Timeline {
     }
 
     /**
-     * Finds the UID associated with the given {@link Rectangle} contained within an {@link EventRectangle}.
+     * Finds the UID associated with the given {@link Rectangle} contained within an {@link LabeledRectangle}.
      * @param rectangle the rectangle to use when searching
      * @return the UID or, if not found, -1L
      */
     public Long getEventUIDByRectangle(Rectangle rectangle) {
-        Iterator<Map.Entry<Long, EventRectangle>> it = eventRectMap.entrySet().iterator();
-        Map.Entry<Long, EventRectangle> pair;
+        Iterator<Map.Entry<Long, LabeledRectangle>> it = eventRectMap.entrySet().iterator();
+        Map.Entry<Long, LabeledRectangle> pair;
 
-        // Find EventRectangle that contains the input rectangle and return its associated UID
+        // Find LabeledRectangle that contains the input rectangle and return its associated UID
         while (it.hasNext()) {
             pair = it.next();
             if(pair.getValue().getRect().equals(rectangle)) {
@@ -214,12 +216,12 @@ public class Timeline {
         posY = pane.getMinHeight() / 2.0;
 
         // Reset positions of event rectangles according to the given order.
-        double y = posY - EventRectangle.DEFAULT_HEIGHT / 2.0;
+        double y = posY - LabeledRectangle.DEFAULT_HEIGHT / 2.0;
         double nextX = posX + LAYOUT_SPACING;
 
         if(eventUIDOrder != null) {
             for (int i = 0; i < eventUIDOrder.length; i++) {
-                EventRectangle rect = eventRectMap.get(eventUIDOrder[i]);
+                LabeledRectangle rect = eventRectMap.get(eventUIDOrder[i]);
                 if (rect == null)
                     continue;
 

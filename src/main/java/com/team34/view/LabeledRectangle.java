@@ -1,5 +1,6 @@
-package com.team34.view.timeline;
+package com.team34.view;
 
+import com.team34.view.timeline.Timeline;
 import javafx.geometry.Bounds;
 import javafx.geometry.VPos;
 import javafx.scene.control.Tooltip;
@@ -9,16 +10,15 @@ import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 
 /**
- * EventRectangle represents an event on the timeline. It contains all graphical
- * information needed to display the event using {@link javafx.scene.shape.Shape}s.
- * This class is only to be used internally by {@link Timeline}.
+ * LabeledRectangle contains a Rectangle and Text. It contains all graphical
+ * information needed to display a labeled rectangle using {@link javafx.scene.shape.Shape}s.
  * @author Kasper S. Skott
  */
-class EventRectangle {
+public class LabeledRectangle {
 
     private static final double TOOLTIP_SHOW_DELAY_MS = 500.0;
-    static final double DEFAULT_WIDTH = 80.0;
-    static final double DEFAULT_HEIGHT = 50.0;
+    public static final double DEFAULT_WIDTH = 80.0;
+    public static final double DEFAULT_HEIGHT = 50.0;
 
     private final Text text;
     private final Rectangle rect;
@@ -34,13 +34,13 @@ class EventRectangle {
      * @param label the text to be displayed within the rectangle
      * @param width the width of the rectangle. Set to 0.0 to use default width.
      */
-    EventRectangle(String label, double width) {
-
+    public LabeledRectangle(String label, double width, double height) {
         double w = width < 1.0 ? DEFAULT_WIDTH : width;
+        double h = height < 1.0 ? DEFAULT_HEIGHT : height;
 
-        rect = new Rectangle(w, DEFAULT_HEIGHT);
+        rect = new Rectangle(w, h);
 
-        clipRect = new Rectangle(w, DEFAULT_HEIGHT);
+        clipRect = new Rectangle(w, h);
         clipRect.xProperty().bind(rect.xProperty());
         clipRect.yProperty().bind(rect.yProperty());
         clipRect.widthProperty().bind(rect.widthProperty().multiply(0.9f));
@@ -48,7 +48,7 @@ class EventRectangle {
 
         text = new Text(label);
         text.prefWidth(w);
-        text.prefHeight(DEFAULT_HEIGHT);
+        text.prefHeight(h);
         text.setLineSpacing(-3.0); // Set line space to less than specified in font.
         text.setTextAlignment(TextAlignment.CENTER);
         text.setTextOrigin(VPos.CENTER);
@@ -59,21 +59,16 @@ class EventRectangle {
         textOffsetX = rect.getBoundsInParent().getCenterX() - text.getBoundsInParent().getCenterX();
         textOffsetY = rect.getBoundsInParent().getCenterY();
 
-        rect.getStyleClass().add("timeline-event-rect");
-        text.getStyleClass().add("timeline-event-text");
-
         tooltip = new Tooltip(label);
         tooltip.setShowDelay(Duration.millis(TOOLTIP_SHOW_DELAY_MS));
         tooltip.setHideDelay(Duration.millis(300.0));
-        tooltip.getStyleClass().add("timeline-tooltip");
-
     }
 
     /**
      * Returns a reference to the internal {@link javafx.scene.text.Text} object.
      * @return the Text object
      */
-    Text getText() {
+    public Text getText() {
         return text;
     }
 
@@ -81,7 +76,7 @@ class EventRectangle {
      * Returns a reference to the internal {@link javafx.scene.shape.Rectangle} object.
      * @return the Rectangle object
      */
-    Rectangle getRect() {
+    public Rectangle getRect() {
         return rect;
     }
 
@@ -89,7 +84,7 @@ class EventRectangle {
      * Sets the x-position.
      * @param x the new x-position
      */
-    void setX(double x) {
+    public void setX(double x) {
         rect.setX(x);
         text.setX(x + textOffsetX);
     }
@@ -98,16 +93,24 @@ class EventRectangle {
      * Sets the y-position
      * @param y the new y-position
      */
-    void setY(double y) {
+    public void setY(double y) {
         rect.setY(y);
         text.setY(y + textOffsetY);
+    }
+
+    /**
+     * Returns a reference to the internal {@link javafx.scene.control.Tooltip} object.
+     * @return the Tooltip object
+     */
+    public Tooltip getTooltip() {
+        return tooltip;
     }
 
     /**
      * Returns the bounds, relative to the parent.
      * @return bounds relative to parent
      */
-    Bounds getBoundsInParent() {
+    public Bounds getBoundsInParent() {
         return rect.getBoundsInParent();
     }
 
@@ -115,17 +118,14 @@ class EventRectangle {
      * Returns the local bounds.
      * @return local bounds
      */
-    Bounds getBoundsInLocal() {
+    public Bounds getBoundsInLocal() {
         return rect.getBoundsInLocal();
     }
 
-    /**
-     * Returns a reference to the internal {@link javafx.scene.control.Tooltip} object.
-     * @return the Tooltip object
-     */
-    Tooltip getTooltip() {
-        return tooltip;
+    public void setStylesheetClasses(String rectClass, String labelClass, String tooltipClass) {
+        if (rectClass != null)       rect.getStyleClass().add(rectClass);
+        if (labelClass != null)      text.getStyleClass().add(labelClass);
+        if (tooltipClass != null)    tooltip.getStyleClass().add(tooltipClass);
     }
-
 
 }
