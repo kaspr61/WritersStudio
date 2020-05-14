@@ -247,6 +247,7 @@ public class MainController {
     /**
      * Opens an {@link EditCharacterDialog} dialog window. If the action is not cancelled by the user, the
      * {@link com.team34.model.character.CharacterManager} creates a new character with the user input.
+     * @author Jim Andersson
      */
     private void createNewCharacter() {
         if (view.getEditCharacterPanel().showCreateCharacter() == EditCharacterDialog.WindowResult.OK) {
@@ -267,6 +268,7 @@ public class MainController {
      * character stored in {@link com.team34.model.character.CharacterManager}. The data is then set in a new
      * {@link EditCharacterDialog} dialog window. If the action is not cancelled, updates the character with new
      * user input.
+     * @author Jim Andersson
      */
     private void editCharacter(long uid) {
         Object[] characterData = model.characterManager.getCharacterData(uid);
@@ -288,6 +290,7 @@ public class MainController {
     /**
      * Deletes character. Identifies the selected character in the list view and removes the corresponding
      * character stored in {@link com.team34.model.character.CharacterManager}.
+     * @author Jim Andersson
      */
     private void deleteCharacter(long uid) {
         model.characterManager.deleteCharacter(uid);
@@ -296,6 +299,7 @@ public class MainController {
     /**
      * Retrieves an updated list of characters from {@link com.team34.model.character.CharacterManager} and updates
      * the character list view.
+     * @author Jim Andersson
      */
     private void refreshCharacterList() {
         view.updateCharacterList(

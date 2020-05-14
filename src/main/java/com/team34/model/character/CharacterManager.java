@@ -1,10 +1,10 @@
 package com.team34.model.character;
 
-import com.team34.model.UIDManager;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import com.team34.model.UIDManager;
+import com.team34.view.character.CharacterListObject;
 
 
 /**
@@ -62,16 +62,16 @@ public class CharacterManager {
     }
 
     /**
-     * Returns an array of {@link CharacterListObject} objects.
-     * @return ArrayList of CharacterListObjects.
+     * Returns an array list of Object arrays containing character names and UIDs.
+     * @return ArrayList of Object[]
      */
-    public ArrayList<CharacterListObject> getCharacterList() {
+    public ArrayList<Object[]> getCharacterList() {
 
-        ArrayList<CharacterListObject> characterArrayList = new ArrayList<>();
+        ArrayList<Object[]> characterArrayList = new ArrayList<>();
 
         for (Map.Entry character : characterMap.entrySet()) {
             Character ch = (Character) character.getValue();
-            CharacterListObject chListObj = new CharacterListObject(ch.getName(), (long)character.getKey());
+            Object[] chListObj =  {ch.getName(), character.getKey()};
             characterArrayList.add(chListObj);
         }
         return characterArrayList;
