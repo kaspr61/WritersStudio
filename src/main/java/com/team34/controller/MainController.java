@@ -1,22 +1,22 @@
 package com.team34.controller;
 
-import com.team34.view.dialogs.EditCharacterDialog;
-import com.team34.view.dialogs.EditEventDialog;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
-
-import com.team34.model.Project;
-import com.team34.view.MainView;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.MenuItem;
 import javafx.stage.FileChooser;
 import javafx.stage.WindowEvent;
-
 import javax.xml.stream.XMLStreamException;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
+
+import com.team34.view.dialogs.EditCharacterDialog;
+import com.team34.view.dialogs.EditEventDialog;
+import com.team34.model.Project;
+import com.team34.view.MainView;
 
 /**
  * This class handles logic and communication between the model and view components of the system.
@@ -402,6 +402,9 @@ public class MainController {
 
     ;
 
+    /**
+     * This event is fired when the application should be closed, eg. when a user exits or closes the window.
+     */
     private class EventCloseRequest implements EventHandler<WindowEvent> {
         @Override
         public void handle(WindowEvent e) {
@@ -423,6 +426,9 @@ public class MainController {
         }
     }
 
+    /**
+     * This event is fired from the user clicking items in the menu bar.
+     */
     private class EventMenuBarAction implements EventHandler<ActionEvent> {
         @Override
         public void handle(ActionEvent e) {

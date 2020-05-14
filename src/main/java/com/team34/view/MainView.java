@@ -1,6 +1,5 @@
 package com.team34.view;
 
-import com.team34.view.dialogs.EditCharacterDialog;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
@@ -12,16 +11,16 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
+import java.util.Optional;
+import java.util.ArrayList;
+
 import com.team34.model.event.EventManager;
 import com.team34.model.character.CharacterListObject;
 import com.team34.view.character.CharacterList;
 import com.team34.view.event.EventList;
 import com.team34.view.dialogs.EditEventDialog;
+import com.team34.view.dialogs.EditCharacterDialog;
 import com.team34.view.timeline.Timeline;
-
-import java.util.Optional;
-
-import java.util.ArrayList;
 
 /**
  * This class represents the top layer of the view.
@@ -86,7 +85,7 @@ public class MainView {
     /**
      * Constructs the GUI.
      * <p>
-     * Calls {@link MainView#setupTimeline(Pane, double)} and {@link MainView#setupRightPane()}
+     * Calls {@link MainView#setupTimeline(Pane, double)}.
      *
      * @param mainStage the stage associated with the {@link javafx.application.Application}.
      * @param screenW the width the window should be at
@@ -148,9 +147,6 @@ public class MainView {
         // Set up timeline
         setupTimeline(bottomPane, screenW);
 
-        // Set up right pane
-        setupRightPane();
-
         // Finalize the stage
         mainStage.setResizable(true);
         mainStage.setMinWidth(MIN_WINDOW_WIDTH);
@@ -171,30 +167,11 @@ public class MainView {
     }
 
     /**
-     * Constructs and initializes the {@link Timeline}.
-     * @param parentPane the pane inside which the timeline is to reside
-     * @param screenW the minimum width of the timeline
+     * Returns a reference to the main stage.
+     * @return the main stage
      */
-    private void setupTimeline(Pane parentPane, double screenW) {
-        timeline = new Timeline(screenW);
-        timeline.addToPane(parentPane);
-
-        timeline.recalculateLayout();
-    }
-
-    /**
-     * Constructs and initializes the right-most pane, which contains the character list.
-     */
-    private void setupRightPane() {
-
-    }
-
-    /**
-     * Returns the context menu of the timeline
-     * @return the context menu of the timeline
-     */
-    public ContextMenu getTimelineContextMenu() {
-        return timeline.getContextMenu();
+    public Stage getMainStage() {
+        return mainStage;
     }
 
     /**
@@ -216,6 +193,44 @@ public class MainView {
     }
 
     /**
+     * Returns a reference to the {@link EditCharacterDialog}, to be accessed directly
+     * from {@link com.team34.controller.MainController}.
+     * @return the edit character dialog
+     */
+    public EditCharacterDialog getEditCharacterPanel() {
+        return editCharacterPanel;
+    }
+
+    /**
+     * Returns a reference to the {@link EditEventDialog}, to be accessed directly
+     * from {@link com.team34.controller.MainController}.
+     * @return the edit event dialog.
+     */
+    public EditEventDialog getEditEventDialog() {
+        return editEventDialog;
+    }
+
+    /**
+     * Constructs and initializes the {@link Timeline}.
+     * @param parentPane the pane inside which the timeline is to reside
+     * @param screenW the minimum width of the timeline
+     */
+    private void setupTimeline(Pane parentPane, double screenW) {
+        timeline = new Timeline(screenW);
+        timeline.addToPane(parentPane);
+
+        timeline.recalculateLayout();
+    }
+
+    /**
+     * Returns the context menu of the timeline
+     * @return the context menu of the timeline
+     */
+    public ContextMenu getTimelineContextMenu() {
+        return timeline.getContextMenu();
+    }
+
+    /**
      * Hooks up the event given to buttons
      * @param buttonEventHandler the button event handler
      */
@@ -234,7 +249,7 @@ public class MainView {
 
     /**
      * Registers the given EventHandler on the mainStage.
-     * @param windowEventHandler
+     * @param windowEventHandler the event handler
      */
     public void registerCloseRequestEvent(EventHandler<WindowEvent> windowEventHandler) {
         mainStage.setOnCloseRequest(windowEventHandler);
@@ -242,7 +257,7 @@ public class MainView {
 
     /**
      * Registers the given EventHandler on the menuBar
-     * @param menuEventHandler
+     * @param menuEventHandler the event handler
      */
     public void registerMenuBarActionEvents(EventHandler<ActionEvent> menuEventHandler) {
         menuBar.registerMenuBarAction(menuEventHandler);
@@ -267,23 +282,6 @@ public class MainView {
         timeline.recalculateLayout();
 
         leftPane.updateListView(events);
-    }
-
-    /**
-     * Returns a reference to the {@link EditEventDialog}, to be accessed directly
-     * from {@link com.team34.controller.MainController}.
-     * @return the edit event dialog.
-     */
-    public EditEventDialog getEditEventDialog() {
-        return editEventDialog;
-    }
-
-    /**
-     * Returns a reference to the main stage.
-     * @return the main stage
-     */
-    public Stage getMainStage() {
-        return mainStage;
     }
 
     /**
@@ -312,15 +310,6 @@ public class MainView {
             return ButtonType.CLOSE;
         else
             return result.get();
-    }
-
-    /**
-     * Returns a reference to the {@link EditCharacterDialog}, to be accessed directly
-     * from {@link com.team34.controller.MainController}.
-     * @return the edit character dialog
-     */
-    public EditCharacterDialog getEditCharacterPanel() {
-        return editCharacterPanel;
     }
 
     public void updateCharacterList(ArrayList<CharacterListObject> characters) {
