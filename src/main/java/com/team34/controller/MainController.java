@@ -456,6 +456,15 @@ public class MainController {
                     view.exitApplication();
                     break;
 
+                case MainView.ID_MENU_ADD_CHARACTER:
+                    createNewCharacter();
+                    break;
+
+                case MainView.ID_MENU_ADD_EVENT:
+                    createNewEvent();
+                    refreshViewEvents();
+                    break;
+
                 default:
                     System.out.println("Unrecognized ID: " + sourceID);
                     break;
