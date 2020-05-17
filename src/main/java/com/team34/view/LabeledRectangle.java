@@ -20,19 +20,20 @@ public class LabeledRectangle {
     public static final double DEFAULT_WIDTH = 80.0;
     public static final double DEFAULT_HEIGHT = 50.0;
 
-    private final Text text;
-    private final Rectangle rect;
     private final Rectangle clipRect;
-    private final Tooltip tooltip;
     private double textOffsetX;
     private double textOffsetY;
+    protected final Text text;
+    protected final Rectangle rect;
+    protected final Tooltip tooltip;
 
     /**
-     * Creates a new instance of EventRectangle with the given text label and width.
-     * Also creates a tooltip, but doesn't install it. Tooltip installation is managed
-     * by the {@link Timeline} when adding and clearing events.
+     * Creates a new instance of LabeledRectangle with the given text label and width.
+     * Also creates a tooltip, but doesn't install it. Tooltip installation must be
+     * managed externally when adding and clearing the rectangles.
      * @param label the text to be displayed within the rectangle
-     * @param width the width of the rectangle. Set to 0.0 to use default width.
+     * @param width the width of the rectangle. Set to 0.0 to use default
+     * @param height the height of the rectangle. Set to 0.0 to use default
      */
     public LabeledRectangle(String label, double width, double height) {
         double w = width < 1.0 ? DEFAULT_WIDTH : width;
@@ -96,6 +97,22 @@ public class LabeledRectangle {
     public void setY(double y) {
         rect.setY(y);
         text.setY(y + textOffsetY);
+    }
+
+    /**
+     * Gets the X-position of the rectangle
+     * @return the x-position
+     */
+    public double getX() {
+        return rect.getX();
+    }
+
+    /**
+     * Gets the Y-position of the rectangle
+     * @return the y-position
+     */
+    public double getY() {
+        return rect.getY();
     }
 
     /**

@@ -150,6 +150,15 @@ public class MainView {
         characterChart = new CharacterChart(centerPane.getWidth(), centerPane.getHeight());
         characterChart.addToPane(centerPane);
 
+        /*** DELETE ME ***/
+        characterChart.addCharacter(0L, "Kålle");
+        characterChart.addCharacter(1L, "Ada");
+        characterChart.setCharacterPosition(0L, 100, 200);
+        characterChart.setCharacterPosition(1L, 300, 250);
+        characterChart.addAssociation(0L, 10L, 11L, 0L, -1L, "test");
+        characterChart.setAssociationPointPosition(10L, 150, 250);
+        characterChart.setAssociationPointPosition(11L, 350, 300);
+        /*****************/
 
         // Set up timeline
         setupTimeline(bottomPane, screenW);

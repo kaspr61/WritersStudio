@@ -10,6 +10,9 @@
     -color-timeline-event-rect: #aeccfc; // the color of event rectangles in the timeline
     -color-timeline-line: #252525; // the color of all lines (and borders) in the timeline
 
+    /*** Character chart colors ***/
+    -color-characterchart-background: #fefefe;
+
     /*** Miscellaneous ***/
     -color-tooltip-background: #dcdcdc;
     -effect-dropshadow: dropshadow(gaussian, #00000077, 7, 0.2, 4, 5 );
@@ -85,7 +88,7 @@
 
 /*** Character Chart ***/
 .characterchart-scrollpane > .viewport {
-    -fx-background-color: red;
+    -fx-background-color: -color-characterchart-background;
 }
 
 .characterchart-rect {
@@ -96,6 +99,11 @@
     -fx-effect: -effect-dropshadow;
 }
 
+.characterchart-rect:hover {
+    -fx-fill: derive(-color-timeline-event-rect, 25%); // Adds <value>% brightness
+    -fx-stroke: derive(-color-timeline-event-rect, -25%);
+}
+
 .characterchart-tooltip {
     -fx-background-color: -color-tooltip-background;
     -fx-background-radius: 0 0 0 0;
@@ -103,5 +111,14 @@
     -fx-effect: -effect-dropshadow;
 }
 
+.characterchart-assocline {
+    -fx-stroke: -color-timeline-line;
+    -fx-stroke-width: 1;
+}
+
+.characterchart-assoclabel {
+    -fx-text-fill: -color-text-primary;
+    -fx-font-size: 12pt;
+}
 
 /***************
