@@ -14,6 +14,8 @@
     -color-tooltip-background: #dcdcdc;
     -effect-dropshadow: dropshadow(gaussian, #00000077, 7, 0.2, 4, 5 );
 
+    /*** List headline ***/
+    -color-list-headline: #404040;
 
     /*** List cell colors ***/
     -color-list-background: #f4f4f4;
@@ -65,15 +67,16 @@
 
 /*** Character/Event list ***/
 .outerPane {
-    -fx-background-color: #f4f4f4;
+    -fx-background-color: -color-list-background;
 }
 
 .innerPane {
-    -fx-foreground-color: #f4f4f4;
+    -fx-foreground-color: -color-list-background;
 }
 
 .list-headline {
-    -fx-font-size: 14pt;
+    -fx-font-size: 13;
+    -fx-font-color: -color-list-background;
 }
 
 /*** Icon buttons ***/
@@ -82,13 +85,16 @@
 }
 
 .button:hover {
-    -fx-scale-y: 1.1;
-    -fx-scale-x: 1.1;
+    -fx-background-color: -color-main-background;
+
+/* Scales the icon up or down on hover*/
+/*    -fx-scale-y: 1.1;
+    -fx-scale-x: 1.1;*/
 }
-.button:button:pressed {
+/*.button:button:pressed {
     -fx-scale-y: 0.9;
     -fx-scale-x: 0.9;
-}
+}*/
 
 /*** List view ***/
 .list-view {

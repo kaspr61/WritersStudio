@@ -292,7 +292,8 @@ public class MainController {
 
     private void showCharacter(long uid) {
         Object[] characterData = model.characterManager.getCharacterData(uid);
-        view.getShowCharacterDialog().showCharacter(characterData);
+        if (view.getShowCharacterDialog().showCharacter(characterData))
+            editCharacter(uid);
     }
 
     /**

@@ -33,7 +33,7 @@ public class EventList extends StackPane {
     private String addEvent;
     private String editEvent;
     private String deleteEvent;
-    private final int ICON_SIZE = 40;
+    private final int ICON_SIZE = 30;
 
     /**
      * Initializes StackPane.
@@ -47,12 +47,12 @@ public class EventList extends StackPane {
 
         //Add, Edit, Delete buttons
         HBox aedBox = new HBox();
-        aedBox.setPadding(new Insets(10, 10, 10, 10));
+        aedBox.setPadding(new Insets(10, 10, 0, 10));
         aedBox.setSpacing(20);
 
         //For the event list
         VBox eventBox = new VBox();
-        eventBox.setPadding(new Insets(10, 10, 10, 10));
+        eventBox.setPadding(new Insets(5, 10, 10, 10));
 
         //Buttons
         add = new Button();

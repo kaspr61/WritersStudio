@@ -43,7 +43,7 @@ public class CharacterList extends StackPane {
     private String addCharacter;
     private String editCharacter;
     private String deleteCharacter;
-    private final int ICON_SIZE = 40;
+    private final int ICON_SIZE = 30;
 
     /**
      * Initializes StackPane.
@@ -57,12 +57,12 @@ public class CharacterList extends StackPane {
 
         //Add, Edit, Delete buttons
         HBox aedBox = new HBox();
-        aedBox.setPadding(new Insets(10, 10, 10, 10));
+        aedBox.setPadding(new Insets(10, 10, 0, 10));
         aedBox.setSpacing(20);
 
         //For the character list
         VBox characterBox = new VBox();
-        characterBox.setPadding(new Insets(10, 10, 10, 10));
+        characterBox.setPadding(new Insets(5, 10, 10, 10));
 
         //Buttons
         add = new Button();
