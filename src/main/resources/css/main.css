@@ -121,4 +121,12 @@
     -fx-font-size: 12pt;
 }
 
+.characterchart-line-control {
+    -fx-fill: #7cfc0000;
+}
+
+.characterchart-line-control:hover {
+    -fx-fill: #7cfc0099;
+}
+
 /***************
