@@ -7,6 +7,7 @@ class Association {
     public double startY;
     public double endX;
     public double endY;
+    public String label;
 
     Association() {
         startCharacterUID = -1L;
@@ -15,5 +16,6 @@ class Association {
         startY = 0.0;
         endX = 0.0;
         endY = 0.0;
+        label = "";
     }
 }

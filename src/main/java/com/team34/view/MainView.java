@@ -1,6 +1,5 @@
 package com.team34.view;
 
-import com.team34.controller.MainController;
 import com.team34.view.characterchart.CharacterChart;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -56,6 +55,11 @@ public class MainView {
     public static final String ID_MENU_SAVE_AS = "MENU_SAVE_AS";
     public static final String ID_MENU_EXIT = "MENU_EXIT";
 
+    public static final String ID_CHART_NEW_ASSOCIATION = "CHART_NEW_ASSOCIATION";
+    public static final String ID_CHART_EDIT_CHARACTER = "CHART_EDIT_CHARACTER";
+    public static final String ID_CHART_REMOVE_CHARACTER = "CHART_REMOVE_CHARACTER";
+    public static final String ID_CHART_NEW_CHARACTER = "CHART_NEW_CHARACTER";
+
     //// PANES /////////////////////////////////////////
 
     private final BorderPane rootPane;
@@ -82,8 +86,10 @@ public class MainView {
     private EditEventDialog editEventDialog;
     private EditCharacterDialog editCharacterPanel;
     private int eventOrderList; // index to specify which order list to use
+    private double lastChartMouseClickX;
+    private double lastChartMouseClickY;
 
-    ////////////////////////////////////////////////////
+////////////////////////////////////////////////////
 
     /**
      * Constructs the GUI.
@@ -98,6 +104,8 @@ public class MainView {
     public MainView(Stage mainStage, double screenW, double screenH, boolean maximized) {
         eventOrderList = 0;
         this.mainStage = mainStage;
+        lastChartMouseClickX = 0.0;
+        lastChartMouseClickY = 0.0;
 
         // Create the root parent pane and the main scene
         rootPane = new BorderPane();
@@ -153,6 +161,12 @@ public class MainView {
 
         // Set up timeline
         setupTimeline(bottomPane, screenW);
+
+        // Register mouse event to keep track of mouse position when clicked
+        centerPane.addEventFilter(MouseEvent.MOUSE_PRESSED, e -> {
+            lastChartMouseClickX = e.getX();
+            lastChartMouseClickY = e.getY();
+        });
 
         // Finalize the stage
         mainStage.setResizable(true);
@@ -217,6 +231,14 @@ public class MainView {
         return editEventDialog;
     }
 
+    public double getLastChartMouseClickX() {
+        return lastChartMouseClickX;
+    }
+
+    public double getLastChartMouseClickY() {
+        return lastChartMouseClickY;
+    }
+
     /**
      * Constructs and initializes the {@link Timeline}.
      * @param parentPane the pane inside which the timeline is to reside
@@ -238,6 +260,18 @@ public class MainView {
     }
 
     /**
+     * Returns the context menu of the character chart
+     * @return the context menu of the character chart
+     */
+    public ContextMenu getChartContextMenu() {
+        return characterChart.getContextMenu();
+    }
+
+    public Double[] snapToNearestCharacterEdge(long startingCharacterUID, double x, double y) {
+        return characterChart.snapToNearestCharacterEdge(startingCharacterUID, x, y);
+    }
+
+    /**
      * Hooks up the event given to buttons
      * @param buttonEventHandler the button event handler
      */
@@ -252,6 +286,7 @@ public class MainView {
      */
     public void registerContextMenuEvents(EventHandler<ActionEvent> contextEventHandler) {
         timeline.installContextMenu(contextEventHandler);
+        characterChart.installContextMenu(contextEventHandler);
     }
 
     /**
@@ -318,13 +353,14 @@ public class MainView {
         else
             return result.get();
     }
-    
+
     /**
      * Sends an array list of object arrays containing character data to the CharacterList class.
      * @param characters ArrayList of Object[]
      */
-    public void updateCharacterList(ArrayList<Object[]> characters) {
+    public void updateCharacterList(ArrayList<Object[]> characters, Object[][] associations) {
         rightPane.updateListView(characters);
+        characterChart.updateCharacters(characters, associations);
     }
 
     /**
@@ -346,6 +382,14 @@ public class MainView {
 
     public void registerCharacterChartEvents(EventHandler<MouseEvent> evtCharacterReleased) {
         characterChart.registerEvents(evtCharacterReleased);
+    }
+
+    public Object[] getChartCharacterData(long uid) {
+        return characterChart.getChartCharacterData(uid);
+    }
+
+    public void startCharacterAssociationDrag(long assocUID, boolean endPoint) {
+        characterChart.startAssociationPointClickedDrag(assocUID, endPoint);
     }
 
 }

@@ -251,13 +251,17 @@ public class MainController {
      * {@link com.team34.model.character.CharacterManager} creates a new character with the user input.
      * @author Jim Andersson
      */
-    private void createNewCharacter() {
+    private void createNewCharacter(double x, double y) {
         if (view.getEditCharacterPanel().showCreateCharacter() == EditCharacterDialog.WindowResult.OK) {
             long newCharacterUID = model.characterManager.newCharacter(
                     view.getEditCharacterPanel().getCharacterName(),
-                    view.getEditCharacterPanel().getCharacterDescription()
+                    view.getEditCharacterPanel().getCharacterDescription(),
+                    x, y
             );
-            view.updateCharacterList(model.characterManager.getCharacterList());
+            view.updateCharacterList(
+                    model.characterManager.getCharacterList(),
+                    model.characterManager.getAssociationData()
+            );
 
             if (newCharacterUID == -1L) {
                 // TODO Popup warning dialog, stating that either name or description has unsupported format
@@ -298,6 +302,18 @@ public class MainController {
         model.characterManager.deleteCharacter(uid);
     }
 
+    private void createAssociation(long startingCharacterUID) {
+        double startX = view.getLastChartMouseClickX();
+        double startY = view.getLastChartMouseClickY();
+        Double[] startPos = view.snapToNearestCharacterEdge(startingCharacterUID, startX, startY);
+        long assocUID = model.characterManager.newAssociation(
+                startingCharacterUID, -1L, startPos[0], startPos[1], startX, startY
+        );
+
+        view.updateCharacterList(model.characterManager.getCharacterList(), model.characterManager.getAssociationData());
+        view.startCharacterAssociationDrag(assocUID, false);
+    }
+
     /**
      * Retrieves an updated list of characters from {@link com.team34.model.character.CharacterManager} and updates
      * the character list view.
@@ -305,7 +321,8 @@ public class MainController {
      */
     private void refreshCharacterList() {
         view.updateCharacterList(
-                model.characterManager.getCharacterList()
+                model.characterManager.getCharacterList(),
+                model.characterManager.getAssociationData()
         );
 
     }
@@ -340,7 +357,7 @@ public class MainController {
                     break;
 
                 case MainView.ID_BTN_CHARACTERLIST_ADD:
-                    createNewCharacter();
+                    createNewCharacter(0.0, 0.0);
                     break;
 
                 case MainView.ID_BTN_CHARACTERLIST_EDIT:
@@ -378,8 +395,6 @@ public class MainController {
             String sourceID = source.getId();
 
             Long sourceUID = -1L;
-            if (view.getTimelineContextMenu().getUserData() instanceof Long)
-                sourceUID = (Long) view.getTimelineContextMenu().getUserData();
 
             switch (sourceID) {
                 case MainView.ID_TIMELINE_NEW_EVENT:
@@ -388,14 +403,40 @@ public class MainController {
                     break;
 
                 case MainView.ID_TIMELINE_REMOVE_EVENT:
+                    if (view.getTimelineContextMenu().getUserData() instanceof Long)
+                        sourceUID = (Long) view.getTimelineContextMenu().getUserData();
                     model.eventManager.removeEvent(sourceUID);
                     refreshViewEvents();
                     refreshTitleBar();
                     break;
 
                 case MainView.ID_TIMELINE_EDIT_EVENT:
+                    if (view.getTimelineContextMenu().getUserData() instanceof Long)
+                        sourceUID = (Long) view.getTimelineContextMenu().getUserData();
                     editEvent(sourceUID);
                     refreshViewEvents();
+                    break;
+
+                case MainView.ID_CHART_NEW_CHARACTER:
+                    createNewCharacter(view.getLastChartMouseClickX(), view.getLastChartMouseClickY());
+                    break;
+
+                case MainView.ID_CHART_EDIT_CHARACTER:
+                    if (view.getChartContextMenu().getUserData() instanceof Long)
+                        sourceUID = (Long) view.getChartContextMenu().getUserData();
+                    editCharacter(sourceUID);
+                    break;
+
+                case MainView.ID_CHART_REMOVE_CHARACTER:
+                    if (view.getChartContextMenu().getUserData() instanceof Long)
+                        sourceUID = (Long) view.getChartContextMenu().getUserData();
+                    deleteCharacter(sourceUID);
+                    break;
+
+                case MainView.ID_CHART_NEW_ASSOCIATION:
+                    if (view.getChartContextMenu().getUserData() instanceof Long)
+                        sourceUID = (Long) view.getChartContextMenu().getUserData();
+                    createAssociation(sourceUID);
                     break;
 
                 default:
@@ -479,7 +520,17 @@ public class MainController {
     private class EventCharacterRectReleased implements EventHandler<MouseEvent> {
         @Override
         public void handle(MouseEvent e) {
-            long charUID = view.onCharacterPlaced(e.getSource());
+            long uid = view.onCharacterPlaced(e.getSource());
+
+            if(uid != -1L) {
+                Object[] characterData = view.getChartCharacterData(uid);
+                model.characterManager.editCharacter(
+                        uid,
+                        (Double) characterData[0],
+                        (Double) characterData[1]
+                );
+            }
+
         }
     }
 

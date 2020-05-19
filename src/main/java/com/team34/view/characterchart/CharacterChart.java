@@ -1,6 +1,11 @@
 package com.team34.view.characterchart;
 
+import com.team34.view.MainView;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.scene.Node;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.*;
@@ -10,11 +15,17 @@ import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
 public class CharacterChart {
+
+    private static final int CONTEXT_MENU_ITEM_NEW_ASSOC = 0;
+    private static final int CONTEXT_MENU_ITEM_EDIT_CHAR = 1;
+    private static final int CONTEXT_MENU_ITEM_REMOVE_CHAR = 2;
+    private static final int CONTEXT_MENU_ITEM_NEW_CHAR = 3;
 
     private final Pane pane;
     private ScrollPane scrollPane;
@@ -22,10 +33,13 @@ public class CharacterChart {
     private HashMap<Long, CharacterRectangle> rectMap; // Stores references to CharacterRectangles by their UID.
     private HashMap<Long, AssociationPoint> assocPoints;
     private HashMap<Long, AssociationLine> associations;
+    private ContextMenu contextMenu;
+    private MenuItem[] contextMenuItem;
     private long lastAssocPtClicked;
     private AssociationPoint originalAssocPtClicked;
     private Rectangle currentRectDragOver;
     private long nextLocalUID;
+    private long currControlledAssocPtUID;
 
     private final EventHandler<MouseEvent> evtRectPressed;
     private final EventHandler<MouseEvent> evtRectDragged;
@@ -37,22 +51,18 @@ public class CharacterChart {
         associations = new HashMap<>();
         lastAssocPtClicked = -1L;
         nextLocalUID = 0L;
+        currControlledAssocPtUID = -1L;
 
         evtRectPressed = new EventRectanglePressed();
         evtRectDragged = new EventRectangleDragged();
 
         pane = new Pane();
-//        pane.setMinSize(width, height);
-//        pane.setPrefSize(width, height);
-//        pane.setMaxSize(width, height);
+        pane.setOnMouseMoved(evtMouseMoved);
+        pane.setOnMouseReleased(evtMouseReleased);
 
         scrollPane = new ScrollPane();
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
-//        scrollPane.setMinViewportHeight(height);
-//        scrollPane.setMinViewportWidth(width);
-//        scrollPane.setPrefViewportHeight(pane.getMinHeight());
-//        scrollPane.setPrefViewportWidth(pane.getMinWidth());
         scrollPane.setContent(pane);
         scrollPane.getStyleClass().add("characterchart-scrollpane");
         scrollPane.getStylesheets().add(com.team34.App.class.getResource("/css/main.css").toExternalForm());
@@ -72,6 +82,20 @@ public class CharacterChart {
         assocPoints.clear();
         associations.clear();
         nextLocalUID = 0L;
+
+        rectMap.forEach((uid, rect) -> {
+            pane.getChildren().removeAll(rect.getRect(), rect.getText());
+            rect.getRect().setOnMousePressed(null);
+            rect.getRect().setOnMouseDragged(null);
+            rect.getRect().setOnMouseReleased(null);
+            rect.getRect().setOnMouseDragEntered(null);
+            rect.getRect().setOnMouseDragExited(null);
+            rect.getRect().setOnMouseDragReleased(null);
+            rect.getRect().setOnContextMenuRequested(null);
+            Tooltip.uninstall(rect.getRect(), rect.getTooltip());
+        });
+
+        pane.getChildren().clear();
     }
 
     public void addCharacter(long uid, String name) {
@@ -97,7 +121,9 @@ public class CharacterChart {
         rect.getRect().setOnMouseDragEntered(evtRectMouseDragEntered);
         rect.getRect().setOnMouseDragExited(evtRectMouseDragExited);
         rect.getRect().setOnMouseDragReleased(evtRectMouseDragReleased);
+        rect.getRect().setOnContextMenuRequested(evtContextRequest);
 
+        rect.getRect().addEventHandler(MouseEvent.MOUSE_RELEASED, evtRectMouseReleased);
     }
 
     private Map.Entry<Long, CharacterRectangle> getCharacterByRectangle(Rectangle rect) {
@@ -134,7 +160,7 @@ public class CharacterChart {
     {
         AssociationLine existingAssoc = associations.get(assocUID);
         if(existingAssoc != null)
-            throw new IllegalArgumentException("An association with UID \""+assocUID+"\" already exists.");
+            throw new IllegalArgumentException("An association with UID "+assocUID+" already exists.");
 
         AssociationPoint startPt = new AssociationPoint(false);
         AssociationPoint endPt = new AssociationPoint(true);
@@ -264,64 +290,104 @@ public class CharacterChart {
         }
     }
 
-    /********************* EVENT LAMBDAS ***********************/
+    public Double[] snapToNearestCharacterEdge(long startingCharacterUID, double x, double y) {
+        CharacterRectangle charRect = rectMap.get(startingCharacterUID);
+        if(charRect != null)
+            return snapToNearestCharacterEdge(charRect.getRect(), x, y);
+        else
+            return null;
+    }
 
-    private EventHandler<MouseEvent> evtAPMouseDragged = e -> {
-        if(lastAssocPtClicked == -1L)
-            return;
+    public Double[] snapToNearestCharacterEdge(Rectangle rect, double x, double y) {
+        if(rect == null)
+            return null;
 
-        double x = e.getX();
-        double y = e.getY();
-        if(currentRectDragOver != null) {
-            boolean invalidX = false, invalidY = false;
+        double rectX = rect.getX();
+        double rectY = rect.getY();
+        double rectW = rect.getWidth();
+        double rectH = rect.getHeight();
+        boolean invalidX = false, invalidY = false;
 
-            if(x < currentRectDragOver.getX() + currentRectDragOver.getWidth() * 0.2) // snap vertically
-                x = currentRectDragOver.getX();
-            else if(x > currentRectDragOver.getX() + currentRectDragOver.getWidth() * 0.8)
-                x = currentRectDragOver.getX() + currentRectDragOver.getWidth();
-            else
-                invalidX = true;
+        if(x < rectX + rectW * 0.2) // snap vertically
+            x = rectX;
+        else if(x > rectX + rectW * 0.8)
+            x = rectX + rectW;
+        else
+            invalidX = true;
 
-            if(y < currentRectDragOver.getY() + currentRectDragOver.getHeight() * 0.2) // snap horizontally
-                y = currentRectDragOver.getY();
-            else if(y > currentRectDragOver.getY() + currentRectDragOver.getHeight() * 0.8)
-                y = currentRectDragOver.getY() + currentRectDragOver.getHeight();
-            else
-                invalidY = true;
+        if(y < rectY + rectH * 0.2) // snap horizontally
+            y = rectY;
+        else if(y > rectY + rectH * 0.8)
+            y = rectY + rectH;
+        else
+            invalidY = true;
 
-            // If mouse is in the center, snap to nearest edge
-            if(invalidX && invalidY) {
-                double centerX = currentRectDragOver.getX() + currentRectDragOver.getWidth() * 0.5;
-                double centerY = currentRectDragOver.getY() + currentRectDragOver.getHeight() * 0.5;
+        // If mouse is in the center, snap to nearest edge
+        if(invalidX && invalidY) {
+            double centerX = rectX + rectW * 0.5;
+            double centerY = rectY + rectH * 0.5;
 
-                // Snap to left edge
-                if(x < centerX && y > currentRectDragOver.getY() + currentRectDragOver.getHeight() * 0.33 &&
-                        y < currentRectDragOver.getY() + currentRectDragOver.getHeight() * 0.67) {
-                    x = currentRectDragOver.getX();
-                    y = centerY;
-                } // Snap to right edge
-                else if(x >= centerX && y > currentRectDragOver.getY() + currentRectDragOver.getHeight() * 0.33 &&
-                        y < currentRectDragOver.getY() + currentRectDragOver.getHeight() * 0.67) {
-                    x = currentRectDragOver.getX() + currentRectDragOver.getWidth();
-                    y = centerY;
-                } // Snap to upper edge
-                else if(y < centerY) {
-                    x = centerX;
-                    y = currentRectDragOver.getY();
-                } // Snap to bottom edge
-                else if(y >= centerY) {
-                    x = centerX;
-                    y = currentRectDragOver.getY() + currentRectDragOver.getHeight();
-                }
+            // Snap to left edge
+            if(x < centerX && y > rectY + rectH * 0.33 &&
+                    y < rectY + rectH * 0.67) {
+                x = rectX;
+                y = centerY;
+            } // Snap to right edge
+            else if(x >= centerX && y > rectY + rectH * 0.33 &&
+                    y < rectY + rectH * 0.67) {
+                x = rectX + rectW;
+                y = centerY;
+            } // Snap to upper edge
+            else if(y < centerY) {
+                x = centerX;
+                y = rectY;
+            } // Snap to bottom edge
+            else if(y >= centerY) {
+                x = centerX;
+                y = rectY + rectH;
+            }
 
+        }
+
+        return new Double[]{x, y};
+    }
+
+    public void updateCharacters(ArrayList<Object[]> characters, Object[][] associations) {
+        clear();
+
+        if(characters != null) {
+            for (int i = 0; i < characters.size(); i++) { // Update characters
+                Object[] characterData = characters.get(i);
+                addCharacter((Long) characterData[1], (String) characterData[0]);
+                setCharacterPosition(
+                        (Long) characterData[1],
+                        (Double) characterData[2],
+                        (Double) characterData[3]
+                );
             }
         }
 
-        setAssociationPointPosition(lastAssocPtClicked, x, y);
-    };
+        if(associations != null) {
+            for (int i = 0; i < associations.length; i++) { // Update associations
+                Object[] assocData = associations[i];
+                addAssociation(
+                        (Long) assocData[0],
+                        (Long) assocData[1],
+                        (Long) assocData[2],
+                        (String) assocData[7]
+                );
+                setAssociationPositions(
+                        (Long) assocData[0],
+                        (Double) assocData[3],
+                        (Double) assocData[4],
+                        (Double) assocData[5],
+                        (Double) assocData[6]
+                );
+            }
+        }
+    }
 
     public long onCharacterPlaced(Object source) {
-        System.out.println("YAY");
         Rectangle rectangle = (Rectangle) source;
         Map.Entry<Long, CharacterRectangle> character = getCharacterByRectangle(rectangle);
         if(character != null) {
@@ -336,6 +402,107 @@ public class CharacterChart {
     public void registerEvents(EventHandler<MouseEvent> evtCharacterReleased) {
         this.evtRectReleased = evtCharacterReleased;
     }
+
+    public Object[] getChartCharacterData(long uid) {
+        Object[] data = new Object[2];
+        CharacterRectangle rect = rectMap.get(uid);
+        data[0] = rect.getX();
+        data[1] = rect.getY();
+        return data;
+    }
+
+    /**
+     * Constructs the context menu and hooks up the event to be fired when clicking menu items.
+     * <p>
+     * Should only be called once.
+     * @param contextEventHandler the event to fire when clicking the menu items
+     */
+    public void installContextMenu(EventHandler<ActionEvent> contextEventHandler) {
+        if(contextMenu != null)
+            return;
+
+        contextMenu = new ContextMenu();
+        contextMenuItem = new MenuItem[4];
+
+        //// New Association
+        contextMenuItem[CONTEXT_MENU_ITEM_NEW_ASSOC] = new MenuItem("New Association");
+        contextMenuItem[CONTEXT_MENU_ITEM_NEW_ASSOC].setId(MainView.ID_CHART_NEW_ASSOCIATION);
+        contextMenuItem[CONTEXT_MENU_ITEM_NEW_ASSOC].setOnAction(contextEventHandler);
+
+        //// Edit Event
+        contextMenuItem[CONTEXT_MENU_ITEM_EDIT_CHAR] = new MenuItem("Edit Character");
+        contextMenuItem[CONTEXT_MENU_ITEM_EDIT_CHAR].setId(MainView.ID_CHART_EDIT_CHARACTER);
+        contextMenuItem[CONTEXT_MENU_ITEM_EDIT_CHAR].setOnAction(contextEventHandler);
+
+        //// Remove Event
+        contextMenuItem[CONTEXT_MENU_ITEM_REMOVE_CHAR] = new MenuItem("Remove Character");
+        contextMenuItem[CONTEXT_MENU_ITEM_REMOVE_CHAR].setId(MainView.ID_CHART_REMOVE_CHARACTER);
+        contextMenuItem[CONTEXT_MENU_ITEM_REMOVE_CHAR].setOnAction(contextEventHandler);
+
+        //// New Event
+        contextMenuItem[CONTEXT_MENU_ITEM_NEW_CHAR] = new MenuItem("New Character");
+        contextMenuItem[CONTEXT_MENU_ITEM_NEW_CHAR].setId(MainView.ID_CHART_NEW_CHARACTER);
+        contextMenuItem[CONTEXT_MENU_ITEM_NEW_CHAR].setOnAction(contextEventHandler);
+
+        /////////////////////////////
+
+        contextMenu.getItems().addAll(contextMenuItem);
+        scrollPane.setContextMenu(contextMenu);
+    }
+
+    /**
+     * Returns a reference to the context menu.
+     * @return a reference to the context menu
+     */
+    public ContextMenu getContextMenu() {
+        return contextMenu;
+    }
+
+    public void startAssociationPointClickedDrag(long assocUID, boolean endPoint) {
+        long assocPt;
+        if(endPoint)
+            assocPt = associations.get(assocUID).startPtUID;
+        else
+            assocPt = associations.get(assocUID).endPtUID;
+
+        currControlledAssocPtUID = assocPt;
+        assocPoints.get(assocPt).control.setMouseTransparent(true);
+
+    }
+
+    /********************* EVENT LAMBDAS ***********************/
+
+    private EventHandler<MouseEvent> evtMouseMoved = e -> {
+        if(currControlledAssocPtUID == -1L)
+            return;
+
+        setAssociationPointPosition(currControlledAssocPtUID, e.getX(), e.getY());
+    };
+
+    private EventHandler<MouseEvent> evtMouseReleased = e -> {
+        if(currControlledAssocPtUID == -1L || currentRectDragOver != null)
+            return;
+
+        assocPoints.get(currControlledAssocPtUID).control.setMouseTransparent(false);
+        currControlledAssocPtUID = -1L;
+    };
+
+    private EventHandler<MouseEvent> evtAPMouseDragged = e -> {
+        if(lastAssocPtClicked == -1L)
+            return;
+
+        double x = e.getX();
+        double y = e.getY();
+        if(currentRectDragOver != null) {
+            Double[] pos = snapToNearestCharacterEdge(currentRectDragOver, x, y);
+            if(pos != null) {
+                x = pos[0];
+                y = pos[1];
+            }
+        }
+
+        setAssociationPointPosition(lastAssocPtClicked, x, y);
+    };
 
     private EventHandler<MouseEvent> evtAPDragDetected = e -> {
         ((Circle)e.getSource()).startFullDrag();
@@ -355,7 +522,7 @@ public class CharacterChart {
 
         lastAssocPtClicked = -1L;
         currentRectDragOver = null;
-        src.setMouseTransparent(false);
+
     };
 
     private EventHandler<MouseEvent> evtAPMousePressed = e -> {
@@ -386,6 +553,27 @@ public class CharacterChart {
         e.consume();
     };
 
+    private EventHandler<MouseEvent> evtRectMouseReleased = e -> {
+        if(currControlledAssocPtUID == -1L)
+            return;
+
+        AssociationPoint assocPt = assocPoints.get(currControlledAssocPtUID);
+        Rectangle rectangle = (Rectangle) e.getSource();
+        Map.Entry<Long, CharacterRectangle> character = getCharacterByRectangle(rectangle);
+
+        if(assocPt.rectUID != character.getKey()) { // assoc point dropped onto new character
+            if(assocPt.rectUID != -1L)
+                detachAssociationPointFromCharacter(currControlledAssocPtUID, assocPt.rectUID);
+
+            attachAssociationPointToCharacter(currControlledAssocPtUID, character.getKey());
+        }
+
+        assocPoints.get(currControlledAssocPtUID).control.setMouseTransparent(false);
+
+        currControlledAssocPtUID = -1L;
+        originalAssocPtClicked = null; // Drop was valid, don't reset to original position.
+    };
+
     private EventHandler<MouseDragEvent> evtRectMouseDragEntered = e -> {
         System.out.println("onMouseDragEntered");
         currentRectDragOver = (Rectangle) e.getSource();
@@ -395,6 +583,16 @@ public class CharacterChart {
     private EventHandler<MouseDragEvent> evtRectMouseDragExited = e -> {
         System.out.println("onMouseDragExited");
         currentRectDragOver = null;
+        e.consume();
+    };
+
+    private EventHandler<ContextMenuEvent> evtContextRequest = e -> {
+        Long uid = getCharacterByRectangle((Rectangle) e.getSource()).getKey();
+        if(uid == -1L)
+            return;
+
+        contextMenu.setUserData(uid);
+        contextMenu.show((Node)e.getSource(), e.getScreenX(), e.getScreenY());
         e.consume();
     };
 
