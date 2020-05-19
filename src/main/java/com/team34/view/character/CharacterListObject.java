@@ -1,4 +1,4 @@
-package com.team34.model.character;
+package com.team34.view.character;
 
 /**
  * The CharacterListObject class is used to create objects containing character names and UIDs. The objects are used

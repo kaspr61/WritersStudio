@@ -1,23 +1,20 @@
 package com.team34.view.character;
 
-import com.team34.model.character.CharacterListObject;
-import com.team34.view.MainView;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
-
 import java.util.ArrayList;
+
+import com.team34.view.MainView;
 
 
 /**
@@ -27,14 +24,16 @@ import java.util.ArrayList;
  */
 public class CharacterList extends StackPane {
 
+    private static int ICON_SIZE = 40;
+
     private ArrayList<CharacterListObject> chListObjArray;
     private ListView<CharacterListObject> list;
     private Button add, edit, delete;
     private Label title;
 
     // Panes
-    BorderPane outerPane;
-    BorderPane innerPane;
+    private BorderPane outerPane;
+    private BorderPane innerPane;
 
     //CSS
     private String cssCharacterlist;
@@ -43,7 +42,7 @@ public class CharacterList extends StackPane {
     private String addCharacter;
     private String editCharacter;
     private String deleteCharacter;
-    private final int ICON_SIZE = 40;
+
 
     /**
      * Initializes StackPane.
@@ -93,18 +92,13 @@ public class CharacterList extends StackPane {
 
         getChildren().add(outerPane);
 
-        //CSS
-        cssCharacterlist = com.team34.App.class.getResource("/css/characterlist.css").toExternalForm();
+        //Character list objects
+        chListObjArray = new ArrayList<>();
     }
-
-    public void setStyleSheets() {
-        outerPane.getStyleClass().add("outerPane");
-    }
-
     /**
      * Sets the icon graphics for the Add-, Edit- and Delete buttons.
      */
-    public void installButtonIcons() {
+    private void installButtonIcons() {
         addCharacter = com.team34.App.class.getResource("/icons/add_character.png").toExternalForm(); //Filestream for icon
         Image imgAddCharacter = new Image(addCharacter);
         ImageView imageViewAddCharacter = new ImageView(imgAddCharacter);
@@ -135,7 +129,7 @@ public class CharacterList extends StackPane {
      * Sets button IDs for the Add-, Edit- and Delete buttons. The IDs are used in the
      * {@link com.team34.controller.MainController} class for event handling.
      */
-    public void installButtonIds() {
+    private void installButtonIds() {
         add.setId(MainView.ID_BTN_CHARACTERLIST_ADD);
         edit.setId(MainView.ID_BTN_CHARACTERLIST_EDIT);
         delete.setId(MainView.ID_BTN_CHARACTERLIST_DELETE);
@@ -143,13 +137,21 @@ public class CharacterList extends StackPane {
 
     /**
      * Updates the list view to correspond with currently existing characters in the project.
-     * @param characters Array of {@link CharacterListObject} objects, containing character name and UID.
+     *
+     * Extracts the name and UID information from the object arrays, and instantiates new {@link CharacterListObject}s
+     * with the information. The character list view is then populated with the new character list objects.
+     * This makes retrieving and displaying character information easier and more manageable.
+     * @param characters Array list object arrays, containing character name and UID.
      */
-    public void updateListView(ArrayList<CharacterListObject> characters) {
-        chListObjArray = characters;
+    public void updateListView(ArrayList<Object[]> characters) {
+        chListObjArray.clear();
+        for (Object[] ch : characters) {
+            CharacterListObject chObj = new CharacterListObject((String)ch[0], (long)ch[1]);
+            chListObjArray.add(chObj);
+        }
         ObservableList<CharacterListObject> ol = FXCollections.observableArrayList();
-        ol.addAll(characters);
-        list.setItems(ol);
+        ol.addAll(chListObjArray);
+        list.setItems(ol.sorted());
     }
 
     /**

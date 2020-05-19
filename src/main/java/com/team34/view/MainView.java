@@ -18,7 +18,6 @@ import java.util.Optional;
 import java.util.ArrayList;
 
 import com.team34.model.event.EventManager;
-import com.team34.model.character.CharacterListObject;
 import com.team34.view.character.CharacterList;
 import com.team34.view.event.EventList;
 import com.team34.view.dialogs.EditEventDialog;
@@ -319,11 +318,20 @@ public class MainView {
         else
             return result.get();
     }
-
-    public void updateCharacterList(ArrayList<CharacterListObject> characters) {
+    
+    /**
+     * Sends an array list of object arrays containing character data to the CharacterList class.
+     * @param characters ArrayList of Object[]
+     */
+    public void updateCharacterList(ArrayList<Object[]> characters) {
         rightPane.updateListView(characters);
     }
 
+    /**
+     * Returns the UID of the selected character in the character list
+     * @author Jim Andersson
+     * @return UID
+     */
     public long getCharacterUID() {
         return rightPane.getCharacterUID();
     }
