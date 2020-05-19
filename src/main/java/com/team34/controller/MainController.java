@@ -5,6 +5,7 @@ import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.MenuItem;
+import javafx.scene.input.MouseEvent;
 import javafx.stage.FileChooser;
 import javafx.stage.WindowEvent;
 import javax.xml.stream.XMLStreamException;
@@ -65,6 +66,7 @@ public class MainController {
         view.registerContextMenuEvents(evtContextMenuAction);
         view.registerCloseRequestEvent(evtCloseRequest);
         view.registerMenuBarActionEvents(evtMenuBarAction);
+        view.registerCharacterChartEvents(new EventCharacterRectReleased());
     }
 
     /**
@@ -469,4 +471,12 @@ public class MainController {
 
         }
     }
+
+    private class EventCharacterRectReleased implements EventHandler<MouseEvent> {
+        @Override
+        public void handle(MouseEvent e) {
+            long charUID = view.onCharacterPlaced(e.getSource());
+        }
+    }
+
 }

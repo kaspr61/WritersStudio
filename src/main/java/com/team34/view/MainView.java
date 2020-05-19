@@ -1,11 +1,13 @@
 package com.team34.view;
 
+import com.team34.controller.MainController;
 import com.team34.view.characterchart.CharacterChart;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
@@ -149,16 +151,6 @@ public class MainView {
         // Set up character chart
         characterChart = new CharacterChart(centerPane.getWidth(), centerPane.getHeight());
         characterChart.addToPane(centerPane);
-
-        /*** DELETE ME ***/
-        characterChart.addCharacter(0L, "Kålle");
-        characterChart.addCharacter(1L, "Ada");
-        characterChart.setCharacterPosition(0L, 100, 200);
-        characterChart.setCharacterPosition(1L, 300, 250);
-        characterChart.addAssociation(0L, 10L, 11L, 0L, -1L, "test");
-        characterChart.setAssociationPointPosition(10L, 150, 250);
-        characterChart.setAssociationPointPosition(11L, 350, 300);
-        /*****************/
 
         // Set up timeline
         setupTimeline(bottomPane, screenW);
@@ -338,6 +330,14 @@ public class MainView {
 
     public long getSelectedEventUID() {
         return leftPane.getEventUID();
+    }
+
+    public long onCharacterPlaced(Object source) {
+        return characterChart.onCharacterPlaced(source);
+    }
+
+    public void registerCharacterChartEvents(EventHandler<MouseEvent> evtCharacterReleased) {
+        characterChart.registerEvents(evtCharacterReleased);
     }
 
 }

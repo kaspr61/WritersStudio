@@ -19,6 +19,7 @@ import java.util.Map;
 public class CharacterManager {
 
     private HashMap<Long, Character> characterMap;
+    private HashMap<Long, Association> associationMap;
 
     public CharacterManager() {
         characterMap = new HashMap<>();
@@ -32,9 +33,12 @@ public class CharacterManager {
      */
     public long newCharacter(String name, String description) {
         long uid = UIDManager.nextUID();
-        characterMap.put(uid, new Character(name, description));
-
+        addCharacter(uid, name, description);
         return uid;
+    }
+
+    public void addCharacter(long uid, String name, String description) {
+        characterMap.put(uid, new Character(name, description));
     }
 
     /**
@@ -59,6 +63,18 @@ public class CharacterManager {
     public void deleteCharacter(long uid) {
         characterMap.remove(uid);
         UIDManager.removeUID(uid);
+    }
+
+    public void newAssociation(long uid, long sCharUID, long eCharUID, double sX, double sY, double eX, double eY) {
+        Association assoc = new Association();
+        assoc.startCharacterUID = sCharUID;
+        assoc.endCharacterUID = eCharUID;
+        assoc.startX = sX;
+        assoc.startY = sY;
+        assoc.endX = eX;
+        assoc.endY = eY;
+
+        associationMap.put(uid, assoc);
     }
 
     /**
@@ -88,5 +104,10 @@ public class CharacterManager {
         data[1] = characterMap.get(uid).getDescription();
 
         return data;
+    }
+
+    public void clear() {
+        characterMap.clear();
+        associationMap.clear();
     }
 }

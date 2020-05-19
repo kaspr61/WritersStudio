@@ -1,13 +1,10 @@
 package com.team34.view.characterchart;
 
-import com.team34.view.LabeledRectangle;
 import javafx.event.EventHandler;
-import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.*;
 import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
@@ -24,24 +21,25 @@ public class CharacterChart {
 
     private HashMap<Long, CharacterRectangle> rectMap; // Stores references to CharacterRectangles by their UID.
     private HashMap<Long, AssociationPoint> assocPoints;
-    private HashMap<Long, Association> associations;
+    private HashMap<Long, AssociationLine> associations;
     private long lastAssocPtClicked;
     private AssociationPoint originalAssocPtClicked;
     private Rectangle currentRectDragOver;
+    private long nextLocalUID;
 
     private final EventHandler<MouseEvent> evtRectPressed;
     private final EventHandler<MouseEvent> evtRectDragged;
-    private final EventHandler<MouseEvent> evtRectReleased;
+    private EventHandler<MouseEvent> evtRectReleased;
 
     public CharacterChart(double width, double height) {
         rectMap = new HashMap<>();
         assocPoints = new HashMap<>();
         associations = new HashMap<>();
         lastAssocPtClicked = -1L;
+        nextLocalUID = 0L;
 
         evtRectPressed = new EventRectanglePressed();
         evtRectDragged = new EventRectangleDragged();
-        evtRectReleased = new EventRectangleReleased();
 
         pane = new Pane();
 //        pane.setMinSize(width, height);
@@ -67,6 +65,13 @@ public class CharacterChart {
      */
     public void addToPane(Pane parentPane) {
         parentPane.getChildren().add(scrollPane);
+    }
+
+    public void clear() {
+        rectMap.clear();
+        assocPoints.clear();
+        associations.clear();
+        nextLocalUID = 0L;
     }
 
     public void addCharacter(long uid, String name) {
@@ -125,26 +130,26 @@ public class CharacterChart {
         return null;
     }
 
-    public void addAssociation(long assocUID, long startPtUID, long endPtUID, long startCharUID, long endCharUID, String label)
+    public void addAssociation(long assocUID, long startCharUID, long endCharUID, String label)
     {
-        Association exisitingAssoc = associations.get(assocUID);
-        if(exisitingAssoc != null) {
-            AssociationPoint start = assocPoints.get(startPtUID);
-            AssociationPoint end = assocPoints.get(endPtUID);
-            pane.getChildren().removeAll(exisitingAssoc.text, exisitingAssoc.line, start.control, end.control);
-        }
+        AssociationLine existingAssoc = associations.get(assocUID);
+        if(existingAssoc != null)
+            throw new IllegalArgumentException("An association with UID \""+assocUID+"\" already exists.");
 
         AssociationPoint startPt = new AssociationPoint(false);
         AssociationPoint endPt = new AssociationPoint(true);
+        long startPtUID = nextLocalUID++;
+        long endPtUID = nextLocalUID++;
 
-        Association assoc = new Association();
-        assoc.uid = assocUID;
+        AssociationLine assoc = new AssociationLine();
         assoc.text = new Text(label);
         assoc.text.getStyleClass().add("characterchart-assoclabel");
         assoc.line = new Line(0, 0, 0, 0);
         assoc.line.getStyleClass().add("characterchart-assocline");
         assoc.line.setViewOrder(-1.5);
         assoc.line.setMouseTransparent(true);
+        assoc.startPtUID = startPtUID;
+        assoc.endPtUID = endPtUID;
 
         startPt.assocUID = assocUID;
         startPt.rectUID = startCharUID;
@@ -184,7 +189,19 @@ public class CharacterChart {
 
     }
 
-    public void setAssociationPointPosition(long assocPtUID, double x, double y) {
+    public void setAssociationPositions(long assocUID, double sX, double sY, double eX, double eY) {
+        AssociationLine assoc = associations.get(assocUID);
+        AssociationPoint startPt = assocPoints.get(assoc.startPtUID);
+        AssociationPoint endPt = assocPoints.get(assoc.endPtUID);
+        startPt.x = sX;
+        startPt.y = sY;
+        endPt.x = eX;
+        endPt.y = eY;
+        updateAssociationLinePoint(startPt);
+        updateAssociationLinePoint(endPt);
+    }
+
+    private void setAssociationPointPosition(long assocPtUID, double x, double y) {
         AssociationPoint pt = assocPoints.get(assocPtUID);
         pt.x = x;
         pt.y = y;
@@ -303,6 +320,23 @@ public class CharacterChart {
         setAssociationPointPosition(lastAssocPtClicked, x, y);
     };
 
+    public long onCharacterPlaced(Object source) {
+        System.out.println("YAY");
+        Rectangle rectangle = (Rectangle) source;
+        Map.Entry<Long, CharacterRectangle> character = getCharacterByRectangle(rectangle);
+        if(character != null) {
+            rectangle.setViewOrder(0.0);
+            character.getValue().getText().setViewOrder(0.0);
+            return character.getKey();
+        }
+
+        return -1L;
+    }
+
+    public void registerEvents(EventHandler<MouseEvent> evtCharacterReleased) {
+        this.evtRectReleased = evtCharacterReleased;
+    }
+
     private EventHandler<MouseEvent> evtAPDragDetected = e -> {
         ((Circle)e.getSource()).startFullDrag();
         e.consume();
@@ -396,31 +430,21 @@ public class CharacterChart {
         }
     }
 
-    private class EventRectangleReleased implements EventHandler<MouseEvent> {
-        @Override
-        public void handle(MouseEvent e) {
-            Rectangle rectangle = (Rectangle) e.getSource();
-            Map.Entry<Long, CharacterRectangle> character = getCharacterByRectangle(rectangle);
-            if(character != null) {
-                rectangle.setViewOrder(0.0);
-                character.getValue().getText().setViewOrder(0.0);
-            }
-        }
-    }
 }
 
-class Association {
-    public long uid;
+class AssociationLine {
     public Line line;
     public Text text;
+    public long startPtUID;
+    public long endPtUID;
 }
 
 class AssociationPoint {
     public long assocUID; // association line uid, shared between two association points.
     public long rectUID; // UID to which rect the point is attached to.
     public double x, y;
-    public final boolean end;
-    public Circle control;
+    public final boolean end; // Is this point the end point or start point?
+    public Circle control; // Doesn't need to be saved
 
     AssociationPoint(boolean isEndPoint) {
         assocUID = -1L;
