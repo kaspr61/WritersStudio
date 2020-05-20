@@ -5,6 +5,8 @@ import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.MenuItem;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseDragEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.FileChooser;
 import javafx.stage.WindowEvent;
@@ -253,6 +255,9 @@ public class MainController {
      */
     private void createNewCharacter(double x, double y) {
         if (view.getEditCharacterPanel().showCreateCharacter() == EditCharacterDialog.WindowResult.OK) {
+            x = view.snapTo(x, 10);
+            y = view.snapTo(y, 10);
+
             long newCharacterUID = model.characterManager.newCharacter(
                     view.getEditCharacterPanel().getCharacterName(),
                     view.getEditCharacterPanel().getCharacterDescription(),
@@ -422,15 +427,23 @@ public class MainController {
                     break;
 
                 case MainView.ID_CHART_EDIT_CHARACTER:
-                    if (view.getChartContextMenu().getUserData() instanceof Long)
+                    if (view.getChartContextMenu().getUserData() instanceof Long) {
                         sourceUID = (Long) view.getChartContextMenu().getUserData();
-                    editCharacter(sourceUID);
+                        if (sourceUID != -1) {
+                            editCharacter(sourceUID);
+                            refreshCharacterList();
+                        }
+                    }
                     break;
 
                 case MainView.ID_CHART_REMOVE_CHARACTER:
-                    if (view.getChartContextMenu().getUserData() instanceof Long)
+                    if (view.getChartContextMenu().getUserData() instanceof Long) {
                         sourceUID = (Long) view.getChartContextMenu().getUserData();
-                    deleteCharacter(sourceUID);
+                        if (sourceUID != -1) {
+                            deleteCharacter(sourceUID);
+                            refreshCharacterList();
+                        }
+                    }
                     break;
 
                 case MainView.ID_CHART_NEW_ASSOCIATION:
@@ -520,18 +533,37 @@ public class MainController {
     private class EventCharacterRectReleased implements EventHandler<MouseEvent> {
         @Override
         public void handle(MouseEvent e) {
-            long uid = view.onCharacterPlaced(e.getSource());
+            if(e.getButton() != MouseButton.PRIMARY)
+                return;
 
-            if(uid != -1L) {
-                Object[] characterData = view.getChartCharacterData(uid);
+            Object[] result = view.onCharacterReleased(e);
+            if(result == null)
+                return;
+
+            if((Boolean) result[1] == true) { // The character block was only moved.
+                Object[] characterData = view.getChartCharacterData((Long) result[0]);
                 model.characterManager.editCharacter(
-                        uid,
+                        (Long) result[0],
                         (Double) characterData[0],
                         (Double) characterData[1]
+                );
+            }
+            else { // An association was attached to the character block
+                Object[] data = view.getChartAssociationData((Long) result[0]);
+                model.characterManager.editAssociation(
+                        (Long) result[0], (Long) data[0], (Long) data[1],
+                        (Double) data[2], (Double) data[3], (Double) data[4], (Double) data[5],
+                        (String) data[6]
                 );
             }
 
         }
     }
 
+    private class EventCharacterRectPostRelease implements EventHandler<MouseEvent> {
+        @Override
+        public void handle(MouseEvent e) {
+
+        }
+    }
 }

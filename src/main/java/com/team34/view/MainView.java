@@ -376,8 +376,8 @@ public class MainView {
         return leftPane.getEventUID();
     }
 
-    public long onCharacterPlaced(Object source) {
-        return characterChart.onCharacterPlaced(source);
+    public Object[] onCharacterReleased(MouseEvent e) {
+        return characterChart.onCharacterReleased(e);
     }
 
     public void registerCharacterChartEvents(EventHandler<MouseEvent> evtCharacterReleased) {
@@ -388,8 +388,16 @@ public class MainView {
         return characterChart.getChartCharacterData(uid);
     }
 
+    public Object[] getChartAssociationData(long uid) {
+        return characterChart.getChartAssociationData(uid);
+    }
+
     public void startCharacterAssociationDrag(long assocUID, boolean endPoint) {
         characterChart.startAssociationPointClickedDrag(assocUID, endPoint);
+    }
+
+    public double snapTo(double value, int snapInterval) {
+        return characterChart.snapTo(value, snapInterval);
     }
 
 }

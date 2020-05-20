@@ -8,9 +8,6 @@ class CharacterRectangle extends LabeledRectangle {
 
     private ArrayList<Long> assocPointUIDs; // UIDs to association points that are attached.
 
-    private double lastClickX;
-    private double lastClickY;
-
     /**
      * Creates a new instance of CharacterRectangle with the given text label and width.
      * Also creates a tooltip, but doesn't install it. Tooltip installation is managed
@@ -23,8 +20,6 @@ class CharacterRectangle extends LabeledRectangle {
     CharacterRectangle(String label, double width, double height) {
         super(label, width, height);
         assocPointUIDs = new ArrayList<>();
-        lastClickX = 0;
-        lastClickY = 0;
     }
 
     void addAssociationPoint(long uid) {
@@ -42,16 +37,4 @@ class CharacterRectangle extends LabeledRectangle {
         return assocPointUIDs.toArray(new Long[assocPointUIDs.size()]);
     }
 
-    double getLastClickX() {
-        return lastClickX;
-    }
-
-    double getLastClickY() {
-        return lastClickY;
-    }
-
-    void setLastClick(double x, double y) {
-        lastClickX = x;
-        lastClickY = y;
-    }
 }

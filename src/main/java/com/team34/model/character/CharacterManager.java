@@ -89,11 +89,11 @@ public class CharacterManager {
 
     public long newAssociation(long sCharUID, long eCharUID, double sX, double sY, double eX, double eY) {
         long uid = UIDManager.nextUID();
-        addAssociation(uid, sCharUID, eCharUID, sX, sY, eX, eY);
+        addAssociation(uid, sCharUID, eCharUID, sX, sY, eX, eY, "");
         return uid;
     }
 
-    public void addAssociation(long uid, long sCharUID, long eCharUID, double sX, double sY, double eX, double eY) {
+    public void addAssociation(long uid, long sCharUID, long eCharUID, double sX, double sY, double eX, double eY, String label) {
         Association assoc = new Association();
         assoc.startCharacterUID = sCharUID;
         assoc.endCharacterUID = eCharUID;
@@ -101,8 +101,27 @@ public class CharacterManager {
         assoc.startY = sY;
         assoc.endX = eX;
         assoc.endY = eY;
+        assoc.label = label;
 
         associationMap.put(uid, assoc);
+    }
+
+    public boolean editAssociation(long uid, long sCharUID, long eCharUID, double sX, double sY, double eX, double eY, String label) {
+        if (associationMap.containsKey(uid)) {
+            Association assoc = new Association();
+            assoc.startCharacterUID = sCharUID;
+            assoc.endCharacterUID = eCharUID;
+            assoc.startX = sX;
+            assoc.startY = sY;
+            assoc.endX = eX;
+            assoc.endY = eY;
+            assoc.label = label;
+
+            associationMap.replace(uid, assoc);
+            return true;
+        }
+
+        return false;
     }
 
     /**
