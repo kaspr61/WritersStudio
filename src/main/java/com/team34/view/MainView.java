@@ -82,12 +82,13 @@ public class MainView {
     private Scene mainScene;
     private String cssMain;
     private Timeline timeline;
-    private CharacterChart characterChart;
     private EditEventDialog editEventDialog;
     private EditCharacterDialog editCharacterPanel;
     private int eventOrderList; // index to specify which order list to use
     private double lastChartMouseClickX;
     private double lastChartMouseClickY;
+
+    public final CharacterChart characterChart;
 
 ////////////////////////////////////////////////////
 
@@ -380,8 +381,12 @@ public class MainView {
         return characterChart.onCharacterReleased(e);
     }
 
-    public void registerCharacterChartEvents(EventHandler<MouseEvent> evtCharacterReleased) {
-        characterChart.registerEvents(evtCharacterReleased);
+    public long onCharacterChartClick(MouseEvent e) {
+        return characterChart.onClick(e);
+    }
+
+    public void registerCharacterChartEvents(EventHandler<MouseEvent> evtCharacterReleased, EventHandler<MouseEvent> evtMouseClicked) {
+        characterChart.registerEvents(evtCharacterReleased, evtMouseClicked);
     }
 
     public Object[] getChartCharacterData(long uid) {

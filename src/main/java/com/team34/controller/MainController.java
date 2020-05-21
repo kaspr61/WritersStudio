@@ -68,7 +68,7 @@ public class MainController {
         view.registerContextMenuEvents(evtContextMenuAction);
         view.registerCloseRequestEvent(evtCloseRequest);
         view.registerMenuBarActionEvents(evtMenuBarAction);
-        view.registerCharacterChartEvents(new EventCharacterRectReleased());
+        view.registerCharacterChartEvents(new EventCharacterRectReleased(), new EventChartClick());
     }
 
     /**
@@ -304,6 +304,12 @@ public class MainController {
      * @author Jim Andersson
      */
     private void deleteCharacter(long uid) {
+        Long[] associations = view.characterChart.getAssociationsByCharacter(uid);
+        if(associations != null) {
+            for (int i = 0; i < associations.length; i++)
+                model.characterManager.deleteAssociation(associations[i]);
+        }
+
         model.characterManager.deleteCharacter(uid);
     }
 
@@ -540,13 +546,26 @@ public class MainController {
             if(result == null)
                 return;
 
-            if((Boolean) result[1] == true) { // The character block was only moved.
+            if((Boolean) result[1] == true) { // The character block was moved.
                 Object[] characterData = view.getChartCharacterData((Long) result[0]);
                 model.characterManager.editCharacter(
                         (Long) result[0],
                         (Double) characterData[0],
                         (Double) characterData[1]
                 );
+                //TODO Also save all associated associations.
+                Long[] associations = view.characterChart.getAssociationsByCharacter((Long) result[0]);
+                if(associations != null) {
+                    Object[] data;
+                    for (int i = 0; i < associations.length; i++) {
+                        data = view.getChartAssociationData(associations[i]);
+                        model.characterManager.editAssociation(
+                                associations[i], (Long) data[0], (Long) data[1],
+                                (Double) data[2], (Double) data[3], (Double) data[4], (Double) data[5],
+                                (String) data[6]
+                        );
+                    }
+                }
             }
             else { // An association was attached to the character block
                 Object[] data = view.getChartAssociationData((Long) result[0]);
@@ -560,9 +579,14 @@ public class MainController {
         }
     }
 
-    private class EventCharacterRectPostRelease implements EventHandler<MouseEvent> {
+    private class EventChartClick implements EventHandler<MouseEvent> {
         @Override
         public void handle(MouseEvent e) {
+            long currAssocUID = view.onCharacterChartClick(e);
+            if(currAssocUID != -1L) { // Should remove association
+                model.characterManager.deleteAssociation(currAssocUID);
+                refreshCharacterList();
+            }
 
         }
     }

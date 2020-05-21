@@ -54,7 +54,6 @@ public class CharacterChart {
 
         pane = new Pane();
         pane.setOnMouseMoved(evtMouseMoved);
-        pane.setOnMouseReleased(evtMouseReleased);
 
         scrollPane = new ScrollPane();
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
@@ -98,6 +97,13 @@ public class CharacterChart {
 
         if(existingRect != null) { // If the event is getting overwritten, remove the old shapes first.
             pane.getChildren().removeAll(existingRect.getRect(), existingRect.getText());
+            existingRect.getRect().setOnMousePressed(null);
+            existingRect.getRect().setOnMouseDragged(null);
+            existingRect.getRect().setOnMouseReleased(null);
+            existingRect.getRect().setOnMouseDragEntered(null);
+            existingRect.getRect().setOnMouseDragExited(null);
+            existingRect.getRect().setOnMouseDragReleased(null);
+            existingRect.getRect().setOnContextMenuRequested(null);
             Tooltip.uninstall(existingRect.getRect(), existingRect.getTooltip());
         }
 
@@ -173,6 +179,7 @@ public class CharacterChart {
 
         startPt.assocUID = assocUID;
         startPt.rectUID = startCharUID;
+        startPt.oppositePtUID = endPtUID;
         startPt.x = 0;
         startPt.y = 0;
         startPt.control = new Circle(8.0);
@@ -185,6 +192,7 @@ public class CharacterChart {
 
         endPt.assocUID = assocUID;
         endPt.rectUID = endCharUID;
+        endPt.oppositePtUID = startPtUID;
         endPt.x = 0;
         endPt.y = 0;
         endPt.control = new Circle(8.0);
@@ -202,10 +210,10 @@ public class CharacterChart {
         pane.getChildren().addAll(assoc.line, assoc.text, startPt.control, endPt.control);
 
         if(startCharUID != -1L)
-            rectMap.get(startCharUID).addAssociationPoint(startPtUID);
+            rectMap.get(startCharUID).addAssociationPoint(startPtUID, assocUID);
 
         if(endCharUID != -1L)
-            rectMap.get(endCharUID).addAssociationPoint(endPtUID);
+            rectMap.get(endCharUID).addAssociationPoint(endPtUID, assocUID);
 
     }
 
@@ -228,19 +236,19 @@ public class CharacterChart {
         updateAssociationLinePoint(pt);
     }
 
-    public void attachAssociationPointToCharacter(long assocPtUID, long characterUID) {
+    public void attachAssociationPointToCharacter(long assocPtUID, long assocUID, long characterUID) {
         if(assocPtUID == -1L || characterUID == -1L)
             return;
 
-        rectMap.get(characterUID).addAssociationPoint(assocPtUID);
+        rectMap.get(characterUID).addAssociationPoint(assocPtUID, assocUID);
         assocPoints.get(assocPtUID).rectUID = characterUID;
     }
 
-    public void detachAssociationPointFromCharacter(long assocPtUID, long characterUID) {
+    public void detachAssociationPointFromCharacter(long assocPtUID, long assocUID, long characterUID) {
         if(assocPtUID == -1L || characterUID == -1L)
             return;
 
-        rectMap.get(characterUID).removeAssociationPoint(assocPtUID);
+        rectMap.get(characterUID).removeAssociationPoint(assocPtUID, assocUID);
         assocPoints.get(assocPtUID).rectUID = -1L;
     }
 
@@ -406,19 +414,20 @@ public class CharacterChart {
 
         result[1] = false; // currently attaching an association
         AssociationPoint assocPt = assocPoints.get(currAction.src);
+        AssociationPoint assocPtOpposite = assocPoints.get(assocPt.oppositePtUID);
         result[0] = assocPt.assocUID;
-        if(assocPt.rectUID != character.getKey()) { // assoc point dropped onto new character
+        if(assocPtOpposite.rectUID != character.getKey()) { // assoc point dropped onto new character
             if(assocPt.rectUID != -1L)
-                detachAssociationPointFromCharacter(currAction.src, assocPt.rectUID);
+                detachAssociationPointFromCharacter(currAction.src, assocPt.assocUID, assocPt.rectUID);
 
-            attachAssociationPointToCharacter(currAction.src, character.getKey());
+            attachAssociationPointToCharacter(currAction.src, assocPt.assocUID, character.getKey());
+        }
+        else { // Tried to attach the assoc point to the same rect as the opposite assoc point.
+            setAssociationPointPosition(currAction.src, currAction.x, currAction.y);
         }
 
-        if(currAction.type == ChartActionType.ASSOCPT_EDIT_CLICKED) { // Apply snap
-            Double[] pos = snapToNearestCharacterEdge(character.getKey(), e.getX(), e.getY());
-            setAssociationPointPosition(currAction.src, pos[0], pos[1]);
-        }
-
+        Double[] pos = snapToNearestCharacterEdge(character.getKey(), e.getX(), e.getY());
+        setAssociationPointPosition(currAction.src, pos[0], pos[1]);
 
         assocPt.control.setMouseTransparent(false);
         currAction.reset();
@@ -426,8 +435,30 @@ public class CharacterChart {
         return result;
     }
 
-    public void registerEvents(EventHandler<MouseEvent> evtCharacterReleased) {
+    public long onClick(MouseEvent e) {
+        long uid = -1L;
+
+        if (currAction.type != ChartActionType.ASSOCPT_EDIT_CLICKED &&
+                currAction.type != ChartActionType.ASSOCPT_EDIT_DRAGGED)
+            return uid;
+
+        AssociationPoint assocPt = assocPoints.get(currAction.src);
+        assocPt.control.setMouseTransparent(false);
+
+        uid = assocPt.assocUID;
+
+        if(currAction.dst == -1L) {
+            AssociationPoint opposAssocPt = assocPoints.get(assocPt.oppositePtUID);
+            rectMap.get(opposAssocPt.rectUID).removeAssociationPoint(assocPt.oppositePtUID, assocPt.assocUID);
+            assocPt.rectUID = -1L;
+            currAction.reset();
+        }
+        return uid;
+    }
+
+    public void registerEvents(EventHandler<MouseEvent> evtCharacterReleased, EventHandler<MouseEvent> evtMouseClicked) {
         this.evtRectReleased = evtCharacterReleased;
+        pane.setOnMouseReleased(evtMouseClicked);
     }
 
     public Object[] getChartCharacterData(long uid) {
@@ -521,6 +552,13 @@ public class CharacterChart {
         return ((int)value / snapInterval) * snapInterval;
     }
 
+    public Long[] getAssociationsByCharacter(Long uid) {
+        if(uid == -1L)
+            return null;
+
+        return rectMap.get(uid).getAssociations();
+    }
+
     /********************* EVENT LAMBDAS ***********************/
 
     private EventHandler<MouseEvent> evtMouseMoved = e -> {
@@ -528,15 +566,6 @@ public class CharacterChart {
             return;
 
         setAssociationPointPosition(currAction.src, e.getX(), e.getY());
-    };
-
-    private EventHandler<MouseEvent> evtMouseReleased = e -> {
-        if (currAction.type != ChartActionType.ASSOCPT_EDIT_CLICKED &&
-                currAction.type != ChartActionType.ASSOCPT_EDIT_DRAGGED)
-            return;
-
-        assocPoints.get(currAction.src).control.setMouseTransparent(false);
-        currAction.reset();
     };
 
     private EventHandler<MouseEvent> evtAPMouseDragged = e -> {
@@ -567,6 +596,9 @@ public class CharacterChart {
                 currAction.type != ChartActionType.ASSOCPT_EDIT_DRAGGED)
             return;
 
+        if(e.getButton() != MouseButton.PRIMARY)
+            return;
+
         Circle src = (Circle) e.getSource();
 
         if (!currAction.success) { // Reset to original point
@@ -581,7 +613,19 @@ public class CharacterChart {
     };
 
     private EventHandler<MouseEvent> evtAPMousePressed = e -> {
-        if(currAction.type != ChartActionType.NONE)
+        if(currAction.type == ChartActionType.ASSOCPT_EDIT_CLICKED ||
+                currAction.type == ChartActionType.ASSOCPT_EDIT_DRAGGED)
+        {
+            Map.Entry<Long, AssociationPoint> assocPt = getAssocPointByControl((Circle) e.getSource());
+            AssociationPoint ap = assocPt.getValue();
+
+            currAction.x = ap.x;
+            currAction.y = ap.y;
+            e.consume();
+            return;
+        }
+
+        if(currAction.type != ChartActionType.NONE || e.getButton() != MouseButton.PRIMARY)
             return;
 
         Circle src = (Circle) e.getSource();
@@ -595,6 +639,7 @@ public class CharacterChart {
         currAction.x = ap.x;
         currAction.y = ap.y;
         currAction.success = false;
+        e.consume();
     };
 
     private EventHandler<MouseDragEvent> evtRectMouseDragEntered = e -> {
@@ -630,15 +675,16 @@ public class CharacterChart {
             contextMenuItem[CONTEXT_MENU_ITEM_EDIT_CHAR].setVisible(true);
             contextMenuItem[CONTEXT_MENU_ITEM_NEW_ASSOC].setVisible(true);
             contextMenu.show((Node)e.getSource(), e.getScreenX(), e.getScreenY());
+            e.consume();
         }
-        else {
+        else if (e.getSource() instanceof ScrollPane) {
             contextMenuItem[CONTEXT_MENU_ITEM_NEW_CHAR].setVisible(true);
             contextMenuItem[CONTEXT_MENU_ITEM_REMOVE_CHAR].setVisible(false);
             contextMenuItem[CONTEXT_MENU_ITEM_EDIT_CHAR].setVisible(false);
             contextMenuItem[CONTEXT_MENU_ITEM_NEW_ASSOC].setVisible(false);
+            e.consume();
         }
 
-        e.consume();
     };
 
     /********************** EVENT CLASSES ***********************/
@@ -722,6 +768,7 @@ public class CharacterChart {
     private static class AssociationPoint {
         public long assocUID; // association line uid, shared between two association points.
         public long rectUID; // UID to which rect the point is attached to.
+        public long oppositePtUID;
         public double x, y;
         public final boolean end; // Is this point the end point or start point?
         public Circle control;
@@ -729,6 +776,7 @@ public class CharacterChart {
         AssociationPoint(boolean isEndPoint) {
             assocUID = -1L;
             rectUID = -1L;
+            oppositePtUID = -1L;
             end = isEndPoint;
         }
     }

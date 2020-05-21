@@ -7,6 +7,7 @@ import java.util.ArrayList;
 class CharacterRectangle extends LabeledRectangle {
 
     private ArrayList<Long> assocPointUIDs; // UIDs to association points that are attached.
+    private ArrayList<Long> assocUIDs; // UIDs to associations that are attached.
 
     /**
      * Creates a new instance of CharacterRectangle with the given text label and width.
@@ -18,16 +19,23 @@ class CharacterRectangle extends LabeledRectangle {
      * @param height the height of the rectangle. Set to 0.0 to use default
      */
     CharacterRectangle(String label, double width, double height) {
-        super(label, width, height);
+        super(label,
+                width < 1.0 ? 90 : width,
+                height < 1.0 ? 60 : height
+        );
+
         assocPointUIDs = new ArrayList<>();
+        assocUIDs = new ArrayList<>();
     }
 
-    void addAssociationPoint(long uid) {
-        assocPointUIDs.add(uid);
+    void addAssociationPoint(long assocPtUID, long assocUID) {
+        assocPointUIDs.add(assocPtUID);
+        assocUIDs.add(assocUID);
     }
 
-    void removeAssociationPoint(long uid) {
-        assocPointUIDs.remove(uid);
+    void removeAssociationPoint(long assocPtUID, long assocUID) {
+        assocPointUIDs.remove(assocPtUID);
+        assocUIDs.remove(assocUID);
     }
 
     Long[] getAssociationPoints() {
@@ -35,6 +43,13 @@ class CharacterRectangle extends LabeledRectangle {
             return null;
 
         return assocPointUIDs.toArray(new Long[assocPointUIDs.size()]);
+    }
+
+    Long[] getAssociations() {
+        if(assocUIDs.isEmpty())
+            return null;
+
+        return assocUIDs.toArray(new Long[assocUIDs.size()]);
     }
 
 }

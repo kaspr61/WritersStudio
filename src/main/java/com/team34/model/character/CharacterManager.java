@@ -85,6 +85,8 @@ public class CharacterManager {
     public void deleteCharacter(long uid) {
         characterMap.remove(uid);
         UIDManager.removeUID(uid);
+
+        //TODO remove associations as well
     }
 
     public long newAssociation(long sCharUID, long eCharUID, double sX, double sY, double eX, double eY) {
@@ -122,6 +124,11 @@ public class CharacterManager {
         }
 
         return false;
+    }
+
+    public void deleteAssociation(long uid) {
+        associationMap.remove(uid);
+        UIDManager.removeUID(uid);
     }
 
     /**
