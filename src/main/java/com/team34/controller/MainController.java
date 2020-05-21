@@ -2,6 +2,7 @@ package com.team34.controller;
 
 import com.team34.view.dialogs.EditCharacterDialog;
 import com.team34.view.dialogs.EditEventDialog;
+import com.team34.view.timeline.EventRectangle;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
@@ -10,6 +11,8 @@ import com.team34.model.Project;
 import com.team34.view.MainView;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.MenuItem;
+import javafx.scene.input.DragEvent;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.FileChooser;
 import javafx.stage.WindowEvent;
 
@@ -36,6 +39,7 @@ public class MainController {
     private final EventHandler<ActionEvent> evtContextMenuAction;
     private final EventHandler<WindowEvent> evtCloseRequest;
     private final EventHandler<ActionEvent> evtMenuBarAction;
+    private final EventHandler<DragEvent> evtDragDropped;
 
     /**
      * Constructs the controller. Initializes member variables
@@ -52,6 +56,7 @@ public class MainController {
         this.evtContextMenuAction = new EventContextMenuAction();
         this.evtCloseRequest = new EventCloseRequest();
         this.evtMenuBarAction = new EventMenuBarAction();
+        this.evtDragDropped = new EventDragDropped();
 
         registerEventsOnView();
     }
@@ -65,6 +70,7 @@ public class MainController {
         view.registerContextMenuEvents(evtContextMenuAction);
         view.registerCloseRequestEvent(evtCloseRequest);
         view.registerMenuBarActionEvents(evtMenuBarAction);
+        view.registerDragEvent(evtDragDropped);
     }
 
     /**
@@ -459,6 +465,27 @@ public class MainController {
                 default:
                     System.out.println("Unrecognized ID: " + sourceID);
                     break;
+            }
+
+        }
+    }
+
+    private class EventDragDropped implements EventHandler<DragEvent> {
+
+        @Override
+        public void handle(DragEvent dragEvent) {
+            Rectangle rect = (Rectangle)dragEvent.getSource();
+
+            long uidDragged = Long.parseLong(dragEvent.getDragboard().getString());
+            long uidTarget = view.getEventUidByRectangle(rect);
+            int orderList = view.getEventOrderList();
+
+            int dragged = model.eventManager.getEventIndex(orderList, uidDragged);
+            int target = model.eventManager.getEventIndex(orderList, uidTarget);
+
+            if (dragged != -1 || target != -1 ) {
+                model.eventManager.moveEvent(orderList, dragged, target);
+                refreshViewEvents();
             }
 
         }

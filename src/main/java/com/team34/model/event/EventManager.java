@@ -1,6 +1,7 @@
 package com.team34.model.event;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 
@@ -183,6 +184,21 @@ public class EventManager {
         );
     }
 
+    /**
+     * @author Jim Andersson
+     * @param uid
+     * @return
+     */
+    public int getEventIndex(int eventOrderList, long uid) {
+        Long[] events = getEventOrder(eventOrderList);
+
+        for (int i = 0; i < events.length; i++) {
+            if (events[i].equals(uid))
+                    return i;
+        }
+        return -1;
+    }
+
     public void swapEvent(int orderList, int index1, int index2) {
         //TODO swap places between two events in the specified order list.
         hasChanged = true;
@@ -190,6 +206,28 @@ public class EventManager {
 
     public void moveEvent(int orderList, int fromIndex, int toIndex) {
         // TODO move to (insert at) specified location.
+
+        Long[] order = getEventOrder(orderList);
+
+        //Flyttar event i höger riktning på tidslinjen
+        if (fromIndex < toIndex) {
+            for (int i = 0; i < toIndex; i++) {
+                order[i] = order[i+1];
+            }
+//            order[toIndex] = order[fromIndex];
+        }
+
+        //Flyttar event i vänster riktning på tidslinjen
+        if (toIndex < fromIndex) {
+            for (int i = toIndex; i < order.length-1; i++) {
+                order [i] = order[i+1];
+            }
+//            order[toIndex] = order[fromIndex];
+        }
+
+        for (int i = 0; i < eventOrderLists.get(orderList).size()-1; i++) {
+            eventOrderLists.get(orderList).set(i, order[i]);
+        }
         hasChanged = true;
     }
 

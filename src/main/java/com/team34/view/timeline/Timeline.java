@@ -69,6 +69,7 @@ public class Timeline {
 
     private EventHandler<ContextMenuEvent> evtShowContextEvent; // Fires when an event is right-clicked
     private EventHandler<ContextMenuEvent> evtShowContextPane; // Fires when the pane is right-clicked
+    private EventHandler<DragEvent> evtDragDropped;
 
     private HashMap<Long, EventRectangle> eventRectMap; // Stores references to EventRectangles by their eventUID.
     private Long[] eventUIDOrder; // This is a reference to the order of the events.
@@ -157,50 +158,7 @@ public class Timeline {
             }
         });
 
-        rect.getRect().setOnDragDropped(new EventHandler<DragEvent>() {
-            @Override
-            public void handle(DragEvent dragEvent) {
-                long uidDragged = Long.parseLong(dragEvent.getDragboard().getString());
-                long uidTarget = getEventUIDByRectangle(rect.getRect());
-                int draggedPos = 0;
-                int targetPos = 0;
-                Long[] uidOrder = eventUIDOrder;
-
-                for (int i = 0; i < uidOrder.length; i++) {
-                    if (uidOrder[i].equals(uidDragged)) ;
-                    draggedPos = i;
-
-                    if (uidOrder[i].equals(uidTarget))
-                        targetPos = i;
-                }
-
-                if (targetPos > draggedPos) {
-                    for (int i = draggedPos; i < uidOrder.length-1; i++) {
-                        if (uidOrder[i].equals(uidTarget)) {
-                            uidOrder[i+1] = uidTarget;
-                            uidOrder[i] = uidDragged;
-                            i++;
-                        }
-
-                        else uidOrder[i] = uidOrder[i+1];
-                    }
-                }
-                else if (draggedPos > targetPos) {
-                    for (int i = targetPos; i < uidOrder.length-1; i++) {
-                        if (uidOrder[i].equals(uidTarget)) {
-                            uidOrder[i+1] = uidTarget;
-                            uidOrder[i] = uidDragged;
-                            i++;
-                        }
-
-                        else uidOrder[i] = uidOrder[i+1];
-                    }
-                }
-
-                recalculateLayout(uidOrder);
-
-            }
-        });
+        rect.getRect().setOnDragDropped(evtDragDropped);
 
         Tooltip.install(rect.getRect(), rect.getTooltip());
     }
@@ -249,6 +207,10 @@ public class Timeline {
         }
 
         return -1L;
+    }
+
+    public long getEventUIDByRectangle(EventRectangle rect) {
+        return getEventUIDByRectangle(rect.getRect());
     }
 
     /**
@@ -377,6 +339,10 @@ public class Timeline {
         return contextMenu;
     }
 
+    public void registerEventHandlers(EventHandler<DragEvent> dragEventEventHandler) {
+        this.evtDragDropped = dragEventEventHandler;
+    }
+
     ////// EVENTS ////////////////////////////////////////////////////////////
 
     /**
@@ -410,36 +376,5 @@ public class Timeline {
         }
     }
 
-    /// DRAG EVENTS /// TODO: Se över om dessa ska fortsätta existera
-
-    private class EvtDragDetected implements EventHandler<MouseEvent> {
-
-        @Override
-        public void handle(MouseEvent mouseEvent) {
-            EventRectangle rect = (EventRectangle) mouseEvent.getSource();
-            Dragboard db = rect.getRect().startDragAndDrop(TransferMode.ANY);
-            ClipboardContent content = new ClipboardContent();
-            content.putString(Long.toString(getEventUIDByRectangle(rect.getRect())));
-            db.setContent(content);
-
-            mouseEvent.consume();
-        }
-    }
-
-    private class EvtDragOver implements EventHandler<DragEvent> {
-
-        @Override
-        public void handle(DragEvent dragEvent) {
-
-        }
-    }
-
-    private class EvtDragDropped implements EventHandler<DragEvent> {
-
-        @Override
-        public void handle(DragEvent dragEvent) {
-
-        }
-    }
 
 }

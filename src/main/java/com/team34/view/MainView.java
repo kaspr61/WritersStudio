@@ -1,14 +1,17 @@
 package com.team34.view;
 
 import com.team34.view.dialogs.EditCharacterDialog;
+import com.team34.view.timeline.EventRectangle;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.input.DragEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
@@ -249,6 +252,14 @@ public class MainView {
     }
 
     /**
+     * @author Jim Andersson
+     * @param dragEventHandler
+     */
+    public void registerDragEvent(EventHandler<DragEvent> dragEventHandler) {
+        timeline.registerEventHandlers(dragEventHandler);
+    }
+
+    /**
      * Refreshes the GUI concerned with events with the given data.
      * See {@link EventManager#getEvents()} on how the data is formatted.
      * @param events a 2-dimensional array containing all data on every event
@@ -333,6 +344,11 @@ public class MainView {
 
     public long getSelectedEventUID() {
         return leftPane.getEventUID();
+    }
+
+    public long getEventUidByRectangle(Rectangle rect) {
+
+        return timeline.getEventUIDByRectangle(rect);
     }
 
 }
