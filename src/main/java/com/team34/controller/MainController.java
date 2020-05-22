@@ -469,6 +469,11 @@ public class MainController {
         }
     }
 
+    /**
+     * Fires when an event is dragged and dropped onto another event on the timeline.
+     *
+     * @author Jim Andersson
+     */
     private class EventDragDropped implements EventHandler<DragEvent> {
 
         @Override
@@ -477,13 +482,12 @@ public class MainController {
 
             long uidDragged = Long.parseLong(dragEvent.getDragboard().getString());
             long uidTarget = view.getEventUidByRectangle(rect);
-            int orderList = view.getEventOrderList();
 
-            int dragged = model.eventManager.getEventIndex(orderList, uidDragged);
-            int target = model.eventManager.getEventIndex(orderList, uidTarget);
+            int dragged = model.eventManager.getEventIndex(view.getEventOrderList(), uidDragged);
+            int target = model.eventManager.getEventIndex(view.getEventOrderList(), uidTarget);
 
-            if (dragged != -1 || target != -1 ) {
-                model.eventManager.moveEvent(orderList, dragged, target);
+            if (dragged != -1 && target != -1 ) {
+                model.eventManager.moveEvent(view.getEventOrderList(), dragged, target);
                 refreshViewEvents();
             }
 

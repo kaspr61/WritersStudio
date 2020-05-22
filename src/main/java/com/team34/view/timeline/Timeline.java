@@ -137,6 +137,8 @@ public class Timeline {
         rect.getRect().setOnContextMenuRequested(evtShowContextEvent);
         rect.getRect().setOnDragDetected(new EventHandler<MouseEvent>() {
             @Override
+
+            //Gets UID of selected event and puts it onto the ClipBoard 
             public void handle(MouseEvent mouseEvent) {
                 getEventUIDByRectangle(rect.getRect());
 
@@ -150,6 +152,8 @@ public class Timeline {
         });
         rect.getRect().setOnDragOver(new EventHandler<DragEvent>() {
             @Override
+
+            // Prepares target event to accept the dropped event
             public void handle(DragEvent dragEvent) {
                 if (dragEvent.getDragboard().hasString()) {
                     dragEvent.acceptTransferModes(TransferMode.ANY);
