@@ -201,6 +201,15 @@ public class EventManager {
 
     public void swapEvent(int orderList, int index1, int index2) {
         //TODO swap places between two events in the specified order list.
+        Long[] order = getEventOrder(orderList);
+
+        Long temp = order[index2];
+        order[index2] = order[index1];
+        order[index1] = temp;
+
+        for (int i = 0; i < eventOrderLists.get(orderList).size(); i++) {
+            eventOrderLists.get(orderList).set(i, order[i]);
+        }
         hasChanged = true;
     }
 
@@ -209,23 +218,26 @@ public class EventManager {
 
         Long[] order = getEventOrder(orderList);
 
+
         //Flyttar event i höger riktning på tidslinjen
         if (fromIndex < toIndex) {
-            for (int i = 0; i < toIndex; i++) {
+            for (int i = fromIndex; i < toIndex; i++) {
+                Long temp = order[i];
                 order[i] = order[i+1];
+                order[i+1] = temp;
             }
-//            order[toIndex] = order[fromIndex];
         }
 
         //Flyttar event i vänster riktning på tidslinjen
         if (toIndex < fromIndex) {
-            for (int i = toIndex; i < order.length-1; i++) {
-                order [i] = order[i+1];
+            for (int i = fromIndex; i > toIndex; i--) {
+                Long temp = order[i];
+                order[i] = order[i - 1];
+                order[i - 1] = temp;
             }
-//            order[toIndex] = order[fromIndex];
         }
 
-        for (int i = 0; i < eventOrderLists.get(orderList).size()-1; i++) {
+        for (int i = 0; i < eventOrderLists.get(orderList).size(); i++) {
             eventOrderLists.get(orderList).set(i, order[i]);
         }
         hasChanged = true;

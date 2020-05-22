@@ -1,7 +1,6 @@
 package com.team34.view;
 
 import com.team34.view.dialogs.EditCharacterDialog;
-import com.team34.view.timeline.EventRectangle;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
