@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -296,6 +297,143 @@ public class Project {
     }
 
     /**
+     * Internal helper method to {@link Project#loadProject(File)}
+     * @param event
+     * @param reader
+     * @throws XMLStreamException
+     */
+    private void loadCharacters(XMLEvent event, XMLEventReader reader)
+            throws XMLStreamException
+    {
+        long uid = -1L;
+        String name = null;
+        double chartX = 0.0;
+        double chartY = 0.0;
+
+        while(reader.hasNext()) {
+            event = reader.nextEvent();
+
+            if(event.isStartElement()) {
+                StartElement startElement = event.asStartElement();
+
+                if(startElement.getName().getLocalPart() == "character"){
+                    Iterator<Attribute> attrIt = startElement.getAttributes();
+                    while(attrIt.hasNext()) {
+                        Attribute attr = attrIt.next();
+                        switch(attr.getName().getLocalPart()) {
+                            case "uid":
+                                uid = Long.parseLong(attr.getValue());
+                                break;
+                            case "name":
+                                name = attr.getValue();
+                                break;
+                            case "chartX":
+                                chartX = Double.parseDouble(attr.getValue());
+                                break;
+                            case "chartY":
+                                chartY = Double.parseDouble(attr.getValue());
+                                break;
+                        }
+                    }
+
+                    event = reader.nextEvent();
+                    if(uid != -1L && name != null) {
+                        if(event.isCharacters())
+                            characterManager.addCharacter(uid, name, event.asCharacters().getData(), chartX, chartY);
+                        else
+                            characterManager.addCharacter(uid, name, "", chartX, chartY);
+
+                    }
+                }
+
+            }
+            else if(event.isEndElement()) {
+                if(event.asEndElement().getName().getLocalPart() == "characters")
+                    return;
+            }
+        }
+    }
+
+    /**
+     * Internal helper method to {@link Project#loadProject(File)}
+     * @param event
+     * @param reader
+     * @throws XMLStreamException
+     */
+    private void loadAssociations(XMLEvent event, XMLEventReader reader)
+            throws XMLStreamException
+    {
+        long uid = -1L;
+        long startUID = -1L;
+        long endUID = -1L;
+        double sX = 0.0;
+        double sY = 0.0;
+        double eX = 0.0;
+        double eY = 0.0;
+        String label = "";
+        double lblX = 0.0;
+        double lblY = 0.0;
+
+        while(reader.hasNext()) {
+            event = reader.nextEvent();
+
+            if(event.isStartElement()) {
+                StartElement startElement = event.asStartElement();
+
+                if(startElement.getName().getLocalPart() == "association"){
+                    Iterator<Attribute> attrIt = startElement.getAttributes();
+                    while(attrIt.hasNext()) {
+                        Attribute attr = attrIt.next();
+                        switch(attr.getName().getLocalPart()) {
+                            case "uid":
+                                uid = Long.parseLong(attr.getValue());
+                                break;
+                            case "startUID":
+                                startUID = Long.parseLong(attr.getValue());
+                                break;
+                            case "endUID":
+                                endUID = Long.parseLong(attr.getValue());
+                                break;
+                            case "sX":
+                                sX = Double.parseDouble(attr.getValue());
+                                break;
+                            case "sY":
+                                sY = Double.parseDouble(attr.getValue());
+                                break;
+                            case "eX":
+                                eX = Double.parseDouble(attr.getValue());
+                                break;
+                            case "eY":
+                                eY = Double.parseDouble(attr.getValue());
+                                break;
+                            case "lblX":
+                                lblX = Double.parseDouble(attr.getValue());
+                                break;
+                            case "lblY":
+                                lblY = Double.parseDouble(attr.getValue());
+                                break;
+                        }
+                    }
+
+                    event = reader.nextEvent();
+                    if(uid != -1L && label != null) {
+                        if(event.isCharacters())
+                            characterManager.addAssociation(uid, startUID, endUID, sX, sY, eX, eY, event.asCharacters().getData(), lblX, lblY);
+                        else
+                            characterManager.addAssociation(uid, startUID, endUID, sX, sY, eX, eY, "", lblX, lblY);
+
+                    }
+                }
+
+            }
+            else if(event.isEndElement()) {
+                if(event.asEndElement().getName().getLocalPart() == "associations")
+                    return;
+            }
+        }
+    }
+
+    /**
      * Internal helper method to {@link Project#saveProject()}
      * @param factory
      * @param writer
@@ -309,6 +447,7 @@ public class Project {
             return;
 
         for(int i = 0; i < uids.length; i++) {
+            writer.add(factory.createCharacters("\t\t"));
             writer.add(factory.createStartElement("", "", "uid"));
             writer.add(factory.createCharacters(Long.toString(uids[i])));
             writer.add(factory.createEndElement("", "", "uid"));
@@ -330,6 +469,7 @@ public class Project {
             return;
 
         for(int i = 0; i < event.length; i++) {
+            writer.add(factory.createCharacters("\t\t"));
             writer.add(factory.createStartElement("", "", "event"));
             writer.add(factory.createAttribute("name", (String) event[i][1]));
             writer.add(factory.createAttribute("uid", Long.toString((Long) event[i][0])));
@@ -356,20 +496,90 @@ public class Project {
             return;
 
         while(orderList != null) {
+            writer.add(factory.createCharacters("\t\t"));
             writer.add(factory.createStartElement("", "", "order_list"));
             writer.add(factory.createCharacters(System.lineSeparator()));
 
             for (int j = 0; j < orderList.length; j++) {
+                writer.add(factory.createCharacters("\t\t\t"));
                 writer.add(factory.createStartElement("", "", "li"));
                 writer.add(factory.createCharacters(Long.toString(orderList[j])));
                 writer.add(factory.createEndElement("", "", "li"));
                 writer.add(factory.createCharacters(System.lineSeparator()));
             }
 
+            writer.add(factory.createCharacters("\t\t"));
             writer.add(factory.createEndElement("", "", "order_list"));
             writer.add(factory.createCharacters(System.lineSeparator()));
 
             orderList = eventManager.getEventOrder(++i);
+        }
+    }
+
+    /**
+     * Internal helper method to {@link Project#saveProject()}
+     * @param factory
+     * @param writer
+     * @throws XMLStreamException
+     */
+    private void writeCharacters(XMLEventFactory factory, XMLEventWriter writer)
+            throws XMLStreamException
+    {
+        ArrayList<Object[]> chars = characterManager.getCharacterList();
+        if(chars == null)
+            return;
+
+        Object[] data;
+        for(int i = 0; i < chars.size(); i++) {
+            data = chars.get(i);
+
+            writer.add(factory.createCharacters("\t\t"));
+            writer.add(factory.createStartElement("", "", "character"));
+            writer.add(factory.createAttribute("name", (String) data[0]));
+            writer.add(factory.createAttribute("uid", Long.toString((Long) data[1])));
+            writer.add(factory.createAttribute("chartX", Double.toString((Double) data[2])));
+            writer.add(factory.createAttribute("chartY", Double.toString((Double) data[3])));
+
+            writer.add(factory.createCharacters((String) data[4]));
+
+            writer.add(factory.createEndElement("", "", "character"));
+            writer.add(factory.createCharacters(System.lineSeparator()));
+        }
+    }
+
+    /**
+     * Internal helper method to {@link Project#saveProject()}
+     * @param factory
+     * @param writer
+     * @throws XMLStreamException
+     */
+    private void writeAssociations(XMLEventFactory factory, XMLEventWriter writer)
+            throws XMLStreamException
+    {
+        Object[][] assocs = characterManager.getAssociationData();
+        if(assocs == null)
+            return;
+
+        Object[] data;
+        for(int i = 0; i < assocs.length; i++) {
+            data = assocs[i];
+
+            writer.add(factory.createCharacters("\t\t"));
+            writer.add(factory.createStartElement("", "", "association"));
+            writer.add(factory.createAttribute("uid", Long.toString((Long) data[0])));
+            writer.add(factory.createAttribute("startUID", Long.toString((Long) data[1])));
+            writer.add(factory.createAttribute("endUID", Long.toString((Long) data[2])));
+            writer.add(factory.createAttribute("sX", Double.toString((Double) data[3])));
+            writer.add(factory.createAttribute("sY", Double.toString((Double) data[4])));
+            writer.add(factory.createAttribute("eX", Double.toString((Double) data[5])));
+            writer.add(factory.createAttribute("eY", Double.toString((Double) data[6])));
+            writer.add(factory.createAttribute("lblX", Double.toString((Double) data[8])));
+            writer.add(factory.createAttribute("lblY", Double.toString((Double) data[9])));
+
+            writer.add(factory.createCharacters((String) data[7]));
+
+            writer.add(factory.createEndElement("", "", "association"));
+            writer.add(factory.createCharacters(System.lineSeparator()));
         }
     }
 
@@ -448,6 +658,12 @@ public class Project {
                         case "event_order":
                             loadEventOrderLists(event, eventReader);
                             break;
+                        case "characters":
+                            loadCharacters(event, eventReader);
+                            break;
+                        case "associations":
+                            loadAssociations(event, eventReader);
+                            break;
                     }
                 }
             }
@@ -455,6 +671,7 @@ public class Project {
         finally {
             currProjectFile = projectFile;
             eventManager.resetChanges();
+            characterManager.resetChanges();
         }
 
     }
@@ -486,22 +703,44 @@ public class Project {
             eventWriter.add(eventFactory.createAttribute("name", currProjectName));
             eventWriter.add(eventFactory.createCharacters(System.lineSeparator()));
 
+            eventWriter.add(eventFactory.createCharacters("\t"));
             eventWriter.add(eventFactory.createStartElement("", "", "uid_manager"));
             eventWriter.add(eventFactory.createCharacters(System.lineSeparator()));
             writeUIDManager(eventFactory, eventWriter);
+            eventWriter.add(eventFactory.createCharacters("\t"));
             eventWriter.add(eventFactory.createEndElement("", "", "uid_manager"));
             eventWriter.add(eventFactory.createCharacters(System.lineSeparator()));
 
+            eventWriter.add(eventFactory.createCharacters("\t"));
             eventWriter.add(eventFactory.createStartElement("", "", "events"));
             eventWriter.add(eventFactory.createCharacters(System.lineSeparator()));
             writeEvents(eventFactory, eventWriter);
+            eventWriter.add(eventFactory.createCharacters("\t"));
             eventWriter.add(eventFactory.createEndElement("", "", "events"));
             eventWriter.add(eventFactory.createCharacters(System.lineSeparator()));
 
+            eventWriter.add(eventFactory.createCharacters("\t"));
             eventWriter.add(eventFactory.createStartElement("", "", "event_order"));
             eventWriter.add(eventFactory.createCharacters(System.lineSeparator()));
             writeEventOrderLists(eventFactory, eventWriter);
+            eventWriter.add(eventFactory.createCharacters("\t"));
             eventWriter.add(eventFactory.createEndElement("", "", "event_order"));
+            eventWriter.add(eventFactory.createCharacters(System.lineSeparator()));
+
+            eventWriter.add(eventFactory.createCharacters("\t"));
+            eventWriter.add(eventFactory.createStartElement("", "", "characters"));
+            eventWriter.add(eventFactory.createCharacters(System.lineSeparator()));
+            writeCharacters(eventFactory, eventWriter);
+            eventWriter.add(eventFactory.createCharacters("\t"));
+            eventWriter.add(eventFactory.createEndElement("", "", "characters"));
+            eventWriter.add(eventFactory.createCharacters(System.lineSeparator()));
+
+            eventWriter.add(eventFactory.createCharacters("\t"));
+            eventWriter.add(eventFactory.createStartElement("", "", "associations"));
+            eventWriter.add(eventFactory.createCharacters(System.lineSeparator()));
+            writeAssociations(eventFactory, eventWriter);
+            eventWriter.add(eventFactory.createCharacters("\t"));
+            eventWriter.add(eventFactory.createEndElement("", "", "associations"));
             eventWriter.add(eventFactory.createCharacters(System.lineSeparator()));
 
             eventWriter.add(eventFactory.createEndElement("", "", "project"));
@@ -512,6 +751,7 @@ public class Project {
             eventWriter.flush();
 
             eventManager.resetChanges();
+            characterManager.resetChanges();
         }
     }
 
@@ -521,6 +761,7 @@ public class Project {
      */
     public void clearProject() {
         eventManager.clear();
+        characterManager.clear();
         UIDManager.clear();
         currProjectName = "";
         currProjectFile = null;
@@ -531,7 +772,8 @@ public class Project {
      * @return true if there are unsaved changed
      */
     public boolean hasUnsavedChanges() {
-        return eventManager.hasChanged();
+        return  eventManager.hasChanged() ||
+                characterManager.hasChanged();
     }
 
     /**

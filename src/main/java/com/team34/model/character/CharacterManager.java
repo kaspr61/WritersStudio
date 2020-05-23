@@ -21,10 +21,12 @@ public class CharacterManager {
 
     private HashMap<Long, Character> characterMap;
     private HashMap<Long, Association> associationMap;
+    private boolean hasChanged;
 
     public CharacterManager() {
         characterMap = new HashMap<>();
         associationMap = new HashMap<>();
+        hasChanged = false;
     }
 
     /**
@@ -45,6 +47,7 @@ public class CharacterManager {
 
     public void addCharacter(long uid, String name, String description, double posX, double posY) {
         characterMap.put(uid, new Character(name, description, posX, posY));
+        hasChanged = true;
     }
 
     /**
@@ -60,6 +63,7 @@ public class CharacterManager {
             characterMap.replace(uid,
                     new Character(name, description, existing.getChartPositionX(), existing.getChartPositionY())
             );
+            hasChanged = true;
             return true;
         }
 
@@ -72,6 +76,7 @@ public class CharacterManager {
             characterMap.replace(uid,
                     new Character(existing.getName(), existing.getDescription(), chartPosX, chartPosY)
             );
+            hasChanged = true;
             return true;
         }
 
@@ -85,6 +90,7 @@ public class CharacterManager {
     public void deleteCharacter(long uid) {
         characterMap.remove(uid);
         UIDManager.removeUID(uid);
+        hasChanged = true;
     }
 
     public long newAssociation(long sCharUID, long eCharUID, double sX, double sY, double eX, double eY, String label, double lblX, double lblY) {
@@ -106,6 +112,7 @@ public class CharacterManager {
         assoc.labelY = lblY;
 
         associationMap.put(uid, assoc);
+        hasChanged = true;
     }
 
     public boolean editAssociation(long uid, long sCharUID, long eCharUID, double sX, double sY, double eX, double eY, String label, double lblX, double lblY) {
@@ -122,6 +129,7 @@ public class CharacterManager {
             assoc.labelY = lblY;
 
             associationMap.replace(uid, assoc);
+            hasChanged = true;
             return true;
         }
 
@@ -131,6 +139,7 @@ public class CharacterManager {
     public void deleteAssociation(long uid) {
         associationMap.remove(uid);
         UIDManager.removeUID(uid);
+        hasChanged = true;
     }
 
     /**
@@ -138,16 +147,16 @@ public class CharacterManager {
      * @return ArrayList of Object[]
      *///TODO update javadoc
     public ArrayList<Object[]> getCharacterList() {
-
         ArrayList<Object[]> characterArrayList = new ArrayList<>();
 
         for (Map.Entry character : characterMap.entrySet()) {
             Character ch = (Character) character.getValue();
-            Object[] chListObj =  new Object[4];
+            Object[] chListObj =  new Object[5];
             chListObj[0] = ch.getName();
             chListObj[1] = character.getKey();
             chListObj[2] = ch.getChartPositionX();
             chListObj[3] = ch.getChartPositionY();
+            chListObj[4] = ch.getDescription();
             characterArrayList.add(chListObj);
         }
         return characterArrayList;
@@ -217,5 +226,22 @@ public class CharacterManager {
     public void clear() {
         characterMap.clear();
         associationMap.clear();
+        hasChanged = false;
     }
+
+    /**
+     * Returns whether the data inside this class has changed
+     * @return the value of {@link #hasChanged}
+     */
+    public boolean hasChanged() {
+        return hasChanged;
+    }
+
+    /**
+     * Sets {@link #hasChanged} to false.
+     */
+    public void resetChanges() {
+        hasChanged = false;
+    }
+
 }

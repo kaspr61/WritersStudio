@@ -210,6 +210,7 @@ public class MainController {
         try {
             model.loadProject(file);
             refreshViewEvents();
+            refreshCharacterList();
             refreshTitleBar();
         } catch (Exception e) {
             e.printStackTrace();
@@ -587,6 +588,7 @@ public class MainController {
                     if (saveBeforeContinue()) {
                         model.clearProject();
                         refreshViewEvents();
+                        refreshCharacterList();
                     }
                     refreshTitleBar();
                     break;
@@ -645,6 +647,7 @@ public class MainController {
                 updateModelAssociationWithView((Long) result[0]);
             }
 
+            refreshTitleBar();
         }
     }
 
@@ -665,6 +668,7 @@ public class MainController {
             long assocUID = view.onAssociationLabelReleased(e);
             if(assocUID != -1L) {
                 updateModelAssociationWithView(assocUID);
+                refreshTitleBar();
             }
 
         }
