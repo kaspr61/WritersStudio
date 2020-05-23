@@ -1,8 +1,10 @@
 package com.team34.view.characterchart;
 
+import com.team34.model.event.Event;
 import com.team34.view.MainView;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Bounds;
 import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
@@ -26,6 +28,9 @@ public class CharacterChart {
     private static final int CONTEXT_MENU_ITEM_NEW_ASSOC = 1;
     private static final int CONTEXT_MENU_ITEM_REMOVE_CHAR = 2;
     private static final int CONTEXT_MENU_ITEM_NEW_CHAR = 3;
+    private static final int CONTEXT_MENU_ITEM_EDIT_ASSOC = 4;
+    private static final int CONTEXT_MENU_ITEM_CENTER_LABEL = 5;
+    private static final int CONTEXT_MENU_ITEM_REMOVE_ASSOC = 6;
 
     private final Pane pane;
     private ScrollPane scrollPane;
@@ -41,6 +46,7 @@ public class CharacterChart {
     private final EventHandler<MouseEvent> evtRectPressed;
     private final EventHandler<MouseEvent> evtRectDragged;
     private EventHandler<MouseEvent> evtRectReleased;
+    private EventHandler<MouseEvent> evtLabelReleased;
 
     public CharacterChart(double width, double height) {
         rectMap = new HashMap<>();
@@ -156,6 +162,21 @@ public class CharacterChart {
         return null;
     }
 
+    private Map.Entry<Long, AssociationLine> getAssociationByLabel(Text text) {
+        Iterator<Map.Entry<Long, AssociationLine>> it = associations.entrySet().iterator();
+        Map.Entry<Long, AssociationLine> pair;
+
+        // Find AssociationPoint that contains the input circle and return its associated UID
+        while (it.hasNext()) {
+            pair = it.next();
+            if(pair.getValue().text.equals(text)) {
+                return pair;
+            }
+        }
+
+        return null;
+    }
+
     public void addAssociation(long assocUID, long startCharUID, long endCharUID, String label)
     {
         AssociationLine existingAssoc = associations.get(assocUID);
@@ -170,6 +191,13 @@ public class CharacterChart {
         AssociationLine assoc = new AssociationLine();
         assoc.text = new Text(label);
         assoc.text.getStyleClass().add("characterchart-assoclabel");
+        assoc.text.setMouseTransparent(false);
+        assoc.text.setViewOrder(-1.6);
+        assoc.text.setOnMousePressed(evtLabelPressed);
+        assoc.text.setOnMouseDragged(evtLabelDragged);
+        assoc.text.setOnMouseReleased(evtLabelReleased);
+        assoc.text.setOnContextMenuRequested(evtContextRequest);
+
         assoc.line = new Line(0, 0, 0, 0);
         assoc.line.getStyleClass().add("characterchart-assocline");
         assoc.line.setViewOrder(-1.5);
@@ -189,6 +217,7 @@ public class CharacterChart {
         startPt.control.setOnMouseReleased(evtAPMouseReleased);
         startPt.control.setOnDragDetected(evtAPDragDetected);
         startPt.control.setOnMouseDragged(evtAPMouseDragged);
+        startPt.control.setOnContextMenuRequested(evtContextRequest);
 
         endPt.assocUID = assocUID;
         endPt.rectUID = endCharUID;
@@ -202,6 +231,7 @@ public class CharacterChart {
         endPt.control.setOnMouseReleased(evtAPMouseReleased);
         endPt.control.setOnDragDetected(evtAPDragDetected);
         endPt.control.setOnMouseDragged(evtAPMouseDragged);
+        endPt.control.setOnContextMenuRequested(evtContextRequest);
 
         associations.put(assocUID, assoc);
         assocPoints.put(startPtUID, startPt);
@@ -354,7 +384,16 @@ public class CharacterChart {
         return new Double[]{x, y};
     }
 
-    public void updateCharacters(ArrayList<Object[]> characters, Object[][] associations) {
+    public Double[] lerpLine(double sX, double sY, double eX, double eY, double t) {
+        Double[] pos = new Double[2];
+
+        pos[0] = sX + (eX - sX) * t;
+        pos[1] = sY + (eY - sY) * t;
+
+        return pos;
+    }
+
+    public void updateCharacters(ArrayList<Object[]> characters, Object[][] _associations) {
         clear();
 
         if(characters != null) {
@@ -369,9 +408,9 @@ public class CharacterChart {
             }
         }
 
-        if(associations != null) {
-            for (int i = 0; i < associations.length; i++) { // Update associations
-                Object[] assocData = associations[i];
+        if(_associations != null) {
+            for (int i = 0; i < _associations.length; i++) { // Update associations
+                Object[] assocData = _associations[i];
                 addAssociation(
                         (Long) assocData[0],
                         (Long) assocData[1],
@@ -385,12 +424,38 @@ public class CharacterChart {
                         (Double) assocData[5],
                         (Double) assocData[6]
                 );
+                setAssociationLabelPosition(
+                        (Long) assocData[0],
+                        (Double) assocData[8],
+                        (Double) assocData[9]
+                );
             }
         }
     }
 
+    private void setAssociationLabelPosition(long assocUID, double newX, double newY) {
+        Text text = associations.get(assocUID).text;
+        text.setX(newX);
+        text.setY(newY);
+    }
+
+    public void centerAssociationLabel(long assocUID) {
+        AssociationLine assocLn = associations.get(assocUID);
+        Double[] pos = lerpLine(
+                assocLn.line.getStartX(), assocLn.line.getStartY(),
+                assocLn.line.getEndX(), assocLn.line.getEndY(),
+                0.5
+        );
+
+        Bounds textBounds = assocLn.text.getBoundsInParent();
+        assocLn.text.setX(pos[0] - textBounds.getWidth() * 0.5);
+        assocLn.text.setY(pos[1] - textBounds.getHeight() * 0.25);
+    }
+
     public Object[] onCharacterReleased(MouseEvent e) {
-        if(currAction.type == ChartActionType.NONE)
+        if (    currAction.type != ChartActionType.RECT_EDIT_MOVE &&
+                currAction.type != ChartActionType.ASSOCPT_EDIT_DRAGGED &&
+                currAction.type != ChartActionType.ASSOCPT_EDIT_CLICKED)
             return null;
 
         Object[] result = new Object[2];
@@ -412,11 +477,17 @@ public class CharacterChart {
                 currAction.type != ChartActionType.ASSOCPT_EDIT_CLICKED)
             return null;
 
+        Double[] pos = snapToNearestCharacterEdge(character.getKey(), e.getX(), e.getY());
+        setAssociationPointPosition(currAction.src, pos[0], pos[1]);
+
         result[1] = false; // currently attaching an association
         AssociationPoint assocPt = assocPoints.get(currAction.src);
         AssociationPoint assocPtOpposite = assocPoints.get(assocPt.oppositePtUID);
         result[0] = assocPt.assocUID;
-        if(assocPtOpposite.rectUID != character.getKey()) { // assoc point dropped onto new character
+        if(assocPtOpposite.rectUID != character.getKey()) { // assoc point dropped onto character, not the same as the opposite point
+            if(assocPt.rectUID != character.getKey()) // assoc point is dropped onto a different character, center label
+                centerAssociationLabel(assocPt.assocUID);
+
             if(assocPt.rectUID != -1L)
                 detachAssociationPointFromCharacter(currAction.src, assocPt.assocUID, assocPt.rectUID);
 
@@ -426,9 +497,6 @@ public class CharacterChart {
             setAssociationPointPosition(currAction.src, currAction.x, currAction.y);
         }
 
-        Double[] pos = snapToNearestCharacterEdge(character.getKey(), e.getX(), e.getY());
-        setAssociationPointPosition(currAction.src, pos[0], pos[1]);
-
         assocPt.control.setMouseTransparent(false);
         currAction.reset();
 
@@ -436,29 +504,41 @@ public class CharacterChart {
     }
 
     public long onClick(MouseEvent e) {
-        long uid = -1L;
+        long result = -1L;
 
         if (currAction.type != ChartActionType.ASSOCPT_EDIT_CLICKED &&
                 currAction.type != ChartActionType.ASSOCPT_EDIT_DRAGGED)
-            return uid;
+            return result;
 
         AssociationPoint assocPt = assocPoints.get(currAction.src);
         assocPt.control.setMouseTransparent(false);
+        result = assocPt.assocUID;
 
-        uid = assocPt.assocUID;
-
-        if(currAction.dst == -1L) {
+        if (currAction.dst == -1L) {
             AssociationPoint opposAssocPt = assocPoints.get(assocPt.oppositePtUID);
             rectMap.get(opposAssocPt.rectUID).removeAssociationPoint(assocPt.oppositePtUID, assocPt.assocUID);
             assocPt.rectUID = -1L;
             currAction.reset();
         }
-        return uid;
+
+        return result;
     }
 
-    public void registerEvents(EventHandler<MouseEvent> evtCharacterReleased, EventHandler<MouseEvent> evtMouseClicked) {
+    public long onAssociationLabelReleased(MouseEvent e) {
+        if(currAction.type != ChartActionType.LABEL_EDIT_MOVE)
+            return -1L;
+
+        long result = currAction.src;
+        currAction.reset();
+
+        return result;
+    }
+
+    public void registerEvents(EventHandler<MouseEvent> evtCharacterReleased, EventHandler<MouseEvent> evtMouseClicked, EventHandler<MouseEvent> evtLabelReleased) {
         this.evtRectReleased = evtCharacterReleased;
+        this.evtLabelReleased = evtLabelReleased;
         pane.setOnMouseReleased(evtMouseClicked);
+
     }
 
     public Object[] getChartCharacterData(long uid) {
@@ -470,7 +550,7 @@ public class CharacterChart {
     }
 
     public Object[] getChartAssociationData(long uid) {
-        Object[] data = new Object[7];
+        Object[] data = new Object[9];
         AssociationLine assocLn = associations.get(uid);
         AssociationPoint startPt = assocPoints.get(assocLn.startPtUID);
         AssociationPoint endPt = assocPoints.get(assocLn.endPtUID);
@@ -481,6 +561,8 @@ public class CharacterChart {
         data[4] = endPt.x;
         data[5] = endPt.y;
         data[6] = assocLn.text.getText();
+        data[7] = assocLn.text.getX();
+        data[8] = assocLn.text.getY();
         return data;
     }
 
@@ -495,7 +577,7 @@ public class CharacterChart {
             return;
 
         contextMenu = new ContextMenu();
-        contextMenuItem = new MenuItem[4];
+        contextMenuItem = new MenuItem[7];
 
         //// Edit Character
         contextMenuItem[CONTEXT_MENU_ITEM_EDIT_CHAR] = new MenuItem("Edit Character");
@@ -516,6 +598,21 @@ public class CharacterChart {
         contextMenuItem[CONTEXT_MENU_ITEM_NEW_CHAR] = new MenuItem("New Character");
         contextMenuItem[CONTEXT_MENU_ITEM_NEW_CHAR].setId(MainView.ID_CHART_NEW_CHARACTER);
         contextMenuItem[CONTEXT_MENU_ITEM_NEW_CHAR].setOnAction(contextEventHandler);
+
+        //// Edit Association
+        contextMenuItem[CONTEXT_MENU_ITEM_EDIT_ASSOC] = new MenuItem("Edit Text");
+        contextMenuItem[CONTEXT_MENU_ITEM_EDIT_ASSOC].setId(MainView.ID_CHART_EDIT_ASSOCIATION);
+        contextMenuItem[CONTEXT_MENU_ITEM_EDIT_ASSOC].setOnAction(contextEventHandler);
+
+        //// Center text on line
+        contextMenuItem[CONTEXT_MENU_ITEM_CENTER_LABEL] = new MenuItem("Center Text on Association");
+        contextMenuItem[CONTEXT_MENU_ITEM_CENTER_LABEL].setId(MainView.ID_CHART_CENTER_ASSOCIATION_LABEL);
+        contextMenuItem[CONTEXT_MENU_ITEM_CENTER_LABEL].setOnAction(contextEventHandler);
+
+        //// Remove Association
+        contextMenuItem[CONTEXT_MENU_ITEM_REMOVE_ASSOC] = new MenuItem("Remove Association");
+        contextMenuItem[CONTEXT_MENU_ITEM_REMOVE_ASSOC].setId(MainView.ID_CHART_REMOVE_ASSOCIATION);
+        contextMenuItem[CONTEXT_MENU_ITEM_REMOVE_ASSOC].setOnAction(contextEventHandler);
 
         /////////////////////////////
 
@@ -562,10 +659,12 @@ public class CharacterChart {
     /********************* EVENT LAMBDAS ***********************/
 
     private EventHandler<MouseEvent> evtMouseMoved = e -> {
-        if(currAction.type != ChartActionType.ASSOCPT_EDIT_CLICKED)
-            return;
-
-        setAssociationPointPosition(currAction.src, e.getX(), e.getY());
+        if(currAction.type == ChartActionType.ASSOCPT_EDIT_CLICKED) {
+            setAssociationPointPosition(currAction.src, e.getX(), e.getY());
+        }
+        else if (currAction.type == ChartActionType.LABEL_EDIT_MOVE) {
+            setAssociationLabelPosition(currAction.src, e.getX(), e.getY());
+        }
     };
 
     private EventHandler<MouseEvent> evtAPMouseDragged = e -> {
@@ -660,6 +759,36 @@ public class CharacterChart {
         e.consume();
     };
 
+    private EventHandler<MouseEvent> evtLabelPressed = e -> {
+        if(currAction.type != ChartActionType.NONE)
+            return;
+
+        Text text = (Text) e.getSource();
+        Map.Entry<Long, AssociationLine> assoc = getAssociationByLabel(text);
+        if(assoc != null && e.getButton() == MouseButton.PRIMARY) {
+            currAction.type = ChartActionType.LABEL_EDIT_MOVE;
+            currAction.src = assoc.getKey();
+            currAction.x = e.getX() - text.getX();
+            currAction.y = e.getY() - text.getY();
+        }
+    };
+
+    private EventHandler<MouseEvent> evtLabelDragged = e -> {
+        if(currAction.type != ChartActionType.LABEL_EDIT_MOVE)
+            return;
+
+        if(currAction.src != -1L) {
+            double x = e.getX() - currAction.x;
+            double y = e.getY() - currAction.y;
+
+            // Snap to nearest 5
+            x = snapTo(x, 5);
+            y = snapTo(y, 5);
+
+            setAssociationLabelPosition(currAction.src, x, y);
+        }
+    };
+
     private EventHandler<ContextMenuEvent> evtContextRequest = e -> {
         if(currAction.type != ChartActionType.NONE) {
             e.consume();
@@ -674,14 +803,48 @@ public class CharacterChart {
             contextMenuItem[CONTEXT_MENU_ITEM_REMOVE_CHAR].setVisible(true);
             contextMenuItem[CONTEXT_MENU_ITEM_EDIT_CHAR].setVisible(true);
             contextMenuItem[CONTEXT_MENU_ITEM_NEW_ASSOC].setVisible(true);
+            contextMenuItem[CONTEXT_MENU_ITEM_EDIT_ASSOC].setVisible(false);
+            contextMenuItem[CONTEXT_MENU_ITEM_REMOVE_ASSOC].setVisible(false);
+            contextMenuItem[CONTEXT_MENU_ITEM_CENTER_LABEL].setVisible(false);
             contextMenu.show((Node)e.getSource(), e.getScreenX(), e.getScreenY());
             e.consume();
         }
-        else if (e.getSource() instanceof ScrollPane) {
+        else if (e.getSource() instanceof Circle) { // Association point
+            Long uid = getAssocPointByControl((Circle) e.getSource()).getValue().assocUID;
+            contextMenu.setUserData(uid);
+
+            contextMenuItem[CONTEXT_MENU_ITEM_NEW_CHAR].setVisible(false);
+            contextMenuItem[CONTEXT_MENU_ITEM_REMOVE_CHAR].setVisible(false);
+            contextMenuItem[CONTEXT_MENU_ITEM_EDIT_CHAR].setVisible(false);
+            contextMenuItem[CONTEXT_MENU_ITEM_NEW_ASSOC].setVisible(false);
+            contextMenuItem[CONTEXT_MENU_ITEM_EDIT_ASSOC].setVisible(true);
+            contextMenuItem[CONTEXT_MENU_ITEM_REMOVE_ASSOC].setVisible(true);
+            contextMenuItem[CONTEXT_MENU_ITEM_CENTER_LABEL].setVisible(false);
+            contextMenu.show((Node)e.getSource(), e.getScreenX(), e.getScreenY());
+            e.consume();
+        }
+        else if (e.getSource() instanceof Text) { // Association text/label
+            Map.Entry<Long, AssociationLine> assoc = getAssociationByLabel((Text) e.getSource());
+            contextMenu.setUserData(assoc.getKey());
+
+            contextMenuItem[CONTEXT_MENU_ITEM_NEW_CHAR].setVisible(false);
+            contextMenuItem[CONTEXT_MENU_ITEM_REMOVE_CHAR].setVisible(false);
+            contextMenuItem[CONTEXT_MENU_ITEM_EDIT_CHAR].setVisible(false);
+            contextMenuItem[CONTEXT_MENU_ITEM_NEW_ASSOC].setVisible(false);
+            contextMenuItem[CONTEXT_MENU_ITEM_EDIT_ASSOC].setVisible(true);
+            contextMenuItem[CONTEXT_MENU_ITEM_REMOVE_ASSOC].setVisible(true);
+            contextMenuItem[CONTEXT_MENU_ITEM_CENTER_LABEL].setVisible(true);
+            contextMenu.show((Node)e.getSource(), e.getScreenX(), e.getScreenY());
+            e.consume();
+        }
+        else if (e.getSource() instanceof ScrollPane) {  // Anywhere else in the character chart pane
             contextMenuItem[CONTEXT_MENU_ITEM_NEW_CHAR].setVisible(true);
             contextMenuItem[CONTEXT_MENU_ITEM_REMOVE_CHAR].setVisible(false);
             contextMenuItem[CONTEXT_MENU_ITEM_EDIT_CHAR].setVisible(false);
             contextMenuItem[CONTEXT_MENU_ITEM_NEW_ASSOC].setVisible(false);
+            contextMenuItem[CONTEXT_MENU_ITEM_EDIT_ASSOC].setVisible(false);
+            contextMenuItem[CONTEXT_MENU_ITEM_REMOVE_ASSOC].setVisible(false);
+            contextMenuItem[CONTEXT_MENU_ITEM_CENTER_LABEL].setVisible(false);
             e.consume();
         }
 
@@ -735,7 +898,8 @@ public class CharacterChart {
         NONE,
         ASSOCPT_EDIT_DRAGGED,
         ASSOCPT_EDIT_CLICKED,
-        RECT_EDIT_MOVE
+        RECT_EDIT_MOVE,
+        LABEL_EDIT_MOVE
     };
 
     private static class ChartAction {

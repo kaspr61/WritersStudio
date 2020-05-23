@@ -118,7 +118,12 @@
 
 .characterchart-assoclabel {
     -fx-text-fill: -color-text-primary;
-    -fx-font-size: 12pt;
+    -fx-font-size: 9pt;
+}
+
+.characterchart-assoclabel:hover {
+    -fx-text-fill: -color-text-primary;
+    -fx-font-size: 10pt;
 }
 
 .characterchart-line-control {

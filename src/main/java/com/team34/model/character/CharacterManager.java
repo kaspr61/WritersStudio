@@ -85,17 +85,15 @@ public class CharacterManager {
     public void deleteCharacter(long uid) {
         characterMap.remove(uid);
         UIDManager.removeUID(uid);
-
-        //TODO remove associations as well
     }
 
-    public long newAssociation(long sCharUID, long eCharUID, double sX, double sY, double eX, double eY) {
+    public long newAssociation(long sCharUID, long eCharUID, double sX, double sY, double eX, double eY, String label, double lblX, double lblY) {
         long uid = UIDManager.nextUID();
-        addAssociation(uid, sCharUID, eCharUID, sX, sY, eX, eY, "");
+        addAssociation(uid, sCharUID, eCharUID, sX, sY, eX, eY, label, lblX, lblY);
         return uid;
     }
 
-    public void addAssociation(long uid, long sCharUID, long eCharUID, double sX, double sY, double eX, double eY, String label) {
+    public void addAssociation(long uid, long sCharUID, long eCharUID, double sX, double sY, double eX, double eY, String label, double lblX, double lblY) {
         Association assoc = new Association();
         assoc.startCharacterUID = sCharUID;
         assoc.endCharacterUID = eCharUID;
@@ -104,11 +102,13 @@ public class CharacterManager {
         assoc.endX = eX;
         assoc.endY = eY;
         assoc.label = label;
+        assoc.labelX = lblX;
+        assoc.labelY = lblY;
 
         associationMap.put(uid, assoc);
     }
 
-    public boolean editAssociation(long uid, long sCharUID, long eCharUID, double sX, double sY, double eX, double eY, String label) {
+    public boolean editAssociation(long uid, long sCharUID, long eCharUID, double sX, double sY, double eX, double eY, String label, double lblX, double lblY) {
         if (associationMap.containsKey(uid)) {
             Association assoc = new Association();
             assoc.startCharacterUID = sCharUID;
@@ -118,6 +118,8 @@ public class CharacterManager {
             assoc.endX = eX;
             assoc.endY = eY;
             assoc.label = label;
+            assoc.labelX = lblX;
+            assoc.labelY = lblY;
 
             associationMap.replace(uid, assoc);
             return true;
@@ -164,11 +166,32 @@ public class CharacterManager {
         return data;
     }
 
+    /**
+     * Returns a String array of individual character name and description.
+     * @param uid Character UID.
+     * @return String[]
+     */
+    public Object[] getAssociationData(long uid) {
+        Object[] data = new Object[9];
+        Association assoc = associationMap.get(uid);
+        data[0] = assoc.startCharacterUID;
+        data[1] = assoc.endCharacterUID;
+        data[2] = assoc.startX;
+        data[3] = assoc.startY;
+        data[4] = assoc.endX;
+        data[5] = assoc.endY;
+        data[6] = assoc.label;
+        data[7] = assoc.labelX;
+        data[8] = assoc.labelY;
+
+        return data;
+    }
+
     public Object[][] getAssociationData() {
         if(associationMap.size() < 1)
             return null;
 
-        Object[][] array = new Object[associationMap.size()][8];
+        Object[][] array = new Object[associationMap.size()][10];
         Iterator<Map.Entry<Long, Association>> it = associationMap.entrySet().iterator();
 
         int i = 0;
@@ -183,6 +206,8 @@ public class CharacterManager {
             array[i][5] = assoc.endX;
             array[i][6] = assoc.endY;
             array[i][7] = assoc.label;
+            array[i][8] = assoc.labelX;
+            array[i][9] = assoc.labelY;
             i++;
         }
 

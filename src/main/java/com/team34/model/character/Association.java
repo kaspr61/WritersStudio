@@ -1,13 +1,15 @@
 package com.team34.model.character;
 
 class Association {
-    public long startCharacterUID; // UID to which character the starting point is attached to.
-    public long endCharacterUID; // UID to which character the ending point is attached to.
-    public double startX;
-    public double startY;
-    public double endX;
-    public double endY;
-    public String label;
+    long startCharacterUID; // UID to which character the starting point is attached to.
+    long endCharacterUID; // UID to which character the ending point is attached to.
+    double startX;
+    double startY;
+    double endX;
+    double endY;
+    String label;
+    double labelX;
+    double labelY;
 
     Association() {
         startCharacterUID = -1L;
@@ -17,5 +19,7 @@ class Association {
         endX = 0.0;
         endY = 0.0;
         label = "";
+        labelX = 0.0;
+        labelY = 0.0;
     }
 }

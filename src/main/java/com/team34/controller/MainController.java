@@ -6,7 +6,6 @@ import javafx.scene.Node;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.MenuItem;
 import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseDragEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.FileChooser;
 import javafx.stage.WindowEvent;
@@ -18,6 +17,7 @@ import java.nio.file.Paths;
 
 import com.team34.view.dialogs.EditCharacterDialog;
 import com.team34.view.dialogs.EditEventDialog;
+import com.team34.view.dialogs.EditAssociationDialog;
 import com.team34.model.Project;
 import com.team34.view.MainView;
 
@@ -68,7 +68,11 @@ public class MainController {
         view.registerContextMenuEvents(evtContextMenuAction);
         view.registerCloseRequestEvent(evtCloseRequest);
         view.registerMenuBarActionEvents(evtMenuBarAction);
-        view.registerCharacterChartEvents(new EventCharacterRectReleased(), new EventChartClick());
+        view.registerCharacterChartEvents(
+                new EventCharacterRectReleased(),
+                new EventChartClick(),
+                new EventAssociationLabelReleased()
+        );
     }
 
     /**
@@ -271,6 +275,8 @@ public class MainController {
             if (newCharacterUID == -1L) {
                 // TODO Popup warning dialog, stating that either name or description has unsupported format
             }
+
+            refreshTitleBar();
         }
     }
 
@@ -295,6 +301,8 @@ public class MainController {
             if (!success) {
                 // TODO Popup warning dialog, stating that either name or description has unsupported format
             }
+
+            refreshTitleBar();
         }
     }
 
@@ -311,18 +319,60 @@ public class MainController {
         }
 
         model.characterManager.deleteCharacter(uid);
+        refreshTitleBar();
+    }
+
+    private void deleteAssociation(long uid) {
+        if(uid == -1L)
+            return;
+
+        model.characterManager.deleteAssociation(uid);
+        refreshTitleBar();
     }
 
     private void createAssociation(long startingCharacterUID) {
-        double startX = view.getLastChartMouseClickX();
-        double startY = view.getLastChartMouseClickY();
-        Double[] startPos = view.snapToNearestCharacterEdge(startingCharacterUID, startX, startY);
-        long assocUID = model.characterManager.newAssociation(
-                startingCharacterUID, -1L, startPos[0], startPos[1], startX, startY
-        );
+        EditAssociationDialog editAssocDlg = view.getEditAssociationDialog();
 
-        view.updateCharacterList(model.characterManager.getCharacterList(), model.characterManager.getAssociationData());
-        view.startCharacterAssociationDrag(assocUID, false);
+        if (editAssocDlg.showEditAssociation("")
+                == EditAssociationDialog.WindowResult.OK
+        ) {
+            double startX = view.getLastChartMouseClickX();
+            double startY = view.getLastChartMouseClickY();
+            Double[] startPos = view.snapToNearestCharacterEdge(startingCharacterUID, startX, startY);
+
+            long assocUID = model.characterManager.newAssociation(
+                    startingCharacterUID, -1L, startPos[0], startPos[1], startX, startY,
+                    view.getEditAssociationDialog().getAssociationLabel(), startX, startY
+            );
+
+            view.updateCharacterList(model.characterManager.getCharacterList(), model.characterManager.getAssociationData());
+            view.startCharacterAssociationDrag(assocUID, false);
+            refreshTitleBar();
+        }
+    }
+
+    /**
+     * Opens an {@link EditAssociationDialog}, then edits the association if not canceled.
+     * The edit association dialog will block until the dialog is closed.
+     * When the dialog has been closed, the model is instructed to change
+     * the association to the text specified in the edit event dialog.
+     */
+    private void editAssociation(long uid) {
+        Object[] assocData = model.characterManager.getAssociationData(uid);
+        EditAssociationDialog editAssocDlg = view.getEditAssociationDialog();
+
+        if (editAssocDlg.showEditAssociation((String) assocData[6])
+                == EditAssociationDialog.WindowResult.OK
+        ) {
+            model.characterManager.editAssociation(uid,
+                    (Long) assocData[0], (Long) assocData[1],
+                    (Double) assocData[2], (Double) assocData[3], (Double) assocData[4], (Double) assocData[5],
+                    editAssocDlg.getAssociationLabel(), (Double) assocData[7], (Double) assocData[8]
+            );
+
+            refreshCharacterList();
+        }
+        refreshTitleBar();
     }
 
     /**
@@ -336,6 +386,15 @@ public class MainController {
                 model.characterManager.getAssociationData()
         );
 
+    }
+
+    private void updateModelAssociationWithView(long assocUID) {
+        Object[] data = view.getChartAssociationData(assocUID);
+        model.characterManager.editAssociation(
+                assocUID, (Long) data[0], (Long) data[1],
+                (Double) data[2], (Double) data[3], (Double) data[4], (Double) data[5],
+                (String) data[6], (Double) data[7], (Double) data[8]
+        );
     }
 
     ////// ALL EVENTS ARE LISTED HERE //////////////////////////////////////////////
@@ -458,6 +517,28 @@ public class MainController {
                     createAssociation(sourceUID);
                     break;
 
+                case MainView.ID_CHART_EDIT_ASSOCIATION:
+                    if (view.getChartContextMenu().getUserData() instanceof Long) {
+                        sourceUID = (Long) view.getChartContextMenu().getUserData();
+                        editAssociation(sourceUID);
+                    }
+                    break;
+
+                case MainView.ID_CHART_REMOVE_ASSOCIATION:
+                    if (view.getChartContextMenu().getUserData() instanceof Long)
+                        sourceUID = (Long) view.getChartContextMenu().getUserData();
+                    deleteAssociation(sourceUID);
+                    refreshCharacterList();
+                    break;
+
+                case MainView.ID_CHART_CENTER_ASSOCIATION_LABEL:
+                    if (view.getChartContextMenu().getUserData() instanceof Long)
+                        sourceUID = (Long) view.getChartContextMenu().getUserData();
+                    view.characterChart.centerAssociationLabel(sourceUID);
+                    updateModelAssociationWithView(sourceUID);
+                    refreshTitleBar();
+                    break;
+
                 default:
                     System.out.println("Unrecognized ID: " + sourceID);
                     break;
@@ -553,27 +634,15 @@ public class MainController {
                         (Double) characterData[0],
                         (Double) characterData[1]
                 );
-                //TODO Also save all associated associations.
                 Long[] associations = view.characterChart.getAssociationsByCharacter((Long) result[0]);
                 if(associations != null) {
-                    Object[] data;
                     for (int i = 0; i < associations.length; i++) {
-                        data = view.getChartAssociationData(associations[i]);
-                        model.characterManager.editAssociation(
-                                associations[i], (Long) data[0], (Long) data[1],
-                                (Double) data[2], (Double) data[3], (Double) data[4], (Double) data[5],
-                                (String) data[6]
-                        );
+                        updateModelAssociationWithView(associations[i]);
                     }
                 }
             }
             else { // An association was attached to the character block
-                Object[] data = view.getChartAssociationData((Long) result[0]);
-                model.characterManager.editAssociation(
-                        (Long) result[0], (Long) data[0], (Long) data[1],
-                        (Double) data[2], (Double) data[3], (Double) data[4], (Double) data[5],
-                        (String) data[6]
-                );
+                updateModelAssociationWithView((Long) result[0]);
             }
 
         }
@@ -582,12 +651,23 @@ public class MainController {
     private class EventChartClick implements EventHandler<MouseEvent> {
         @Override
         public void handle(MouseEvent e) {
-            long currAssocUID = view.onCharacterChartClick(e);
-            if(currAssocUID != -1L) { // Should remove association
-                model.characterManager.deleteAssociation(currAssocUID);
-                refreshCharacterList();
+            long assocUID = view.onCharacterChartClick(e);
+            if(assocUID != -1L) { // Should remove association
+                    model.characterManager.deleteAssociation(assocUID);
+                    refreshCharacterList();
+            }
+        }
+    }
+
+    private class EventAssociationLabelReleased implements EventHandler<MouseEvent> {
+        @Override
+        public void handle(MouseEvent e) {
+            long assocUID = view.onAssociationLabelReleased(e);
+            if(assocUID != -1L) {
+                updateModelAssociationWithView(assocUID);
             }
 
         }
     }
+
 }

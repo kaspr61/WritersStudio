@@ -1,6 +1,5 @@
 package com.team34.view;
 
-import com.team34.view.characterchart.CharacterChart;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
@@ -21,7 +20,9 @@ import com.team34.view.character.CharacterList;
 import com.team34.view.event.EventList;
 import com.team34.view.dialogs.EditEventDialog;
 import com.team34.view.dialogs.EditCharacterDialog;
+import com.team34.view.dialogs.EditAssociationDialog;
 import com.team34.view.timeline.Timeline;
+import com.team34.view.characterchart.CharacterChart;
 
 /**
  * This class represents the top layer of the view.
@@ -59,6 +60,9 @@ public class MainView {
     public static final String ID_CHART_EDIT_CHARACTER = "CHART_EDIT_CHARACTER";
     public static final String ID_CHART_REMOVE_CHARACTER = "CHART_REMOVE_CHARACTER";
     public static final String ID_CHART_NEW_CHARACTER = "CHART_NEW_CHARACTER";
+    public static final String ID_CHART_EDIT_ASSOCIATION = "CHART_EDIT_ASSOCIATION";
+    public static final String ID_CHART_REMOVE_ASSOCIATION = "CHART_REMOVE_ASSOCIATION";
+    public static final String ID_CHART_CENTER_ASSOCIATION_LABEL = "CHART_CENTER_ASSOCIATION_LABEL";
 
     //// PANES /////////////////////////////////////////
 
@@ -84,6 +88,7 @@ public class MainView {
     private Timeline timeline;
     private EditEventDialog editEventDialog;
     private EditCharacterDialog editCharacterPanel;
+    private EditAssociationDialog editAssociationDialog;
     private int eventOrderList; // index to specify which order list to use
     private double lastChartMouseClickX;
     private double lastChartMouseClickY;
@@ -186,6 +191,9 @@ public class MainView {
 
         // Create character dialog
         editCharacterPanel = new EditCharacterDialog(mainStage);
+
+        // Create association dialog
+        editAssociationDialog = new EditAssociationDialog(mainStage);
     }
 
     /**
@@ -230,6 +238,15 @@ public class MainView {
      */
     public EditEventDialog getEditEventDialog() {
         return editEventDialog;
+    }
+
+    /**
+     * Returns a reference to the {@link EditAssociationDialog}, to be accessed directly
+     * from {@link com.team34.controller.MainController}.
+     * @return the edit association dialog.
+     */
+    public EditAssociationDialog getEditAssociationDialog() {
+        return editAssociationDialog;
     }
 
     public double getLastChartMouseClickX() {
@@ -385,8 +402,14 @@ public class MainView {
         return characterChart.onClick(e);
     }
 
-    public void registerCharacterChartEvents(EventHandler<MouseEvent> evtCharacterReleased, EventHandler<MouseEvent> evtMouseClicked) {
-        characterChart.registerEvents(evtCharacterReleased, evtMouseClicked);
+    public long onAssociationLabelReleased(MouseEvent e) {
+        return characterChart.onAssociationLabelReleased(e);
+    }
+
+    public void registerCharacterChartEvents(EventHandler<MouseEvent> evtCharacterReleased,
+                                             EventHandler<MouseEvent> evtMouseClicked,
+                                             EventHandler<MouseEvent> evtLabelReleased) {
+        characterChart.registerEvents(evtCharacterReleased, evtMouseClicked, evtLabelReleased);
     }
 
     public Object[] getChartCharacterData(long uid) {
