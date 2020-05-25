@@ -1,6 +1,7 @@
 package com.team34.model.event;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 
@@ -183,13 +184,83 @@ public class EventManager {
         );
     }
 
+    /**
+     * Returns the index of a given event in a given event order list, else returns -1.
+     *
+     * @author Jim Andersson
+     * @param uid event
+     * @return event index
+     */
+    public int getEventIndex(int eventOrderList, long uid) {
+        Long[] events = getEventOrder(eventOrderList);
+
+        for (int i = 0; i < events.length; i++) {
+            if (events[i].equals(uid))
+                    return i;
+        }
+        return -1;
+    }
+
+    /**
+     * Swap the place of two events on the timeline.
+     *
+     * @author Jim Andersson
+     * @param orderList The order list on which the two events appear.
+     * @param index1 index of event on the list
+     * @param index2 index of event on the list
+     */
     public void swapEvent(int orderList, int index1, int index2) {
         //TODO swap places between two events in the specified order list.
+        Long[] order = getEventOrder(orderList);
+
+        Long temp = order[index2];
+        order[index2] = order[index1];
+        order[index1] = temp;
+
+        for (int i = 0; i < eventOrderLists.get(orderList).size(); i++) {
+            eventOrderLists.get(orderList).set(i, order[i]);
+        }
         hasChanged = true;
     }
 
+    /**
+     * Move event from one spot on the timeline to another.
+     *
+     * @author Jim Andersson
+     * @param orderList The event list on which the given event appears
+     * @param fromIndex The dragged event which has been selected through MouseEvent
+     *                  (see {@link com.team34.view.timeline.Timeline})
+     * @param toIndex The event on which the dragged event is released
+     */
     public void moveEvent(int orderList, int fromIndex, int toIndex) {
         // TODO move to (insert at) specified location.
+
+        Long[] order = getEventOrder(orderList);
+
+
+        // When the event is moved in the right direction on the timeline,
+        // the events inside the scope of the loop are shifted to the left.
+        if (fromIndex < toIndex) {
+            for (int i = fromIndex; i < toIndex; i++) {
+                Long temp = order[i];
+                order[i] = order[i+1];
+                order[i+1] = temp;
+            }
+        }
+
+        // When the event is moved in the left direction on the timeline,
+        // the events inside the scope of the loop are shifted to the right.
+        if (toIndex < fromIndex) {
+            for (int i = fromIndex; i > toIndex; i--) {
+                Long temp = order[i];
+                order[i] = order[i - 1];
+                order[i - 1] = temp;
+            }
+        }
+
+        for (int i = 0; i < eventOrderLists.get(orderList).size(); i++) {
+            eventOrderLists.get(orderList).set(i, order[i]);
+        }
         hasChanged = true;
     }
 

@@ -6,9 +6,11 @@ import javafx.geometry.Orientation;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.DragEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
@@ -324,6 +326,14 @@ public class MainView {
     }
 
     /**
+     * @author Jim Andersson
+     * @param dragEventHandler
+     */
+    public void registerDragEvent(EventHandler<DragEvent> dragEventHandler) {
+        timeline.registerEventHandlers(dragEventHandler);
+    }
+
+    /**
      * Refreshes the GUI concerned with events with the given data.
      * See {@link EventManager#getEvents()} on how the data is formatted.
      * @param events a 2-dimensional array containing all data on every event
@@ -426,6 +436,10 @@ public class MainView {
 
     public double snapTo(double value, int snapInterval) {
         return characterChart.snapTo(value, snapInterval);
+    }
+
+    public long getEventUidByRectangle(Rectangle rect) {
+        return timeline.getEventUIDByRectangle(rect);
     }
 
 }

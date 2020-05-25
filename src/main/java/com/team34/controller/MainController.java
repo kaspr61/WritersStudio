@@ -7,6 +7,8 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.MenuItem;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.DragEvent;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.FileChooser;
 import javafx.stage.WindowEvent;
 import javax.xml.stream.XMLStreamException;
@@ -39,6 +41,7 @@ public class MainController {
     private final EventHandler<ActionEvent> evtContextMenuAction;
     private final EventHandler<WindowEvent> evtCloseRequest;
     private final EventHandler<ActionEvent> evtMenuBarAction;
+    private final EventHandler<DragEvent> evtDragDropped;
 
     /**
      * Constructs the controller. Initializes member variables
@@ -55,6 +58,7 @@ public class MainController {
         this.evtContextMenuAction = new EventContextMenuAction();
         this.evtCloseRequest = new EventCloseRequest();
         this.evtMenuBarAction = new EventMenuBarAction();
+        this.evtDragDropped = new EventDragDropped();
 
         registerEventsOnView();
     }
@@ -68,6 +72,7 @@ public class MainController {
         view.registerContextMenuEvents(evtContextMenuAction);
         view.registerCloseRequestEvent(evtCloseRequest);
         view.registerMenuBarActionEvents(evtMenuBarAction);
+        view.registerDragEvent(evtDragDropped);
         view.registerCharacterChartEvents(
                 new EventCharacterRectReleased(),
                 new EventChartClick(),
@@ -666,11 +671,34 @@ public class MainController {
         @Override
         public void handle(MouseEvent e) {
             long assocUID = view.onAssociationLabelReleased(e);
-            if(assocUID != -1L) {
+            if (assocUID != -1L) {
                 updateModelAssociationWithView(assocUID);
                 refreshTitleBar();
             }
+        }
+    }
 
+    /**
+     * Fires when an event is dragged and dropped onto another event on the timeline.
+     *
+     * @author Jim Andersson
+     */
+    private class EventDragDropped implements EventHandler<DragEvent> {
+
+        @Override
+        public void handle(DragEvent dragEvent) {
+            Rectangle rect = (Rectangle)dragEvent.getSource();
+
+            long uidDragged = Long.parseLong(dragEvent.getDragboard().getString());
+            long uidTarget = view.getEventUidByRectangle(rect);
+
+            int dragged = model.eventManager.getEventIndex(view.getEventOrderList(), uidDragged);
+            int target = model.eventManager.getEventIndex(view.getEventOrderList(), uidTarget);
+
+            if (dragged != -1 && target != -1 ) {
+                model.eventManager.moveEvent(view.getEventOrderList(), dragged, target);
+                refreshViewEvents();
+            }
         }
     }
 

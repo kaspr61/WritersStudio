@@ -6,7 +6,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.input.ContextMenuEvent;
+import javafx.scene.input.*;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Rectangle;
 
@@ -35,17 +35,18 @@ import java.util.Map;
  * <code style=display:block;white-space:pre-wrap>
  * VBox vBox = new vBox();
  * Timeline timeline = new Timeline(300.0);
- *
+ * <p>
  * timeline.addEvent(0L, "Event A");
  * timeline.addEvent(1L, "Event B");
  * timeline.addEvent(2L, "Event C");
  * timeline.addEvent(3L, "Event D");
- *
+ * <p>
  * timeline.addToPane(vBox);
- *
+ * <p>
  * Long[] eventOrder = {2L,1L,3L,0L};
  * timeline.recalculateLayout(eventOrder);
  * </code>
+ *
  * @author Kasper S. Skott
  */
 public class Timeline {
@@ -69,12 +70,14 @@ public class Timeline {
 
     private EventHandler<ContextMenuEvent> evtShowContextEvent; // Fires when an event is right-clicked
     private EventHandler<ContextMenuEvent> evtShowContextPane; // Fires when the pane is right-clicked
+    private EventHandler<DragEvent> evtDragDropped;
 
     private HashMap<Long, LabeledRectangle> eventRectMap; // Stores references to LabeledRectangles by their eventUID.
     private Long[] eventUIDOrder; // This is a reference to the order of the events.
 
     /**
      * Creates a new instance of Timeline with the given minimum width in pixels.
+     *
      * @param minWidth the minimum width in pixels
      */
     public Timeline(double minWidth) {
@@ -112,14 +115,15 @@ public class Timeline {
      * This does not correctly set the layout of the associated rectangle.
      * To correctly display the events, {@link Timeline#recalculateLayout()} must be
      * called after all events have been added.
+     *
      * @param eventUID the unique ID, associated with the event throughout the project
-     * @param label the text that is to be displayed within the rectangle
-     * @param width the width of the rectangle. Set to 0.0 to use default
+     * @param label    the text that is to be displayed within the rectangle
+     * @param width    the width of the rectangle. Set to 0.0 to use default
      */
     public void addEvent(long eventUID, String label, double width) {
         LabeledRectangle existingRect = eventRectMap.get(eventUID);
 
-        if(existingRect != null) { // If the event is getting overwritten, remove the old shapes first.
+        if (existingRect != null) { // If the event is getting overwritten, remove the old shapes first.
             pane.getChildren().removeAll(existingRect.getRect(), existingRect.getText());
             existingRect.getRect().setOnContextMenuRequested(null);
             Tooltip.uninstall(existingRect.getRect(), existingRect.getTooltip());
@@ -133,6 +137,34 @@ public class Timeline {
         pane.getChildren().add(rect.getText());
 
         rect.getRect().setOnContextMenuRequested(evtShowContextEvent);
+        rect.getRect().setOnDragDetected(new EventHandler<MouseEvent>() {
+            @Override
+
+            //Gets UID of selected event and puts it onto the ClipBoard 
+            public void handle(MouseEvent mouseEvent) {
+                getEventUIDByRectangle(rect.getRect());
+
+                Dragboard db = rect.getRect().startDragAndDrop(TransferMode.ANY);
+                ClipboardContent content = new ClipboardContent();
+                content.putString(Long.toString(getEventUIDByRectangle(rect.getRect())));
+                db.setContent(content);
+
+                mouseEvent.consume();
+            }
+        });
+        rect.getRect().setOnDragOver(new EventHandler<DragEvent>() {
+            @Override
+
+            // Prepares target event to accept the dropped event
+            public void handle(DragEvent dragEvent) {
+                if (dragEvent.getDragboard().hasString()) {
+                    dragEvent.acceptTransferModes(TransferMode.ANY);
+                }
+                dragEvent.consume();
+            }
+        });
+
+        rect.getRect().setOnDragDropped(evtDragDropped);
 
         Tooltip.install(rect.getRect(), rect.getTooltip());
     }
@@ -140,8 +172,9 @@ public class Timeline {
     /**
      * Adds an event to be shown in the timeline, with the default width.
      * See {@link Timeline#addEvent(long, String, double)} for details.
+     *
      * @param eventUID the unique ID, associated with the event throughout the project
-     * @param label the text that is to be displayed within the rectangle
+     * @param label    the text that is to be displayed within the rectangle
      */
     public void addEvent(long eventUID, String label) {
         addEvent(eventUID, label, 0.0);
@@ -173,7 +206,7 @@ public class Timeline {
         // Find LabeledRectangle that contains the input rectangle and return its associated UID
         while (it.hasNext()) {
             pair = it.next();
-            if(pair.getValue().getRect().equals(rectangle)) {
+            if (pair.getValue().getRect().equals(rectangle)) {
                 return pair.getKey();
             }
         }
@@ -181,8 +214,13 @@ public class Timeline {
         return -1L;
     }
 
+    public long getEventUIDByRectangle(LabeledRectangle rect) {
+        return getEventUIDByRectangle(rect.getRect());
+    }
+
     /**
      * Adds the internal {@link javafx.scene.layout.Pane} as a child to the given Pane.
+     *
      * @param parentPane the Pane to which the internal Pane is to be added
      */
     public void addToPane(Pane parentPane) {
@@ -193,6 +231,7 @@ public class Timeline {
      * Sets the order of which the events are displayed in the timeline.
      * This order is stored for use when recalculating the layout. This method also gets called
      * in {@link Timeline#recalculateLayout(Long[])}.
+     *
      * @param eventUIDs the array of eventUIDs, in the order that they are to be displayed
      */
     public void setEventOrder(Long[] eventUIDs) {
@@ -205,10 +244,11 @@ public class Timeline {
      * If events have been added that would overflow the current width of the timeline,
      * it will be resized to fit the current events. However, if events have been removed,
      * the timeline will never shrink to less than the minimum width, specified in the constructor.
+     *
      * @param eventUIDs the array of eventUIDs, in the order that they are to be displayed
      */
     public void recalculateLayout(Long[] eventUIDs) {
-        if(eventUIDs != null)
+        if (eventUIDs != null)
             setEventOrder(eventUIDs);
 
         // Recalculate position
@@ -219,7 +259,7 @@ public class Timeline {
         double y = posY - LabeledRectangle.DEFAULT_HEIGHT / 2.0;
         double nextX = posX + LAYOUT_SPACING;
 
-        if(eventUIDOrder != null) {
+        if (eventUIDOrder != null) {
             for (int i = 0; i < eventUIDOrder.length; i++) {
                 LabeledRectangle rect = eventRectMap.get(eventUIDOrder[i]);
                 if (rect == null)
@@ -234,7 +274,7 @@ public class Timeline {
 
         // Adjust timeline length (width) if necessary
         nextX += LAYOUT_SPACING; // end should have more space
-        if(nextX - posX > minWidth)
+        if (nextX - posX > minWidth)
             width = nextX - posX;
         else
             width = minWidth;
@@ -264,10 +304,11 @@ public class Timeline {
      * Constructs the context menu and hooks up the event to be fired when clicking menu items.
      * <p>
      * Should only be called once.
+     *
      * @param contextEventHandler the event to fire when clicking the menu items
      */
     public void installContextMenu(EventHandler<ActionEvent> contextEventHandler) {
-        if(contextMenu != null)
+        if (contextMenu != null)
             return;
 
         contextMenu = new ContextMenu();
@@ -296,10 +337,15 @@ public class Timeline {
 
     /**
      * Returns a reference to the context menu.
+     *
      * @return a reference to the context menu
      */
     public ContextMenu getContextMenu() {
         return contextMenu;
+    }
+
+    public void registerEventHandlers(EventHandler<DragEvent> dragEventEventHandler) {
+        this.evtDragDropped = dragEventEventHandler;
     }
 
     ////// EVENTS ////////////////////////////////////////////////////////////
@@ -324,15 +370,16 @@ public class Timeline {
         @Override
         public void handle(ContextMenuEvent e) {
             Long uid = getEventUIDByRectangle((Rectangle) e.getSource());
-            if(uid == -1)
+            if (uid == -1)
                 return;
 
             contextMenu.setUserData(uid);
             contextMenuItem[CONTEXT_MENU_ITEM_EDIT].setVisible(true);
             contextMenuItem[CONTEXT_MENU_ITEM_REMOVE].setVisible(true);
-            contextMenu.show((Node)e.getSource(), e.getScreenX(), e.getScreenY());
+            contextMenu.show((Node) e.getSource(), e.getScreenX(), e.getScreenY());
             e.consume();
         }
     }
+
 
 }
