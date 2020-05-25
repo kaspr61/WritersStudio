@@ -15,6 +15,8 @@ import javafx.stage.WindowEvent;
  */
 public class MenuBar extends javafx.scene.control.MenuBar {
 
+    private MenuItem editAddCharacter;
+    private MenuItem editAddEvent;
     private MenuItem fileNew;
     private MenuItem fileOpen;
     private MenuItem fileSave;
@@ -50,19 +52,25 @@ public class MenuBar extends javafx.scene.control.MenuBar {
         fileExit.setId(MainView.ID_MENU_EXIT);
 
         Menu menuEdit = new Menu("Edit");
-        Menu subMenu3 = new Menu("Temp 3");
-        MenuItem menuItem31 = new MenuItem("Temp 3.1");
-        MenuItem menuItem32 = new MenuItem("Temp 3.2");
-        MenuItem menuItem4 = new MenuItem("Temp 4");
+        Menu editSubMenu = new Menu("New");
+
+        editAddCharacter = new MenuItem("Character");
+        editAddCharacter.setId(MainView.ID_MENU_ADD_CHARACTER);
+        editAddCharacter.setAccelerator(new KeyCodeCombination(
+                KeyCode.C, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
+
+        editAddEvent = new MenuItem("Event");
+        editAddEvent.setId(MainView.ID_MENU_ADD_EVENT);
+        editAddEvent.setAccelerator(new KeyCodeCombination(
+                KeyCode.E, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
 
         getMenus().add(menuFile);
         menuFile.getItems().addAll(fileNew, fileOpen, fileSave, fileSaveAs, fileExit);
 
         getMenus().add(menuEdit);
-        menuEdit.getItems().add(subMenu3);
-        subMenu3.getItems().add(menuItem31);
-        subMenu3.getItems().add(menuItem32);
-        menuEdit.getItems().add(menuItem4);
+        menuEdit.getItems().add(editSubMenu);
+        editSubMenu.getItems().add(editAddCharacter);
+        editSubMenu.getItems().add(editAddEvent);
 
     }
 
@@ -76,6 +84,8 @@ public class MenuBar extends javafx.scene.control.MenuBar {
         fileSave.setOnAction(menuActionHandler);
         fileSaveAs.setOnAction(menuActionHandler);
         fileExit.setOnAction(menuActionHandler);
+        editAddCharacter.setOnAction(menuActionHandler);
+        editAddEvent.setOnAction(menuActionHandler);
     }
 
 }

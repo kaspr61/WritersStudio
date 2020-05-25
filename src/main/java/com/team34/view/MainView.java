@@ -57,6 +57,8 @@ public class MainView {
     public static final String ID_MENU_SAVE = "MENU_SAVE";
     public static final String ID_MENU_SAVE_AS = "MENU_SAVE_AS";
     public static final String ID_MENU_EXIT = "MENU_EXIT";
+    public static final String ID_MENU_ADD_CHARACTER = "MENU_ADD_CHARACTER";
+    public static final String ID_MENU_ADD_EVENT = "MENU_ADD_EVENT";
 
     public static final String ID_CHART_NEW_ASSOCIATION = "CHART_NEW_ASSOCIATION";
     public static final String ID_CHART_EDIT_CHARACTER = "CHART_EDIT_CHARACTER";
