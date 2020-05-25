@@ -1,6 +1,5 @@
 package com.team34.view;
 
-import com.team34.view.timeline.Timeline;
 import javafx.geometry.Bounds;
 import javafx.geometry.VPos;
 import javafx.scene.control.Tooltip;

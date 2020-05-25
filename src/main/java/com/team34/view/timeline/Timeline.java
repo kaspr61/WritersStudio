@@ -1,7 +1,5 @@
 package com.team34.view.timeline;
 
-import com.team34.view.LabeledRectangle;
-import com.team34.view.MainView;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
@@ -13,6 +11,9 @@ import javafx.scene.shape.Rectangle;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
+import com.team34.view.LabeledRectangle;
+import com.team34.view.MainView;
 
 /**
  * Timeline is the main com.team34.view class of the timeline feature.

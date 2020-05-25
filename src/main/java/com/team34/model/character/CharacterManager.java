@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
 import com.team34.model.UIDManager;
 import com.team34.view.character.CharacterListObject;
-
 
 /**
  * Manages the characters in the application. All character objects are stored as values in a HashMap and can be

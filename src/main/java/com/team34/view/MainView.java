@@ -362,7 +362,7 @@ public class MainView {
 
         timeline.recalculateLayout();
 
-        leftPane.updateListView(events);
+        leftPane.updateListView(events, eventOrder);
     }
 
     /**

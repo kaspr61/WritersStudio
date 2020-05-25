@@ -15,6 +15,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import java.util.ArrayList;
+import java.util.Comparator;
 
 import com.team34.view.MainView;
 
@@ -27,7 +28,7 @@ import com.team34.view.MainView;
  */
 public class CharacterList extends StackPane {
 
-    private static int ICON_SIZE = 40;
+    private static int ICON_SIZE = 30;
 
     private ArrayList<CharacterListObject> chListObjArray;
     private ListView<CharacterListObject> list;
@@ -153,10 +154,9 @@ public class CharacterList extends StackPane {
             CharacterListObject chObj = new CharacterListObject((String)ch[0], (long)ch[1]);
             chListObjArray.add(chObj);
         }
-        ObservableList<CharacterListObject> ol = FXCollections.observableArrayList();
-        ol.addAll(chListObjArray);
-        SortedList sl = new SortedList(ol); //Sorts list alphabetically
-        list.setItems(sl.sorted());
+        ObservableList<CharacterListObject> ol = FXCollections.observableArrayList(chListObjArray);
+        FXCollections.sort(ol, Comparator.comparing(CharacterListObject::getName));
+        list.setItems(ol);
     }
 
     /**

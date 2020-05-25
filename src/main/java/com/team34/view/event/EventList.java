@@ -1,7 +1,5 @@
 package com.team34.view.event;
 
-import com.team34.model.event.EventListObject;
-import com.team34.view.MainView;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -15,6 +13,8 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 
+import com.team34.model.event.EventListObject;
+import com.team34.view.MainView;
 
 public class EventList extends StackPane {
 
@@ -133,15 +133,25 @@ public class EventList extends StackPane {
         delete.setId(MainView.ID_BTN_EVENT_DELETE);
     }
 
-    public void updateListView(Object[][] events) {
+    public void updateListView(Object[][] events, Long[] order) {
         if (events == null || events.length < 1){
             list.getItems().clear();
             return;
         }
+
         ObservableList<EventListObject> ol = FXCollections.observableArrayList();
-        for(int i = 0; i < events.length; i++){
-            ol.add(new EventListObject((String) events[i][1], (Long) events[i][0]));
-        }list.setItems(ol);
+        Object[] event = null;
+        for(int i = 0; i < order.length; i++) {
+            for(int j = 0; j < events.length; j++) {
+                if(((Long) events[j][0]).equals(order[i]))
+                    event = events[j];
+            }
+
+            ol.add(new EventListObject((String) event[1], (Long) event[0]));
+            event = null;
+        }
+
+        list.setItems(ol);
     }
 
     /**
