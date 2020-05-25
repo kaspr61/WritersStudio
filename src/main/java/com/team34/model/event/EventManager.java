@@ -233,7 +233,6 @@ public class EventManager {
      * @param toIndex The event on which the dragged event is released
      */
     public void moveEvent(int orderList, int fromIndex, int toIndex) {
-        // TODO move to (insert at) specified location.
 
         Long[] order = getEventOrder(orderList);
 

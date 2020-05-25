@@ -489,6 +489,7 @@ public class MainController {
             if (dragged != -1 && target != -1 ) {
                 model.eventManager.moveEvent(view.getEventOrderList(), dragged, target);
                 refreshViewEvents();
+                refreshTitleBar();
             }
 
         }

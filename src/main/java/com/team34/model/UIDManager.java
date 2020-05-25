@@ -11,7 +11,7 @@ import java.util.UUID;
  * @version 1.0
  */
 public class UIDManager {
-    private static ArrayList<Long> uidList = new ArrayList<>(); // TODO: How to store UID list during application downtime?
+    private static ArrayList<Long> uidList = new ArrayList<>();
 
     /**
      * Creates a UID and checks it against the UID list to ensure uniqueness. If unique, returns the UID.

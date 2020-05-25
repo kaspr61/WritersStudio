@@ -138,7 +138,7 @@ public class Timeline {
         rect.getRect().setOnDragDetected(new EventHandler<MouseEvent>() {
             @Override
 
-            //Gets UID of selected event and puts it onto the ClipBoard 
+            //Gets UID of selected event and puts it onto the ClipBoard
             public void handle(MouseEvent mouseEvent) {
                 getEventUIDByRectangle(rect.getRect());
 
