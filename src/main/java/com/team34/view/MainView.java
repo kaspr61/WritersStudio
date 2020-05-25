@@ -25,6 +25,7 @@ import com.team34.view.dialogs.EditCharacterDialog;
 import com.team34.view.dialogs.EditAssociationDialog;
 import com.team34.view.timeline.Timeline;
 import com.team34.view.characterchart.CharacterChart;
+import com.team34.view.character.ShowCharacterDialog;
 
 /**
  * This class represents the top layer of the view.
@@ -93,6 +94,7 @@ public class MainView {
     private EditEventDialog editEventDialog;
     private EditCharacterDialog editCharacterPanel;
     private EditAssociationDialog editAssociationDialog;
+    private ShowCharacterDialog showCharacterDialog;
     private int eventOrderList; // index to specify which order list to use
     private double lastChartMouseClickX;
     private double lastChartMouseClickY;
@@ -195,6 +197,9 @@ public class MainView {
 
         // Create character dialog
         editCharacterPanel = new EditCharacterDialog(mainStage);
+
+        //Create show character dialog
+        showCharacterDialog = new ShowCharacterDialog(mainStage);
 
         // Create association dialog
         editAssociationDialog = new EditAssociationDialog(mainStage);
@@ -300,6 +305,10 @@ public class MainView {
     public void registerButtonEvents(EventHandler<ActionEvent> buttonEventHandler) {
         rightPane.registerButtonEvents(buttonEventHandler);
         leftPane.registerButtonEvents(buttonEventHandler);
+    }
+
+    public void registerMouseEvents(EventHandler<MouseEvent> listEventHandler) {
+        rightPane.registerMouseEvents(listEventHandler);
     }
 
     /**
@@ -442,6 +451,14 @@ public class MainView {
 
     public long getEventUidByRectangle(Rectangle rect) {
         return timeline.getEventUIDByRectangle(rect);
+    }
+
+    public boolean characterListItemSelected() {
+        return rightPane.listItemSelected();
+    }
+
+    public ShowCharacterDialog getShowCharacterDialog() {
+        return showCharacterDialog;
     }
 
 }

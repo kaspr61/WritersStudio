@@ -5,8 +5,9 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
+import javafx.scene.layout.*;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -17,31 +18,48 @@ import javafx.stage.Stage;
  */
 public class ShowCharacterDialog extends Stage {
 
-    private Button btnOk;
+    private Button btnEdit;
+    private Button btnBack;
+    private boolean edit;
+    private Label lblName;
     private Label lblCharacterName;
-    private Text txtCharacterDescription;
+    private Label lblDescription;
+    private Text txtDescription;
 
     /**
      * Initializes dialog window.
      */
     public ShowCharacterDialog(Stage ownerStage) {
-        setTitle("Edit Character");
+        setTitle("Character Summary");
+        setOnCloseRequest( e-> edit = false);
+        edit = false;
 
         // --- GUI elements --- //
 
         //Label
-        lblCharacterName = new Label("Character name:");
+        lblName = new Label("Name: ");
+        lblName.setFont(Font.font("Verdana", FontWeight.BOLD, 12));
+
+        lblCharacterName = new Label();
+
+        lblDescription = new Label("Description:");
+        lblDescription.setFont(Font.font("Verdana", FontWeight.BOLD, 12));
 
         //Textfield
         lblCharacterName = new Label();
         lblCharacterName.setMaxWidth(150);
 
         //TextArea
-        txtCharacterDescription = new Text();
+        txtDescription = new Text();
+
 
         //Buttons
-        btnOk = new Button("OK");
-        btnOk.setOnAction(e -> { close(); });
+        btnBack = new Button("Back");
+        btnBack.setOnAction(e -> { edit = false; close(); });
+
+        btnEdit = new Button("Edit");
+        btnEdit.setOnAction(e -> { edit = true; close();});
+
 
 
         // --- Layouts --- //
@@ -50,24 +68,35 @@ public class ShowCharacterDialog extends Stage {
         HBox nameLayout = new HBox();
         nameLayout.setMinHeight(30);
         nameLayout.setSpacing(10);
-        nameLayout.getChildren().addAll(lblCharacterName);
+        nameLayout.setAlignment(Pos.CENTER_LEFT);
+        nameLayout.getChildren().addAll(lblName, lblCharacterName);
+        nameLayout.getStyleClass().add("name");
+
+        //Description layout
+        VBox descriptionLayout = new VBox();
+        descriptionLayout.setMinHeight(40);
+        descriptionLayout.setSpacing(10);
+        descriptionLayout.getChildren().addAll(lblDescription, txtDescription);
 
         //Button Layout
         HBox buttonLayout = new HBox();
         buttonLayout.setSpacing(10);
-        buttonLayout.getChildren().addAll(btnOk);
+        buttonLayout.setPadding(new Insets(20, 0, 0, 0));
+        buttonLayout.getChildren().addAll(btnEdit, btnBack);
 
         //Overall Layout
         GridPane layout = new GridPane();
-        layout.setMinSize(100, 300);
+        layout.setMinSize(250, 300);
+        layout.setMaxSize(500, 500);
         layout.setHgap(5);
         layout.setVgap(10);
         layout.setAlignment(Pos.CENTER);
         layout.setPadding(new Insets(10, 10, 10, 10));
 
         layout.add(nameLayout, 0, 0);
-        layout.add(txtCharacterDescription, 0, 2);
-        layout.add(buttonLayout, 0, 3);
+        layout.add(lblDescription, 0, 2);
+        layout.add(txtDescription, 0, 3);
+        layout.add(buttonLayout, 0, 4);
 
         // --- Set Scene --- //
         Scene scene = new Scene(layout);
@@ -80,12 +109,18 @@ public class ShowCharacterDialog extends Stage {
 
     /**
      * Sets the character data displayed in the dialog window.
-     * @param name Character name.
-     * @param description Character description.
+     * @param data array containing character information
      */
-    public void setData(String name, String description) {
-        lblCharacterName.setText(name);
-        txtCharacterDescription.setText(description);
-    }
+    public boolean showCharacter(Object[] data) {
+        String name, description;
+        name = (String)data[0];
+        description = (String)data[1];
 
+        lblCharacterName.setText(name);
+        txtDescription.setText(description);
+        setTitle(name);
+
+        showAndWait();
+        return edit;
+    }
 }

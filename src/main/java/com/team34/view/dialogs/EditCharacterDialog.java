@@ -22,6 +22,7 @@ public class EditCharacterDialog extends Stage {
 
     public EditCharacterDialog(Stage ownerStage) {
         setTitle("Edit Character");
+        setOnCloseRequest(e -> windowResult = EditCharacterDialog.WindowResult.CANCEL);
 
         // --- GUI elements --- //
 

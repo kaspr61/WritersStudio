@@ -24,15 +24,15 @@
 
 
 /*** Icon buttons ***/
-.character-list-buttons {
+.button-transparent {
     -fx-background-color: -color-main-background; /* Creates the transparent look */
 }
 
-.character-list-buttons:button:hover {
+.button-hover:button:hover {
     -fx-scale-y: 1.1;
     -fx-scale-x: 1.1;
 }
-.character-list-buttons:button:pressed {
+.button-pressed:button:pressed {
     -fx-scale-y: 0.9;
     -fx-scale-x: 0.9;
 }

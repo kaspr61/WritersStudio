@@ -42,6 +42,7 @@ public class MainController {
     private final EventHandler<WindowEvent> evtCloseRequest;
     private final EventHandler<ActionEvent> evtMenuBarAction;
     private final EventHandler<DragEvent> evtDragDropped;
+    private final EventHandler<MouseEvent> evtMouseCharacterList;
 
     /**
      * Constructs the controller. Initializes member variables
@@ -59,6 +60,7 @@ public class MainController {
         this.evtCloseRequest = new EventCloseRequest();
         this.evtMenuBarAction = new EventMenuBarAction();
         this.evtDragDropped = new EventDragDropped();
+        this.evtMouseCharacterList = new CharacterListMouseEvent();
 
         registerEventsOnView();
     }
@@ -73,6 +75,7 @@ public class MainController {
         view.registerCloseRequestEvent(evtCloseRequest);
         view.registerMenuBarActionEvents(evtMenuBarAction);
         view.registerDragEvent(evtDragDropped);
+        view.registerMouseEvents(evtMouseCharacterList);
         view.registerCharacterChartEvents(
                 new EventCharacterRectReleased(),
                 new EventChartClick(),
@@ -310,6 +313,12 @@ public class MainController {
 
             refreshTitleBar();
         }
+    }
+
+    private void showCharacter(long uid) {
+        Object[] characterData = model.characterManager.getCharacterData(uid);
+        if (view.getShowCharacterDialog().showCharacter(characterData))
+            editCharacter(uid);
     }
 
     /**
@@ -553,8 +562,6 @@ public class MainController {
         }
     }
 
-    ;
-
     /**
      * This event is fired when the application should be closed, eg. when a user exits or closes the window.
      */
@@ -617,7 +624,7 @@ public class MainController {
                     break;
 
                 case MainView.ID_MENU_ADD_CHARACTER:
-                    createNewCharacter();
+                    createNewCharacter(0.0, 0.0);
                     break;
 
                 case MainView.ID_MENU_ADD_EVENT:
@@ -696,7 +703,7 @@ public class MainController {
 
         @Override
         public void handle(DragEvent dragEvent) {
-            Rectangle rect = (Rectangle)dragEvent.getSource();
+            Rectangle rect = (Rectangle) dragEvent.getSource();
 
             long uidDragged = Long.parseLong(dragEvent.getDragboard().getString());
             long uidTarget = view.getEventUidByRectangle(rect);
@@ -704,9 +711,21 @@ public class MainController {
             int dragged = model.eventManager.getEventIndex(view.getEventOrderList(), uidDragged);
             int target = model.eventManager.getEventIndex(view.getEventOrderList(), uidTarget);
 
-            if (dragged != -1 && target != -1 ) {
+            if (dragged != -1 && target != -1) {
                 model.eventManager.moveEvent(view.getEventOrderList(), dragged, target);
                 refreshViewEvents();
+            }
+        }
+
+    }
+
+    private class CharacterListMouseEvent implements EventHandler<MouseEvent> {
+
+        @Override
+        public void handle(MouseEvent click) {
+            if (click.getButton() == MouseButton.PRIMARY && click.getClickCount() == 2
+            && view.characterListItemSelected()) {
+                showCharacter(view.getCharacterUID());
             }
         }
     }

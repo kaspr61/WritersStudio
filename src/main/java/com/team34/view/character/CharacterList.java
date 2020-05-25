@@ -2,6 +2,7 @@ package com.team34.view.character;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -11,10 +12,12 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import java.util.ArrayList;
 
 import com.team34.view.MainView;
+
 
 
 /**
@@ -36,13 +39,12 @@ public class CharacterList extends StackPane {
     private BorderPane innerPane;
 
     //CSS
-    private String cssCharacterlist;
+    private String css;
 
     //Icons
     private String addCharacter;
     private String editCharacter;
     private String deleteCharacter;
-
 
     /**
      * Initializes StackPane.
@@ -56,12 +58,12 @@ public class CharacterList extends StackPane {
 
         //Add, Edit, Delete buttons
         HBox aedBox = new HBox();
-        aedBox.setPadding(new Insets(10, 10, 10, 10));
+        aedBox.setPadding(new Insets(10, 10, 0, 10));
         aedBox.setSpacing(20);
 
         //For the character list
         VBox characterBox = new VBox();
-        characterBox.setPadding(new Insets(10, 10, 10, 10));
+        characterBox.setPadding(new Insets(5, 10, 10, 10));
 
         //Buttons
         add = new Button();
@@ -73,6 +75,7 @@ public class CharacterList extends StackPane {
         //Label
         title = new Label("Characters");
         title.setPadding(new Insets(20, 0, 0, 0));
+        title.getStyleClass().add("list-headline");
 
         //Character List
         list = new ListView<>();
@@ -95,6 +98,7 @@ public class CharacterList extends StackPane {
         //Character list objects
         chListObjArray = new ArrayList<>();
     }
+
     /**
      * Sets the icon graphics for the Add-, Edit- and Delete buttons.
      */
@@ -151,7 +155,8 @@ public class CharacterList extends StackPane {
         }
         ObservableList<CharacterListObject> ol = FXCollections.observableArrayList();
         ol.addAll(chListObjArray);
-        list.setItems(ol.sorted());
+        SortedList sl = new SortedList(ol); //Sorts list alphabetically
+        list.setItems(sl.sorted());
     }
 
     /**
@@ -166,6 +171,15 @@ public class CharacterList extends StackPane {
     }
 
     /**
+     * Registers the character list to the mouse event handler in the
+     * {@link com.team34.controller.MainController} class.
+     * @param listEventHandler
+     */
+    public void registerMouseEvents(EventHandler<MouseEvent> listEventHandler) {
+        list.setOnMouseClicked(listEventHandler);
+    }
+
+    /**
      * If a character is selected in the list view, returns the character's UID. Else, returns -1.
      * @return long
      */
@@ -175,6 +189,14 @@ public class CharacterList extends StackPane {
         }
 
         return -1;
+    }
+
+    /**
+     * Checks if a list item is selected
+     * @return boolean
+     */
+    public boolean listItemSelected() {
+        return list.getSelectionModel().getSelectedIndex() >= 0;
     }
 }
 

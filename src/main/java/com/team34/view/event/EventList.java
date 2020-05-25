@@ -1,7 +1,6 @@
 package com.team34.view.event;
 
 import com.team34.model.event.EventListObject;
-import com.team34.model.event.EventManager;
 import com.team34.view.MainView;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -15,8 +14,6 @@ import javafx.scene.control.ListView;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
-
-import java.util.ArrayList;
 
 
 public class EventList extends StackPane {
@@ -36,7 +33,7 @@ public class EventList extends StackPane {
     private String addEvent;
     private String editEvent;
     private String deleteEvent;
-    private final int ICON_SIZE = 40;
+    private final int ICON_SIZE = 30;
 
     /**
      * Initializes StackPane.
@@ -50,12 +47,12 @@ public class EventList extends StackPane {
 
         //Add, Edit, Delete buttons
         HBox aedBox = new HBox();
-        aedBox.setPadding(new Insets(10, 10, 10, 10));
+        aedBox.setPadding(new Insets(10, 10, 0, 10));
         aedBox.setSpacing(20);
 
         //For the event list
         VBox eventBox = new VBox();
-        eventBox.setPadding(new Insets(10, 10, 10, 10));
+        eventBox.setPadding(new Insets(5, 10, 10, 10));
 
         //Buttons
         add = new Button();
@@ -67,6 +64,7 @@ public class EventList extends StackPane {
         //Label
         title = new Label("Events");
         title.setPadding(new Insets(20, 0, 0, 0));
+        title.getStyleClass().add("list-headline");
 
         //Event List
         list = new ListView<>();
@@ -98,15 +96,15 @@ public class EventList extends StackPane {
      * Sets the icon graphics for the Add-, Edit- and Delete buttons.
      */
     public void installButtonIcons() {
-        addEvent = com.team34.App.class.getResource("/icons/add_character.png").toExternalForm(); //Filestream for icon
+        addEvent = com.team34.App.class.getResource("/icons/add_event.png").toExternalForm(); //Filestream for icon
         Image imgAddEvent = new Image(addEvent);
         ImageView imageViewAddEvent = new ImageView(imgAddEvent);
 
-        editEvent = com.team34.App.class.getResource("/icons/edit_character.png").toExternalForm();
+        editEvent = com.team34.App.class.getResource("/icons/edit_event.png").toExternalForm();
         Image imgEditEvent = new Image(editEvent);
         ImageView imageViewEditEvent = new ImageView(imgEditEvent);
 
-        deleteEvent = com.team34.App.class.getResource("/icons/delete_character.png").toExternalForm();
+        deleteEvent = com.team34.App.class.getResource("/icons/delete_event.png").toExternalForm();
         Image imgDeleteEvent = new Image(deleteEvent);
         ImageView imageViewDeleteEvent = new ImageView(imgDeleteEvent);
 
